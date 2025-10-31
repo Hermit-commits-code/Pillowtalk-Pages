@@ -421,7 +421,7 @@ git commit -m "feat: implement sensual theme and color palette - v0.1.3
 - Added Google Fonts integration for premium feel"
 
 # Tag the version
-git tag v0.1.3
+git tag v0.1.4
 
 # Push commits and tags
 git push origin main
