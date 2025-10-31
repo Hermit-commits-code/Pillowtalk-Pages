@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1050671872443",
+    "project_id": "pillowtalk-pages",
+    "storage_bucket": "pillowtalk-pages.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1050671872443:android:25b6665c1660d23bb12c9e",
+        "android_client_info": {
+          "package_name": "com.example.pillowtalk_pages"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDt_FLVFg9WPXzAsvI16rQCua1mP9AwVWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,6 +24,7 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 ## ✨ Features
 
 ### 🔓 Free Tier
+
 - Track up to 50 books
 - Basic spice/trope search (1-2 tags)
 - Beautiful dark-mode interface
@@ -31,6 +32,7 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 - Personal reading analytics
 
 ### 👑 Pro: The Connoisseur's Club ($19.99/year)
+
 - Unlimited book tracking
 - Advanced Deep Tropes Engine (3+ tag combinations)
 - Exclusive analytics ("Your Year in Spice")
@@ -70,17 +72,20 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Hermit-commits-code/Pillowtalk-Pages.git
    cd Pillowtalk-Pages
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Firebase Setup**
+
    ```bash
    # Install FlutterFire CLI
    dart pub global activate flutterfire_cli
@@ -90,6 +95,7 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
    ```
 
 4. **Run the application**
+
    ```bash
    flutter run
    ```
@@ -120,11 +126,13 @@ lib/
 ## 🔒 Compliance & Legal
 
 ### Age Verification (18+ Required)
+
 - **Mandatory Age Gate**: Non-skippable verification on first launch
 - **Content Warning**: Clear disclosure of mature themes
 - **Legal Compliance**: Meets Google Play 18+ app requirements
 
 ### Privacy & Data
+
 - **Firebase Security Rules**: Robust data protection
 - **GDPR Compliant**: User data rights respected
 - **Amazon Associates**: Proper affiliate disclosure
@@ -193,18 +201,21 @@ flutter build ios --release
 ## 📈 Roadmap
 
 ### Phase 1: Foundation ✅
+
 - [x] Project setup and dependencies
 - [x] Firebase configuration  
 - [x] Theme and UI foundation
 - [x] Basic navigation structure
 
 ### Phase 2: Authentication & Compliance 🚧
+
 - [ ] Splash screen with age verification
 - [ ] Login/registration flows
 - [ ] Firebase Auth integration
 - [ ] Legal compliance implementation
 
 ### Phase 3: Core Features 🔮
+
 - [ ] Book search and addition
 - [ ] Reading progress tracking
 - [ ] Spice Meter implementation
@@ -212,6 +223,7 @@ flutter build ios --release
 - [ ] Community ratings system
 
 ### Phase 4: Monetization & Launch 🔮
+
 - [ ] Pro subscription integration
 - [ ] Amazon Associates setup
 - [ ] Play Store optimization
