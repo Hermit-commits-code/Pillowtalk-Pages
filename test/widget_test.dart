@@ -6,7 +6,6 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:pillowtalk_pages/main.dart';
 
 void main() {
@@ -16,6 +15,9 @@ void main() {
 
     // Verify that our app loads with the correct title.
     expect(find.text('Pillowtalk Pages'), findsOneWidget);
-    expect(find.text('The Ultimate Sanctuary for Romance Readers'), findsOneWidget);
+    expect(
+      find.text('The Ultimate Sanctuary for Romance Readers'),
+      findsOneWidget,
+    );
   });
 }

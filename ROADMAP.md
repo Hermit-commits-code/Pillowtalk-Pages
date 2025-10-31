@@ -481,7 +481,7 @@ git commit -m "feat: Firebase initialization and theme application - v0.2.0
 - Completed Phase 1: Project Foundation"
 
 # Tag the version (moving to Phase 2)
-git tag v0.2.0
+git tag v0.1.5
 
 # Push commits and tags
 git push origin main
