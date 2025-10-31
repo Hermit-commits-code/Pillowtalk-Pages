@@ -1219,12 +1219,63 @@ final GoRouter router = GoRouter(
 - Profile: User info, settings, and logout.
 - Pro Club: Subscription upsell screen.
 
-#### Step 3.4: Core App Logic
 
-- Book tracking: Add, update, and remove books from user library.
-- Reading status: Want to Read, Reading, Finished.
-- Ratings: Spice Meter, Emotional Intensity, Content Warnings.
-- Community data: Aggregate and display community ratings/tropes.
+#### Step 3.4: Core App Logic (Complete)
+
+**Goal:** Wire up all backend services (user library, ratings, community data) to the core UI screens (Add Book, Library, Book Detail).
+
+**Tasks:**
+- AddBookScreen: Search, select, and add book to library (GoogleBooksService, UserLibraryService) **[DONE]**
+- LibraryScreen: Stream and display user's library (UserLibraryService) **[DONE]**
+- BookDetailScreen: Fetch and display community data (CommunityDataService) and user data (UserLibraryService, RatingsService); allow rating, status, and notes **[DONE]**
+
+**Status:** ✅ Complete (October 31, 2025)
+
+**Acceptance Criteria:**
+- All core screens are fully functional and connected to backend
+- User can search/add books, view library, see book details, rate, and update status/notes
+- Community data is displayed on book detail screen
+
+**Result:**
+- All core app logic and UI/backend integration for book tracking, ratings, and community data is complete.
+
+**Next:** Version bump to v0.3.3 and conventional commit/push
+
+- **Book Tracking (Add/Update/Remove):**
+  - Implement a `UserLibraryService` to handle adding, updating, and removing books from the user's library in Firestore.
+  - Use the `UserBook` model for all user-specific book data.
+  - UI: Integrate add/update/remove actions into the Add Book screen and Library screen.
+
+- **Reading Status:**
+  - Allow users to set and update reading status (Want to Read, Reading, Finished) for each book.
+  - Store status in the `UserBook` document in Firestore.
+  - UI: Status selector in Book Detail and Library screens.
+
+- **Ratings & Spice Meter:**
+  - Allow users to rate books (Spice Meter, Emotional Intensity, Content Warnings) and add notes.
+  - Store ratings in the `UserBook` document and aggregate in a `/ratings` or `/books` subcollection for community data.
+  - UI: Rating widgets in Book Detail and Add Book screens.
+
+- **Community Data Aggregation:**
+  - Aggregate ratings, tropes, and warnings from all users for each book.
+  - Update the `RomanceBook` model with community averages and top tropes/warnings.
+  - UI: Display community data in Book Detail and Search screens.
+
+- **Required Files/Services:**
+  - `lib/services/user_library_service.dart` (new): Handles all user library CRUD operations.
+  - Update `lib/models/user_book.dart` and `lib/models/book_model.dart` as needed.
+  - Update Book Detail, Add Book, and Library screens to connect to these services.
+
+- **Firestore Structure:**
+  - `/users/{userId}/library/{userBookId}`: User-specific book tracking.
+  - `/books/{bookId}`: Aggregated book data (community ratings, tropes, etc).
+  - `/ratings/{ratingId}`: (Optional) For advanced aggregation or analytics.
+
+- **Next Steps:**
+  1. Implement `UserLibraryService` for add/update/remove.
+  2. Integrate reading status logic.
+  3. Implement ratings and spice meter logic.
+  4. Aggregate and display community data.
 
 #### Step 3.5: UI Polish & Navigation
 
