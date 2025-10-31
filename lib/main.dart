@@ -2,8 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'config/app_theme.dart';
+import 'config/router.dart';
 import 'firebase_options.dart';
-import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,11 +19,11 @@ class PillowtalkPagesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Pillowtalk Pages',
       theme: pillowtalkTheme,
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      routerConfig: router,
     );
   }
 }

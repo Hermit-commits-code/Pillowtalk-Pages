@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_theme.dart';
@@ -25,9 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!isVerified) {
       await _showAgeVerificationDialog();
+    } else {
+      if (mounted) context.go('/login');
     }
-    // After verification, you can navigate to the main app or home screen
-    // For now, just stay on splash
   }
 
   Future<void> _showAgeVerificationDialog() async {
@@ -67,6 +68,8 @@ class _SplashScreenState extends State<SplashScreen> {
                 await prefs.setBool('age_verified', true);
                 if (mounted) {
                   Navigator.of(context).pop();
+                  // After dialog closes, navigate to login
+                  context.go('/login');
                 }
               },
             ),

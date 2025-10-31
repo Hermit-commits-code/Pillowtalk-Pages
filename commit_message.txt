@@ -1,0 +1,5 @@
+feat(auth): add registration success feedback and scrollable login form
+
+- Show a success message and navigate to login after account creation
+- Make login form scrollable to prevent keyboard overflow
+- Prepares for home screen implementation in next phase
