@@ -1195,6 +1195,47 @@ final GoRouter router = GoRouter(
 
 #### Step 3.1: Define Data Models (The Proprietary Schema)
 
+- Create `lib/models/book_model.dart` for the main book data structure (Google Books + proprietary fields).
+- Create `lib/models/user_book.dart` for user-specific tracking (status, ratings, notes, etc.).
+- Document all fields and relationships in code comments.
+
+#### Step 3.2: Google Books API Service
+
+- Create `lib/services/google_books_service.dart` to handle book search and detail fetch.
+- Implement searchBooks and getBookById methods.
+- Parse and normalize Google Books API data to your model.
+
+#### Step 3.3: Implement Core Screens
+
+- Home/dashboard: Personalized greeting, stats, and navigation.
+- Search: Deep trope search UI (placeholder at first).
+- Library: User’s tracked books (placeholder at first).
+- Book Detail: Show book info, ratings, and “Buy on Amazon” button.
+- Add Book: UI for adding a book to the user’s library.
+- Profile: User info, settings, and logout.
+- Pro Club: Subscription upsell screen.
+
+#### Step 3.4: Core App Logic
+
+- Book tracking: Add, update, and remove books from user library.
+- Reading status: Want to Read, Reading, Finished.
+- Ratings: Spice Meter, Emotional Intensity, Content Warnings.
+- Community data: Aggregate and display community ratings/tropes.
+
+#### Step 3.5: UI Polish & Navigation
+
+- Bottom navigation bar for Home, Search, Library, Profile.
+- GoRouter routes for all core screens.
+- Consistent theming and error handling.
+
+#### Step 3.6: Testing & Validation
+
+- Unit tests for models and services.
+- Manual testing of all flows (add/search/view books, update status, etc.).
+- Lint and analyze for code quality.
+
+#### Step 3.1: Define Data Models (The Proprietary Schema)
+
 **Create lib/models/book_model.dart**
 
 ```dart
