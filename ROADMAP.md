@@ -320,7 +320,7 @@ git commit -m "feat: Firestore security rules for MOAT protection - v0.1.2
 - Secured ratings collection with user ownership"
 
 # Tag the version
-git tag v0.1.2
+git tag v0.1.3
 
 # Push commits and tags
 git push origin main
