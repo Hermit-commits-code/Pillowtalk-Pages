@@ -27,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signInWithEmailAndPassword() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -36,7 +39,16 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
       if (mounted) {
-        // TODO: Navigate to home
+        final user = FirebaseAuth.instance.currentUser;
+        final displayName = user?.displayName ?? user?.email ?? 'Reader';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome back, $displayName!'),
+            backgroundColor: primaryRose,
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 800));
+        context.go('/home');
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -48,10 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
+      }
     }
   }
 
@@ -103,10 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: Icon(Icons.email, color: primaryRose),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your email';
-                      if (!value.contains('@'))
+                      }
+                      if (!value.contains('@')) {
                         return 'Please enter a valid email';
+                      }
                       return null;
                     },
                   ),
@@ -134,8 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your password';
+                      }
                       return null;
                     },
                   ),

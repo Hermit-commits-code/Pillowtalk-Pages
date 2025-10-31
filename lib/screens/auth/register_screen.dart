@@ -33,6 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _createAccount() async {
     if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -132,8 +135,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIcon: Icon(Icons.person, color: primaryRose),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter a display name';
+                      }
                       return null;
                     },
                   ),
@@ -148,10 +152,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       prefixIcon: Icon(Icons.email, color: primaryRose),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your email';
-                      if (!value.contains('@'))
+                      }
+                      if (!value.contains('@')) {
                         return 'Please enter a valid email';
+                      }
                       return null;
                     },
                   ),
@@ -179,10 +185,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please enter a password';
-                      if (value.length < 6)
+                      }
+                      if (value.length < 6) {
                         return 'Password must be at least 6 characters';
+                      }
                       return null;
                     },
                   ),
@@ -213,10 +221,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     validator: (value) {
-                      if (value == null || value.isEmpty)
+                      if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
-                      if (value != _passwordController.text)
+                      }
+                      if (value != _passwordController.text) {
                         return 'Passwords do not match';
+                      }
                       return null;
                     },
                   ),
