@@ -1193,6 +1193,10 @@ final GoRouter router = GoRouter(
 
 ### Phase 3: Technical MOAT & Core Feature Implementation
 
+#### Step 3.2 Complete: Google Books API Service (v0.3.1)
+
+// Step 3.2 completed: Implemented GoogleBooksService for book search and detail fetch, normalized to RomanceBook model. Version updated to v0.3.1.
+
 #### Step 3.1: Define Data Models (The Proprietary Schema)
 
 - Create `lib/models/book_model.dart` for the main book data structure (Google Books + proprietary fields).
