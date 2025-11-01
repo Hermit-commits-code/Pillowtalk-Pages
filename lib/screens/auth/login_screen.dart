@@ -38,38 +38,37 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      if (mounted) {
-        final user = FirebaseAuth.instance.currentUser;
-        final displayName = user?.displayName ?? user?.email ?? 'Reader';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Welcome back, $displayName!'),
-            backgroundColor: primaryRose,
-          ),
-        );
-        await Future.delayed(const Duration(milliseconds: 800));
-        context.go('/home');
-      }
+      if (!mounted) return;
+      final user = FirebaseAuth.instance.currentUser;
+      final displayName = user?.displayName ?? user?.email ?? 'Reader';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Welcome back, $displayName!'),
+          backgroundColor: primaryRose,
+        ),
+      );
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message ?? 'Login failed'),
-            backgroundColor: primaryRose,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'Login failed'),
+          backgroundColor: primaryRose,
+        ),
+      );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -88,32 +87,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 64),
-                  const Icon(Icons.auto_stories, size: 64, color: primaryRose),
+                  Icon(
+                    Icons.auto_stories,
+                    size: 64,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Welcome Back',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: textSoftWhite,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Sign in to your sanctuary',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: secondaryGold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.secondary,
+                    ),
                   ),
                   const SizedBox(height: 48),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: textSoftWhite),
-                    decoration: const InputDecoration(
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: textSoftWhite),
-                      prefixIcon: Icon(Icons.email, color: primaryRose),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.email,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -129,17 +135,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: textSoftWhite),
+                    style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(color: textSoftWhite),
-                      prefixIcon: const Icon(Icons.lock, color: primaryRose),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        color: theme.colorScheme.primary,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: primaryRose,
+                          color: theme.colorScheme.primary,
                         ),
                         onPressed: () {
                           setState(() {
@@ -159,24 +168,31 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signInWithEmailAndPassword,
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                textSoftWhite,
+                                theme.colorScheme.onSurface,
                               ),
                             ),
                           )
-                        : const Text('Sign In'),
+                        : Text(
+                            'Sign In',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => context.go('/register'),
-                    child: const Text(
+                    child: Text(
                       'Don\'t have an account? Create one',
-                      style: TextStyle(color: secondaryGold),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.secondary,
+                      ),
                     ),
                   ),
                 ],

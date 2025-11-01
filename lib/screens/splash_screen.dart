@@ -27,7 +27,8 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!isVerified) {
       await _showAgeVerificationDialog();
     } else {
-      if (mounted) context.go('/login');
+      if (!mounted) return;
+      context.go('/login');
     }
   }
 
@@ -40,11 +41,11 @@ class _SplashScreenState extends State<SplashScreen> {
         return AlertDialog(
           backgroundColor: cardDark,
           title: const Text(
-            '🔞 Mandatory Age Verification',
+            '\ud83d\udd1e Mandatory Age Verification',
             style: TextStyle(color: primaryRose, fontWeight: FontWeight.bold),
           ),
           content: const Text(
-            "This app tracks and discusses mature, adult themes, including graphic sexual content (The Spice Meter). You must be 18 years of age or older to use Pillowtalk Pages.\n\nBy continuing, you affirm that you are 18 or older.",
+            "This app tracks and discusses mature, adult themes, including graphic sexual content (The Spice Meter). You must be 18 years of age or older to use Pillowtalk Pages.\\n\\nBy continuing, you affirm that you are 18 or older.",
             style: TextStyle(color: textSoftWhite),
           ),
           actions: <Widget>[
@@ -66,11 +67,11 @@ class _SplashScreenState extends State<SplashScreen> {
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('age_verified', true);
-                if (mounted) {
-                  Navigator.of(context).pop();
-                  // After dialog closes, navigate to login
-                  context.go('/login');
-                }
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                if (!mounted) return;
+                // After dialog closes, navigate to login
+                context.go('/login');
               },
             ),
           ],
@@ -81,6 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -101,27 +103,26 @@ class _SplashScreenState extends State<SplashScreen> {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Pillowtalk Pages',
-                style: TextStyle(
-                  fontSize: 32,
+                style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: textSoftWhite,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'The Ultimate Sanctuary for Romance Readers',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: secondaryGold,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.secondary,
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 48),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(primaryRose),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  theme.colorScheme.primary,
+                ),
               ),
             ],
           ),

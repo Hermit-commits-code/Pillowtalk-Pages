@@ -59,37 +59,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'totalBooksTracked': 0,
             'currentSpiceLevel': 0.0,
           });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Account created! Welcome, ${_displayNameController.text.trim()}!',
-            ),
-            backgroundColor: primaryRose,
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Account created! Welcome, ${_displayNameController.text.trim()}!',
           ),
-        );
-        await Future.delayed(const Duration(seconds: 1));
-        context.go('/login');
-      }
+          backgroundColor: primaryRose,
+        ),
+      );
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return;
+      context.go('/login');
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message ?? 'Registration failed'),
-            backgroundColor: primaryRose,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'Registration failed'),
+          backgroundColor: primaryRose,
+        ),
+      );
     } finally {
-      if (mounted)
-        setState(() {
-          _isLoading = false;
-        });
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -108,31 +108,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 32),
-                  const Icon(Icons.auto_stories, size: 64, color: primaryRose),
+                  Icon(
+                    Icons.auto_stories,
+                    size: 64,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Join the Sanctuary',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: textSoftWhite,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Create your romance reader profile',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: secondaryGold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.secondary,
+                    ),
                   ),
                   const SizedBox(height: 48),
                   TextFormField(
                     controller: _displayNameController,
-                    style: const TextStyle(color: textSoftWhite),
-                    decoration: const InputDecoration(
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
                       labelText: 'Display Name',
-                      labelStyle: TextStyle(color: textSoftWhite),
-                      prefixIcon: Icon(Icons.person, color: primaryRose),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -145,11 +152,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: textSoftWhite),
-                    decoration: const InputDecoration(
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: textSoftWhite),
-                      prefixIcon: Icon(Icons.email, color: primaryRose),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.email,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -165,17 +175,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: textSoftWhite),
+                    style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(color: textSoftWhite),
-                      prefixIcon: const Icon(Icons.lock, color: primaryRose),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        color: theme.colorScheme.primary,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: primaryRose,
+                          color: theme.colorScheme.primary,
                         ),
                         onPressed: () {
                           setState(() {
@@ -198,7 +211,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
-                    style: const TextStyle(color: textSoftWhite),
+                    style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       labelStyle: const TextStyle(color: textSoftWhite),

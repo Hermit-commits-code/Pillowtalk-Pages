@@ -88,8 +88,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Book')),
+      appBar: AppBar(
+        title: Text('Add Book', style: theme.appBarTheme.titleTextStyle),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: theme.appBarTheme.elevation,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -99,9 +104,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    decoration: const InputDecoration(
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
                       labelText: 'Search for a book',
-                      border: OutlineInputBorder(),
+                      labelStyle: theme.textTheme.bodyMedium,
+                      border: const OutlineInputBorder(),
                     ),
                     onSubmitted: (_) => _searchBooks(),
                   ),
@@ -118,40 +125,75 @@ class _AddBookScreenState extends State<AddBookScreen> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  _error!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
               ),
             if (_success != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
                   _success!,
-                  style: const TextStyle(color: Colors.green),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.secondary,
+                  ),
                 ),
               ),
             Expanded(
               child: _searchResults.isEmpty
-                  ? const Center(child: Text('No results'))
+                  ? Center(
+                      child: Text(
+                        'No results',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    )
                   : ListView.builder(
                       itemCount: _searchResults.length,
                       itemBuilder: (context, index) {
                         final book = _searchResults[index];
                         return Card(
+                          color: theme.cardTheme.color,
+                          shape: theme.cardTheme.shape,
+                          elevation: theme.cardTheme.elevation,
                           child: ListTile(
                             leading: book.imageUrl != null
-                                ? Image.network(
-                                    book.imageUrl!,
-                                    width: 48,
-                                    height: 72,
-                                    fit: BoxFit.cover,
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(6),
+                                    child: Image.network(
+                                      book.imageUrl!,
+                                      width: 48,
+                                      height: 72,
+                                      fit: BoxFit.cover,
+                                    ),
                                   )
-                                : const Icon(Icons.book, size: 48),
-                            title: Text(book.title),
-                            subtitle: Text(book.authors.join(', ')),
+                                : Icon(
+                                    Icons.book,
+                                    size: 48,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                            title: Text(
+                              book.title,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              book.authors.join(', '),
+                              style: theme.textTheme.bodyMedium,
+                            ),
                             trailing: ElevatedButton(
                               onPressed: _isLoading
                                   ? null
                                   : () => _addBookToLibrary(book),
-                              child: const Text('Add'),
+                              child: Text(
+                                'Add',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
                             ),
                           ),
                         );
