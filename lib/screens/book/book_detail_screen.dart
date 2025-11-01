@@ -105,14 +105,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Book Details')),
+      appBar: AppBar(
+        title: Text('Book Details', style: theme.appBarTheme.titleTextStyle),
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        elevation: theme.appBarTheme.elevation,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(child: Text(_error!))
+          ? Center(
+              child: Text(
+                _error!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            )
           : _book == null
-          ? const Center(child: Text('Book not found.'))
+          ? Center(
+              child: Text('Book not found.', style: theme.textTheme.bodyLarge),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -122,13 +136,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _book!.imageUrl != null
-                          ? Image.network(
-                              _book!.imageUrl!,
-                              width: 96,
-                              height: 144,
-                              fit: BoxFit.cover,
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                _book!.imageUrl!,
+                                width: 96,
+                                height: 144,
+                                fit: BoxFit.cover,
+                              ),
                             )
-                          : const Icon(Icons.book, size: 96),
+                          : Icon(
+                              Icons.book,
+                              size: 96,
+                              color: theme.colorScheme.primary,
+                            ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -136,16 +157,24 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           children: [
                             Text(
                               _book!.title,
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
                               _book!.authors.join(', '),
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: theme.textTheme.bodyMedium,
                             ),
                             if (_book!.publishedDate != null)
-                              Text('Published: ${_book!.publishedDate!}'),
+                              Text(
+                                'Published: ${_book!.publishedDate!}',
+                                style: theme.textTheme.bodySmall,
+                              ),
                             if (_book!.pageCount != null)
-                              Text('Pages: ${_book!.pageCount!}'),
+                              Text(
+                                'Pages: ${_book!.pageCount!}',
+                                style: theme.textTheme.bodySmall,
+                              ),
                           ],
                         ),
                       ),
@@ -155,42 +184,50 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   if (_book!.description != null)
                     Text(
                       _book!.description!,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium,
                     ),
                   const SizedBox(height: 16),
+                  Text('Community Data', style: theme.textTheme.titleMedium),
                   Text(
-                    'Community Data',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    'Tropes: ${_book!.communityTropes.join(', ')}',
+                    style: theme.textTheme.bodySmall,
                   ),
-                  Text('Tropes: ${_book!.communityTropes.join(', ')}'),
                   Text(
                     'Spice Meter: ${_book!.avgSpiceOnPage.toStringAsFixed(1)}',
+                    style: theme.textTheme.bodySmall,
                   ),
                   Text(
                     'Emotional Intensity: ${_book!.avgEmotionalIntensity.toStringAsFixed(1)}',
+                    style: theme.textTheme.bodySmall,
                   ),
-                  Text('Warnings: ${_book!.topWarnings.join(', ')}'),
-                  Text('Total Ratings: ${_book!.totalUserRatings}'),
+                  Text(
+                    'Warnings: ${_book!.topWarnings.join(', ')}',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  Text(
+                    'Total Ratings: ${_book!.totalUserRatings}',
+                    style: theme.textTheme.bodySmall,
+                  ),
                   const Divider(height: 32),
                   if (_userBook != null) ...[
-                    Text(
-                      'Your Data',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
+                    Text('Your Data', style: theme.textTheme.titleMedium),
                     DropdownButton<ReadingStatus>(
                       value: _status,
                       items: ReadingStatus.values
                           .map(
                             (status) => DropdownMenuItem(
                               value: status,
-                              child: Text(status.name),
+                              child: Text(
+                                status.name,
+                                style: theme.textTheme.bodyMedium,
+                              ),
                             ),
                           )
                           .toList(),
                       onChanged: (val) => setState(() => _status = val),
                     ),
                     const SizedBox(height: 8),
-                    Text('Spice Rating'),
+                    Text('Spice Rating', style: theme.textTheme.bodyMedium),
                     Slider(
                       value: _userSpiceRating ?? 0.0,
                       min: 0.0,

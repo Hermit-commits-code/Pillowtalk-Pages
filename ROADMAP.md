@@ -1219,12 +1219,12 @@ final GoRouter router = GoRouter(
 - Profile: User info, settings, and logout.
 - Pro Club: Subscription upsell screen.
 
-
 #### Step 3.4: Core App Logic (Complete)
 
 **Goal:** Wire up all backend services (user library, ratings, community data) to the core UI screens (Add Book, Library, Book Detail).
 
 **Tasks:**
+
 - AddBookScreen: Search, select, and add book to library (GoogleBooksService, UserLibraryService) **[DONE]**
 - LibraryScreen: Stream and display user's library (UserLibraryService) **[DONE]**
 - BookDetailScreen: Fetch and display community data (CommunityDataService) and user data (UserLibraryService, RatingsService); allow rating, status, and notes **[DONE]**
@@ -1232,11 +1232,13 @@ final GoRouter router = GoRouter(
 **Status:** ✅ Complete (October 31, 2025)
 
 **Acceptance Criteria:**
+
 - All core screens are fully functional and connected to backend
 - User can search/add books, view library, see book details, rate, and update status/notes
 - Community data is displayed on book detail screen
 
 **Result:**
+
 - All core app logic and UI/backend integration for book tracking, ratings, and community data is complete.
 
 **Next:** Version bump to v0.3.3 and conventional commit/push

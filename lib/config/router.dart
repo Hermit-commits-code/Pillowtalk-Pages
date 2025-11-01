@@ -20,14 +20,26 @@ final GoRouter router = GoRouter(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
     ),
-    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-    GoRoute(
-      path: '/library',
-      builder: (context, state) => const LibraryScreen(),
-    ),
-    GoRoute(
-      path: '/search',
-      builder: (context, state) => const DeepTropeSearchScreen(),
+    ShellRoute(
+      builder: (context, state, child) => HomeScreen(child: child),
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomeDashboard(),
+        ),
+        GoRoute(
+          path: '/search',
+          builder: (context, state) => const DeepTropeSearchScreen(),
+        ),
+        GoRoute(
+          path: '/library',
+          builder: (context, state) => const LibraryScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
     ),
     GoRoute(
       path: '/book/:id',
@@ -39,10 +51,6 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/add-book',
       builder: (context, state) => const AddBookScreen(),
-    ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
     ),
     GoRoute(
       path: '/pro-club',
