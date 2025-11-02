@@ -19,6 +19,8 @@
 | **Deep Tropes Engine** | Multi-select search for complex combinations (e.g., "Enemies to Lovers AND Grumpy Sunshine AND Mutual Pining") | Goes beyond basic tags, serving specific search patterns of romance community |
 | **Vetted Spice Meter** | 0-5 Flames rating with mandatory sub-categories: Emotional Intensity, On-Page Sex, Content Warnings | The standard for vetting books, replacing generic competitors |
 | **Community-Driven Data** | Proprietary, validated metadata schema populated by gamified user contributions | Structurally insurmountable for generalist competitors |
+| **Hard Stops Filter** | User-defined content blocklist that filters out books with triggering content (e.g., violence, infidelity) | Protects mental health by preventing exposure to triggering content before reading |
+| **Kink Filter** | User-defined blocklist for specific kinks/fetishes (e.g., CNC, breeding, pet play, etc.), fully filterable and proprietary | Unmatched user safety and control, enables granular, private filtering of kink/fetish content |
 
 ### 1.B. Framework Decision Matrix
 
@@ -1289,41 +1291,235 @@ final GoRouter router = GoRouter(
 - GoRouter routes for all core screens.
 - Consistent theming and error handling.
 
-#### Step 3.6: Fix Critical Bugs & Complete Missing Features 🚧 IN PROGRESS
+#### Step 3.6: Complete Missing MOAT Features 🚧 IN PROGRESS (v0.3.5 → v0.3.x)
 
-**Current Issues Identified (November 2, 2025):**
+**Current Status (November 2, 2025):**
 
-1. **Library Screen Bug:** Displays book IDs instead of titles
-   - Root cause: Book data not saved to Firestore `books` collection when adding
-   - Fix: Update AddBookScreen to save book data via CommunityDataService
+✅ **COMPLETED:**
 
-2. **Home Screen Empty:** No dashboard content
-   - Needs: Welcome message, stats (books read, avg spice), currently reading section
-   - Currently only shows add button in app bar
+- Basic app structure (auth, navigation, theme)
+- Book tracking (add/view/update status)
+- Library screen displays book titles and covers
+- Google Books API integration
+- User authentication and Firestore setup
 
-3. **Profile Screen Placeholder:** Says "Profile implementation coming soon"
-   - Needs: User info, reading stats, settings, Pro status indicator, logout button
+🚧 **IN PROGRESS:**
 
-4. **Deep Trope Search Unclear:** Says "Advanced search implementation coming soon"
-   - Decision needed: Keep as separate screen or merge with Add Book search?
-   - Current Add Book screen already has Google Books search
+- Fixing BookDetailScreen "not found" bug
+
+❌ **NOT IMPLEMENTED (Core MOAT Features):**
+
+1. **Deep Tropes Engine:** No trope tagging or multi-select search
+2. **Vetted Spice Meter:** No 0-5 flames rating UI or sub-categories
+3. **Community Data Aggregation:** No logic to aggregate ratings/tropes from all users
+4. **Star Rating System:** No 1-5 star ratings
+5. **Personal Notes:** Field exists in model but no UI
+6. **Hard Stops Content Filter:** Not implemented (NEW FEATURE - see below)
+7. **Home Dashboard:** Empty placeholder
+8. **Profile Screen:** Incomplete placeholder
+9. **Remove Book Functionality:** Cannot remove books from library
 
 **Tasks for 3.6:**
 
-- [ ] Fix Library screen bug: Save book data to Firestore when adding books
-- [ ] Implement Home Dashboard with personalized greeting and stats
-- [ ] Implement Profile Screen with user info, settings, and logout
-- [ ] Clarify/implement Deep Trope Search purpose
-- [ ] Run dart analyze and fix linting issues
-- [ ] Manual testing of all user flows
+**Critical Bugs:**
+
+- [~] Fix BookDetailScreen "not found" bug (in progress)
+- [ ] Implement Remove Book from User Library
+
+**Core MOAT Features (Must implement before 1.0):**
+
+- [ ] Build Spice Meter Rating System (0-5 flames + sub-categories)
+- [ ] Implement Trope Tagging System (community-driven)
+- [ ] Build Deep Tropes Search Engine (multi-select AND/OR logic)
+- [ ] Add Personal Notes UI (private, user-only)
+- [ ] Implement Star Rating System (1-5 stars, aggregate to community)
+- [ ] Build Community Data Aggregation (aggregate all user data to books collection)
+- [ ] **NEW: Implement Hard Stops Content Filter** (see detailed spec below)
+- [ ] **NEW: Implement Kink Filter** (see detailed spec below)
+
+**UI Completion:**
+
+- [ ] Implement Home Dashboard (stats, currently reading)
+- [ ] Complete Profile Screen (user info, settings, logout, legal links)
+
+**NEW FEATURE: Hard Stops Content Filter** 🛡️
+**NEW FEATURE: Kink Filter** 🔥
+
+**Purpose:** Allow users to define kinks/fetishes they do NOT want to see, filtering out books with those kinks from all search results and recommendations. This is a proprietary, private, user-driven filter—distinct from but parallel to Hard Stops.
+
+**User Story:** "As a romance reader, I want to block books with specific kinks or sexual content (e.g., CNC, breeding, pet play, etc.) so I never see content that makes me uncomfortable."
+
+**Implementation Requirements:**
+
+1. **User Kink Filter Model:**
+   - Add `kinkFilter: List<String>` to user profile document
+   - Store in `/users/{userId}` Firestore document
+   - Example values: ["CNC", "breeding", "pet play", "daddy kink", "age play", "exhibitionism"]
+
+1. **Kink Filter Management UI (Profile Screen):**
+   - Add "Kink Filters" section in Profile
+   - Display list of common kinks/fetishes with checkboxes
+   - Allow custom text input for user-specific kinks
+   - Save/update to Firestore on change
+   - Show visual confirmation when filters are active
+
+1. **Common Kinks List:**
+
+   ```dart
+   const List<String> commonKinks = [
+     'CNC (Consensual Non-Consent)',
+     'Breeding Kink',
+     'Pet Play',
+     'Daddy/Mommy Kink',
+     'Age Play',
+     'Exhibitionism',
+     'Voyeurism',
+     'Praise/Degradation',
+     'Bondage',
+     'Impact Play',
+     'Choking',
+     'Spanking',
+     'Medical Play',
+     'Watersports',
+     'Humiliation',
+     'Public Sex',
+     'Group Sex/Orgy',
+     'Incest Roleplay',
+     'Monster Romance',
+     'Tentacles',
+     'Omegaverse',
+   ];
+   ```
+
+1. **Filtering Logic:**
+   - When displaying book lists (Search, Library, Home), check each book's `communityKinks` or `topKinks` field (to be added to book model)
+   - Filter out books where ANY kink matches user's `kinkFilter`
+   - Show filter indicator: "X books hidden by your kink filters"
+   - Add "Temporarily show filtered books" toggle for user control
+
+1. **Search Integration:**
+   - Deep Trope Search and Add Book must respect Kink Filter by default
+   - Library screen can show user's existing books (grandfathered) with warning badge
+
+1. **Data Model Updates:**
+   - Update `/users/{userId}` document schema:
+
+     ```dart
+     {
+      // ... existing fields
+      'kinkFilter': ['CNC', 'breeding'], // Array of kink strings
+      'kinkFilterEnabled': true, // Allow user to disable temporarily
+     }
+     ```
+
+   - Update book model to include `communityKinks: List<String>`
+   - Update book filtering queries to check against user's kinkFilter array
+
+1. **UI/UX Considerations:**
+   - Use purple flame icon 🔥 to indicate kink filter is active
+   - Show count of filtered books in search results
+   - Provide "Learn More" link explaining how Kink Filter works
+   - Add onboarding prompt during first app use: "Set up kink filters?"
+
+**Technical Implementation:**
+
+- Add `KinkFilterService` in `/lib/services/kink_filter_service.dart`
+- Add filtering method to search queries
+- Update `ProfileScreen` with Kink Filter management UI
+- Add Kink Filter to user onboarding flow
 
 **Acceptance Criteria:**
 
-- Library screen shows actual book titles and covers (not IDs)
-- Home screen has meaningful dashboard content
-- Profile screen is fully functional
-- All core user flows work end-to-end without errors
-- No linting errors or warnings
+- User can set and manage Kink Filters in Profile screen
+- Books with matching kinks are filtered from all search results
+- Filter indicator shows count of hidden books
+- User can temporarily disable filters if needed
+- Kink Filters persist across app sessions
+
+**Purpose:** Allow users to define content they absolutely do NOT want to see, preventing exposure to triggering or unwanted content.
+
+**User Story:** "As a romance reader with trauma triggers, I want to permanently hide books containing specific content (e.g., infidelity, violence, dubious consent) so I never accidentally encounter triggering material."
+
+**Implementation Requirements:**
+
+1. **User Hard Stops Model:**
+   - Add `hardStops: List<String>` to user profile document
+   - Store in `/users/{userId}` Firestore document
+   - Example values: ["infidelity", "violence", "dubious consent", "cheating", "death of parent", "sexual assault"]
+
+2. **Hard Stops Management UI (Profile Screen):**
+   - Add "Content Filters" section in Profile
+   - Display list of common content warnings with checkboxes
+   - Allow custom text input for user-specific triggers
+   - Save/update to Firestore on change
+   - Show visual confirmation when filters are active
+
+3. **Common Hard Stops List:**
+
+   ```dart
+   const List<String> commonContentWarnings = [
+     'Infidelity/Cheating',
+     'Violence/Abuse',
+     'Sexual Assault',
+     'Dubious Consent',
+     'Death of Parent/Child',
+     'Self-Harm',
+     'Substance Abuse',
+     'Mental Illness',
+     'Terminal Illness',
+     'Pregnancy Loss',
+     'Animal Death',
+     'Graphic Sex',
+     'BDSM',
+     'Age Gap (18+)',
+     'Step-Sibling Romance',
+   ];
+   ```
+
+4. **Filtering Logic:**
+   - When displaying book lists (Search, Library, Home), check each book's `topWarnings` field
+   - Filter out books where ANY warning matches user's `hardStops`
+   - Show filter indicator: "X books hidden by your content filters"
+   - Add "Temporarily show filtered books" toggle for user control
+
+5. **Search Integration:**
+   - Deep Trope Search must respect Hard Stops by default
+   - Add Book screen search results must filter out hard stop books
+   - Library screen can show user's existing books (grandfathered) with warning badge
+
+6. **Data Model Updates:**
+   - Update `/users/{userId}` document schema:
+
+     ```dart
+     {
+       // ... existing fields
+       'hardStops': ['infidelity', 'violence'], // Array of content warning strings
+       'hardStopsEnabled': true, // Allow user to disable temporarily
+     }
+     ```
+
+   - Update book filtering queries to check against user's hardStops array
+
+7. **UI/UX Considerations:**
+   - Use red shield icon 🛡️ to indicate content filter is active
+   - Show count of filtered books in search results
+   - Provide "Learn More" link explaining how Hard Stops work
+   - Add onboarding prompt during first app use: "Set up content filters?"
+
+**Technical Implementation:**
+
+- Add `HardStopsService` in `/lib/services/hard_stops_service.dart`
+- Add filtering method to search queries
+- Update `ProfileScreen` with Hard Stops management UI
+- Add Hard Stops to user onboarding flow
+
+**Acceptance Criteria:**
+
+- User can set and manage Hard Stops in Profile screen
+- Books with matching content warnings are filtered from all search results
+- Filter indicator shows count of hidden books
+- User can temporarily disable filters if needed
+- Hard Stops persist across app sessions
 
 #### Step 3.7: Testing & Validation (Deferred to after 3.6 fixes)
 
@@ -1954,6 +2150,7 @@ class ProfileTab extends StatelessWidget {
 **Based on PLAY_STORE_COMPLIANCE.md requirements:**
 
 **Legal Documents (CRITICAL - Required before submission):**
+
 - [ ] Create Privacy Policy document
   - Must include: data collection, Firebase Auth/Firestore usage, no data selling
   - Host on accessible URL (GitHub Pages or similar)
@@ -1965,22 +2162,26 @@ class ProfileTab extends StatelessWidget {
   - Link in app settings and Play Store listing
 
 **Content Policy Compliance:**
+
 - [x] No sexually explicit images or graphic content in app
 - [x] Age gate (18+) implemented in splash screen
 - [ ] App description clearly states 18+ and discloses IAP
 - [ ] Screenshots do not show explicit content
 
 **In-App Purchase Compliance:**
+
 - [x] Google Play Billing implemented via in_app_purchase package
 - [x] Subscription UI shows clear pricing
 - [ ] Free trial terms clearly displayed (if offering trial)
 - [ ] Test IAP with uploaded Play Store build
 
 **Export Compliance:**
+
 - [ ] Add export compliance statement to Play Store listing
 - [ ] Confirm app uses only standard Firebase/Flutter encryption
 
 **App Listing Requirements:**
+
 - [ ] Write compliant app description (see PLAY_STORE_COMPLIANCE.md)
 - [ ] Create app screenshots (no explicit content)
 - [ ] Set content rating to Mature 17+ or 18+
@@ -1989,6 +2190,7 @@ class ProfileTab extends StatelessWidget {
 #### Step 4.2: Implement Legal Documents & Links 🚧 UPCOMING
 
 **Tasks:**
+
 - [ ] Create `PRIVACY_POLICY.md` and host publicly
 - [ ] Create `TERMS_OF_SERVICE.md` and host publicly
 - [ ] Add Settings section to Profile screen with links to legal docs
@@ -1997,6 +2199,7 @@ class ProfileTab extends StatelessWidget {
 #### Step 4.3: Build Release Version & Final Testing 🚧 UPCOMING
 
 **Tasks:**
+
 - [ ] Update version to 0.4.0 (first release candidate)
 - [ ] Build release AAB: `flutter build appbundle --release`
 - [ ] Test release build on physical device
@@ -2007,6 +2210,7 @@ class ProfileTab extends StatelessWidget {
 #### Step 4.4: Play Store Submission 🚧 UPCOMING
 
 **Tasks:**
+
 - [ ] Complete Play Console listing (description, screenshots, category)
 - [ ] Set content rating
 - [ ] Add privacy policy and terms links

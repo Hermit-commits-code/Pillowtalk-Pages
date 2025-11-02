@@ -16,6 +16,12 @@ enum ReadingStatus {
 ///
 /// Stores reading status, progress, user ratings, notes, and user-selected tropes/warnings.
 class UserBook {
+  /// Book genre (e.g., 'Contemporary', 'Historical', 'Paranormal')
+  final String genre;
+
+  /// List of subgenres (e.g., ['Romantic Suspense', 'Sports'])
+  final List<String> subgenres;
+
   /// Unique ID for this user-book record (e.g., Firestore doc ID)
   final String id;
 
@@ -43,11 +49,20 @@ class UserBook {
   /// Date the user finished reading (may be null)
   final DateTime? dateFinished;
 
-  /// User's personal spice rating for this book (0.0 - 5.0, may be null)
-  final double? userSpiceRating;
+  /// S: Sensual Content (On-Page Intimacy)
+  final double? spiceSensual;
 
-  /// User's personal emotional intensity rating (0.0 - 5.0, may be null)
-  final double? userEmotionalRating;
+  /// P: Power/Plot Dynamics
+  final double? spicePower;
+
+  /// I: Intensity (Emotional Impact)
+  final double? spiceIntensity;
+
+  /// C: Communication/Consent
+  final double? spiceConsent;
+
+  /// E: Emotional Resonance
+  final double? spiceEmotional;
 
   /// User-selected tropes for this book (for personal tracking)
   final List<String> userSelectedTropes;
@@ -57,6 +72,15 @@ class UserBook {
 
   /// User's private notes about this book (may be null)
   final String? userNotes;
+
+  /// Optional series name for this book in the user's library
+  final String? seriesName;
+
+  /// Normalized (lower-cased, trimmed) series name for easier searching
+  final String? seriesNameNormalized;
+
+  /// Optional book number in series (1-based)
+  final int? seriesIndex;
 
   /// Creates a new UserBook record for a user's library.
   const UserBook({
@@ -69,11 +93,19 @@ class UserBook {
     required this.dateAdded,
     this.dateStarted,
     this.dateFinished,
-    this.userSpiceRating,
-    this.userEmotionalRating,
+    this.spiceSensual,
+    this.spicePower,
+    this.spiceIntensity,
+    this.spiceConsent,
+    this.spiceEmotional,
     this.userSelectedTropes = const [],
     this.userContentWarnings = const [],
     this.userNotes,
+    this.genre = '',
+    this.subgenres = const [],
+    this.seriesName,
+    this.seriesNameNormalized,
+    this.seriesIndex,
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -91,11 +123,20 @@ class UserBook {
       dateFinished: json['dateFinished'] != null
           ? DateTime.parse(json['dateFinished'] as String)
           : null,
-      userSpiceRating: (json['userSpiceRating'] as num?)?.toDouble(),
-      userEmotionalRating: (json['userEmotionalRating'] as num?)?.toDouble(),
+      spiceSensual: (json['spiceSensual'] as num?)?.toDouble(),
+      spicePower: (json['spicePower'] as num?)?.toDouble(),
+      spiceIntensity: (json['spiceIntensity'] as num?)?.toDouble(),
+      spiceConsent: (json['spiceConsent'] as num?)?.toDouble(),
+      spiceEmotional: (json['spiceEmotional'] as num?)?.toDouble(),
       userSelectedTropes: List<String>.from(json['userSelectedTropes'] ?? []),
       userContentWarnings: List<String>.from(json['userContentWarnings'] ?? []),
       userNotes: json['userNotes'] as String?,
+      genre: json['genre'] as String? ?? '',
+      subgenres: List<String>.from(json['subgenres'] ?? []),
+      seriesName: json['seriesName'] as String?,
+      seriesIndex: json['seriesIndex'] as int?,
+      // support legacy and normalized fields
+      seriesNameNormalized: json['seriesName_normalized'] as String?,
     );
   }
 
@@ -110,11 +151,19 @@ class UserBook {
       'dateAdded': dateAdded.toIso8601String(),
       'dateStarted': dateStarted?.toIso8601String(),
       'dateFinished': dateFinished?.toIso8601String(),
-      'userSpiceRating': userSpiceRating,
-      'userEmotionalRating': userEmotionalRating,
+      'spiceSensual': spiceSensual,
+      'spicePower': spicePower,
+      'spiceIntensity': spiceIntensity,
+      'spiceConsent': spiceConsent,
+      'spiceEmotional': spiceEmotional,
       'userSelectedTropes': userSelectedTropes,
       'userContentWarnings': userContentWarnings,
       'userNotes': userNotes,
+      'genre': genre,
+      'subgenres': subgenres,
+      'seriesName': seriesName,
+      'seriesName_normalized': seriesNameNormalized,
+      'seriesIndex': seriesIndex,
     };
   }
 }

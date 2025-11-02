@@ -7,17 +7,17 @@ class FreeTrialBanner extends StatelessWidget {
   final VoidCallback? onDismiss;
 
   const FreeTrialBanner({
-    Key? key,
+    super.key,
     required this.daysLeft,
     this.onManage,
     this.onDismiss,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: theme.colorScheme.secondary.withOpacity(0.15),
+      color: theme.colorScheme.secondary.withAlpha((0.15 * 255).toInt()),
       elevation: 0,
       child: Container(
         width: double.infinity,

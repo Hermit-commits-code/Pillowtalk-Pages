@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../models/book_model.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/book/add_book_screen.dart';
@@ -44,8 +45,42 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/book/:id',
       builder: (context, state) {
-        final bookId = state.pathParameters['id']!;
-        return BookDetailScreen(bookId: bookId);
+        final bookId = state.pathParameters['id'] ?? '';
+        // Replace with actual book lookup logic
+        // For now, use a placeholder service call
+        // You should replace this with your real data source
+        // final book = CommunityDataService().getCommunityBookDataSync(bookId);
+        // If no sync method exists, use a dummy RomanceBook for now
+        final book = RomanceBook(
+          id: bookId,
+          isbn: '',
+          title: 'Book Title',
+          authors: ['Author Name'],
+          imageUrl: null,
+          description: 'No book found for ID: $bookId',
+          genre: 'Unknown',
+          subgenres: [],
+          communityTropes: [],
+          avgSpiceOnPage: 0.0,
+        );
+        return BookDetailScreen(
+          title: book.title,
+          author: book.authors.isNotEmpty ? book.authors.join(', ') : 'Unknown',
+          coverUrl: book.imageUrl,
+          description: book.description,
+          genre: book.genre,
+          subgenres: book.subgenres,
+          seriesName: book.seriesName,
+          seriesIndex: book.seriesIndex,
+          communityTropes: book.communityTropes,
+          availableTropes: book.communityTropes,
+          availableWarnings: book.topWarnings,
+          userSelectedTropes: const [],
+          userContentWarnings: const [],
+          spiceLevel: book.avgSpiceOnPage,
+          bookId: bookId,
+          userBookId: null,
+        );
       },
     ),
     GoRoute(

@@ -7,99 +7,160 @@ import '../../models/user_book.dart';
 import '../../services/community_data_service.dart';
 import '../../services/ratings_service.dart';
 import '../../services/user_library_service.dart';
+import 'widgets/editable_tropes_section.dart';
+import 'widgets/spice_meter_widgets.dart';
+import 'widgets/tropes_chips.dart';
 
 class BookDetailScreen extends StatefulWidget {
-  final String bookId;
-  const BookDetailScreen({super.key, required this.bookId});
+  final String title;
+  final String author;
+  final String? coverUrl;
+  final String? description;
+  final String? genre;
+  final List<String>? subgenres;
+  final String? seriesName;
+  final int? seriesIndex;
+
+  /// Aggregated community tropes (read-only list shown for context)
+  final List<String>? communityTropes;
+
+  /// Initial user-selected tropes (editable)
+  final List<String>? userSelectedTropes;
+
+  /// Initial user content warnings (editable)
+  final List<String>? userContentWarnings;
+
+  /// Available suggestions to feed the autocomplete (tropes)
+  final List<String>? availableTropes;
+
+  /// Available suggestions for warnings
+  final List<String>? availableWarnings;
+  final double? spiceLevel;
+
+  /// The series name (if known) and optional index in series
+  // final String? seriesName;
+  // final int? seriesIndex;
+
+  /// The community book id (used to write ratings/aggregates)
+  final String? bookId;
+
+  /// The user's library document id (used to update the user's library entry)
+  final String? userBookId;
+
+  const BookDetailScreen({
+    super.key,
+    required this.title,
+    required this.author,
+    this.coverUrl,
+    this.description,
+    this.genre,
+    this.subgenres,
+    this.communityTropes,
+    this.userSelectedTropes,
+    this.userContentWarnings,
+    this.availableTropes,
+    this.availableWarnings,
+    this.spiceLevel,
+    this.seriesName,
+    this.seriesIndex,
+    this.bookId,
+    this.userBookId,
+  });
 
   @override
   State<BookDetailScreen> createState() => _BookDetailScreenState();
 }
 
 class _BookDetailScreenState extends State<BookDetailScreen> {
-  final CommunityDataService _communityDataService = CommunityDataService();
-  final UserLibraryService _userLibraryService = UserLibraryService();
-  final RatingsService _ratingsService = RatingsService();
-
-  RomanceBook? _book;
-  UserBook? _userBook;
-  bool _isLoading = true;
-  String? _error;
-  double? _userSpiceRating;
-  double? _userEmotionalRating;
-  String? _userNotes;
-  ReadingStatus? _status;
+  late List<String> _userTropes;
+  late List<String> _userWarnings;
+  late double _spiceLevel;
+  Future<List<RomanceBook>>? _seriesFuture;
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-    try {
-      final book = await _communityDataService.getCommunityBookData(
-        widget.bookId,
+    _userTropes = List.from(widget.userSelectedTropes ?? []);
+    _userWarnings = List.from(widget.userContentWarnings ?? []);
+    _spiceLevel = widget.spiceLevel ?? 0.0;
+    if (widget.seriesName != null && widget.seriesName!.isNotEmpty) {
+      _seriesFuture = CommunityDataService().getBooksBySeries(
+        widget.seriesName!,
       );
-      final userBook = await _userLibraryService.getUserBook(widget.bookId);
-      setState(() {
-        _book = book;
-        _userBook = userBook;
-        _userSpiceRating = userBook?.userSpiceRating;
-        _userEmotionalRating = userBook?.userEmotionalRating;
-        _userNotes = userBook?.userNotes;
-        _status = userBook?.status;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to load book details: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
-  Future<void> _saveUserRating() async {
-    if (_userBook == null) return;
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  void _onTropesChanged(List<String> updated) {
+    setState(() => _userTropes = updated);
+  }
+
+  void _onWarningsChanged(List<String> updated) {
+    setState(() => _userWarnings = updated);
+  }
+
+  Future<void> _saveChanges() async {
+    if (!mounted) return;
+
+    final ratingsService = RatingsService();
+    final userLib = UserLibraryService();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Saving changes...')));
+
     try {
-      final updated = UserBook(
-        id: _userBook!.id,
-        userId: _userBook!.userId,
-        bookId: _userBook!.bookId,
-        status: _status ?? _userBook!.status,
-        currentPage: _userBook!.currentPage,
-        totalPages: _userBook!.totalPages,
-        dateAdded: _userBook!.dateAdded,
-        dateStarted: _userBook!.dateStarted,
-        dateFinished: _userBook!.dateFinished,
-        userSpiceRating: _userSpiceRating,
-        userEmotionalRating: _userEmotionalRating,
-        userSelectedTropes: _userBook!.userSelectedTropes,
-        userContentWarnings: _userBook!.userContentWarnings,
-        userNotes: _userNotes,
-      );
-      await _ratingsService.setUserRating(updated);
-      setState(() {
-        _userBook = updated;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to save rating: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      // Submit community rating if we have a book id
+      if (widget.bookId != null && widget.bookId!.isNotEmpty) {
+        await ratingsService.submitRating(
+          bookId: widget.bookId!,
+          spiceLevel: _spiceLevel,
+          tropes: _userTropes,
+          warnings: _userWarnings,
+        );
+      }
+
+      // Update the user's library entry if we have the userBookId
+      if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
+        final existing = await userLib.getUserBook(widget.userBookId!);
+        if (existing != null) {
+          final updated = UserBook(
+            id: existing.id,
+            userId: existing.userId,
+            bookId: existing.bookId,
+            status: existing.status,
+            currentPage: existing.currentPage,
+            totalPages: existing.totalPages,
+            dateAdded: existing.dateAdded,
+            dateStarted: existing.dateStarted,
+            dateFinished: existing.dateFinished,
+            // Map the single spiceLevel into the sensual axis for now.
+            spiceSensual: _spiceLevel,
+            spicePower: existing.spicePower,
+            spiceIntensity: existing.spiceIntensity,
+            spiceConsent: existing.spiceConsent,
+            spiceEmotional: existing.spiceEmotional,
+            userSelectedTropes: _userTropes,
+            userContentWarnings: _userWarnings,
+            userNotes: existing.userNotes,
+            genre: existing.genre,
+            subgenres: existing.subgenres,
+          );
+          await userLib.updateBook(updated);
+        }
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Changes saved.')));
+    } catch (e, st) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save changes: $e')));
+      // Optionally log the error to console for debugging
+      // ignore: avoid_print
+      print('Error saving book details: $e\n$st');
     }
   }
 
@@ -108,168 +169,262 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book Details', style: theme.appBarTheme.titleTextStyle),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: theme.appBarTheme.elevation,
+        title: Text(widget.title, style: theme.textTheme.titleLarge),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(
-              child: Text(
-                _error!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.error,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _saveChanges,
+        label: const Text('Save'),
+        icon: const Icon(Icons.save),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (widget.coverUrl != null)
+              Center(child: Image.network(widget.coverUrl!, height: 180)),
+            const SizedBox(height: 16),
+            Text(
+              widget.title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'by ${widget.author}',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            if (widget.seriesName != null && widget.seriesName!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  widget.seriesIndex != null
+                      ? '${widget.seriesName} • #${widget.seriesIndex}'
+                      : widget.seriesName!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.8 * 255).round(),
+                    ),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
-            )
-          : _book == null
-          ? Center(
-              child: Text('Book not found.', style: theme.textTheme.bodyLarge),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _book!.imageUrl != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                _book!.imageUrl!,
-                                width: 96,
-                                height: 144,
-                                fit: BoxFit.cover,
+            // Series strip: show other volumes in the same series
+            if (widget.seriesName != null && widget.seriesName!.isNotEmpty)
+              FutureBuilder<List<RomanceBook>>(
+                future: _seriesFuture,
+                builder: (context, snap) {
+                  if (snap.connectionState == ConnectionState.waiting) {
+                    return const SizedBox.shrink();
+                  }
+                  final series = snap.data ?? [];
+                  if (series.length <= 1) return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: SizedBox(
+                      height: 120,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        itemCount: series.length,
+                        itemBuilder: (context, i) {
+                          final vol = series[i];
+                          final isCurrent =
+                              widget.bookId != null && vol.id == widget.bookId;
+                          return GestureDetector(
+                            onTap: () {
+                              if (!isCurrent) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookDetailScreen(
+                                      title: vol.title,
+                                      author: vol.authors.isNotEmpty
+                                          ? vol.authors.join(', ')
+                                          : 'Unknown',
+                                      coverUrl: vol.imageUrl,
+                                      description: vol.description,
+                                      genre: vol.genre,
+                                      subgenres: vol.subgenres,
+                                      seriesName: vol.seriesName,
+                                      seriesIndex: vol.seriesIndex,
+                                      communityTropes: vol.communityTropes,
+                                      availableTropes: vol.communityTropes,
+                                      availableWarnings: vol.topWarnings,
+                                      spiceLevel: vol.avgSpiceOnPage,
+                                      bookId: vol.id,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Container(
+                              width: 88,
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(6),
+                                    child: vol.imageUrl != null
+                                        ? Image.network(
+                                            vol.imageUrl!,
+                                            width: 72,
+                                            height: 72,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (c, e, st) =>
+                                                Container(
+                                                  width: 72,
+                                                  height: 72,
+                                                  color: theme
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                                  child: Icon(
+                                                    Icons.book,
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                                ),
+                                          )
+                                        : Container(
+                                            width: 72,
+                                            height: 72,
+                                            color: theme
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                            child: Icon(
+                                              Icons.book,
+                                              color:
+                                                  theme.colorScheme.onSurface,
+                                            ),
+                                          ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          vol.seriesIndex != null
+                                              ? '#${vol.seriesIndex}'
+                                              : vol.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                fontWeight: isCurrent
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                                color: isCurrent
+                                                    ? theme.colorScheme.primary
+                                                    : theme
+                                                          .colorScheme
+                                                          .onSurface,
+                                              ),
+                                        ),
+                                      ),
+                                      if (isCurrent) ...[
+                                        const SizedBox(width: 6),
+                                        Chip(
+                                          label: const Text(
+                                            'Current',
+                                            style: TextStyle(fontSize: 10),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
                               ),
-                            )
-                          : Icon(
-                              Icons.book,
-                              size: 96,
-                              color: theme.colorScheme.primary,
                             ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _book!.title,
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              _book!.authors.join(', '),
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            if (_book!.publishedDate != null)
-                              Text(
-                                'Published: ${_book!.publishedDate!}',
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            if (_book!.pageCount != null)
-                              Text(
-                                'Pages: ${_book!.pageCount!}',
-                                style: theme.textTheme.bodySmall,
-                              ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  if (_book!.description != null)
-                    Text(
-                      _book!.description!,
-                      style: theme.textTheme.bodyMedium,
                     ),
-                  const SizedBox(height: 16),
-                  Text('Community Data', style: theme.textTheme.titleMedium),
-                  Text(
-                    'Tropes: ${_book!.communityTropes.join(', ')}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    'Spice Meter: ${_book!.avgSpiceOnPage.toStringAsFixed(1)}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    'Emotional Intensity: ${_book!.avgEmotionalIntensity.toStringAsFixed(1)}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    'Warnings: ${_book!.topWarnings.join(', ')}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(
-                    'Total Ratings: ${_book!.totalUserRatings}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const Divider(height: 32),
-                  if (_userBook != null) ...[
-                    Text('Your Data', style: theme.textTheme.titleMedium),
-                    DropdownButton<ReadingStatus>(
-                      value: _status,
-                      items: ReadingStatus.values
-                          .map(
-                            (status) => DropdownMenuItem(
-                              value: status,
-                              child: Text(
-                                status.name,
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (val) => setState(() => _status = val),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Spice Rating', style: theme.textTheme.bodyMedium),
-                    Slider(
-                      value: _userSpiceRating ?? 0.0,
-                      min: 0.0,
-                      max: 5.0,
-                      divisions: 10,
-                      label: (_userSpiceRating ?? 0.0).toStringAsFixed(1),
-                      onChanged: (val) =>
-                          setState(() => _userSpiceRating = val),
-                    ),
-                    Text('Emotional Intensity'),
-                    Slider(
-                      value: _userEmotionalRating ?? 0.0,
-                      min: 0.0,
-                      max: 5.0,
-                      divisions: 10,
-                      label: (_userEmotionalRating ?? 0.0).toStringAsFixed(1),
-                      onChanged: (val) =>
-                          setState(() => _userEmotionalRating = val),
-                    ),
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: 'Your Notes',
-                      ),
-                      minLines: 1,
-                      maxLines: 5,
-                      controller: TextEditingController(text: _userNotes ?? '')
-                        ..selection = TextSelection.collapsed(
-                          offset: (_userNotes ?? '').length,
-                        ),
-                      onChanged: (val) => _userNotes = val,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _saveUserRating,
-                      child: const Text('Save'),
-                    ),
-                  ] else ...[
-                    const Text('This book is not in your library.'),
-                  ],
-                ],
+                  );
+                },
               ),
+            if (widget.genre != null && widget.genre!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Genre: ${widget.genre}',
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+            if (widget.subgenres != null && widget.subgenres!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  'Subgenres: ${widget.subgenres!.join(", ")}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+
+            // Centered editable spice meter
+            const SizedBox(height: 16),
+            SpiceMeter(
+              spiceLevel: _spiceLevel,
+              editable: true,
+              onChanged: (val) => setState(() => _spiceLevel = val),
             ),
+
+            const SizedBox(height: 16),
+
+            // Community tropes (read-only) for context
+            if (widget.communityTropes != null &&
+                widget.communityTropes!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Community Tropes'),
+                    TropesChips(tropes: widget.communityTropes!),
+                  ],
+                ),
+              ),
+
+            // Editable user tropes with autocomplete
+            const SizedBox(height: 12),
+            EditableTropesSection(
+              tropes: _userTropes,
+              availableTropes:
+                  widget.availableTropes ?? widget.communityTropes ?? const [],
+              onTropesChanged: _onTropesChanged,
+              label: 'Your Tropes',
+            ),
+
+            const SizedBox(height: 12),
+
+            // Editable content warnings with autocomplete
+            EditableTropesSection(
+              tropes: _userWarnings,
+              availableTropes:
+                  widget.availableWarnings ??
+                  widget.communityTropes ??
+                  const [],
+              onTropesChanged: _onWarningsChanged,
+              label: 'Content Warnings',
+            ),
+
+            const SizedBox(height: 16),
+            if (widget.description != null && widget.description!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(widget.description!),
+              ),
+            const SizedBox(height: 48),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -5,6 +5,11 @@
 /// Combines public metadata from Google Books with proprietary, community-driven fields
 /// that form the technical MOAT (tropes, spice, warnings, ratings).
 class RomanceBook {
+  /// Book genre (e.g., 'Contemporary', 'Historical', 'Paranormal')
+  final String genre;
+
+  /// List of subgenres (e.g., ['Romantic Suspense', 'Sports'])
+  final List<String> subgenres;
   // --- Standard Data (From Google Books API) ---
 
   /// Unique book ID (Google Books volume ID)
@@ -47,6 +52,15 @@ class RomanceBook {
   /// Top content warnings (e.g., ['Dubcon', 'Violence'])
   final List<String> topWarnings;
 
+  /// Optional series name this book belongs to (e.g., "The Dragonriders of Pern")
+  final String? seriesName;
+
+  /// Normalized (lower-cased, trimmed) series name for case-insensitive searches
+  final String? seriesNameNormalized;
+
+  /// Optional index/number within the series (1-based)
+  final int? seriesIndex;
+
   /// Total number of unique user ratings for this book
   final int totalUserRatings;
 
@@ -59,10 +73,15 @@ class RomanceBook {
     this.description,
     this.publishedDate,
     this.pageCount,
+    this.genre = '',
+    this.subgenres = const [],
     this.communityTropes = const [],
     this.avgSpiceOnPage = 0.0,
     this.avgEmotionalIntensity = 0.0,
     this.topWarnings = const [],
+    this.seriesName,
+    this.seriesNameNormalized,
+    this.seriesIndex,
     this.totalUserRatings = 0,
   });
 
@@ -76,11 +95,16 @@ class RomanceBook {
       description: json['description'] as String?,
       publishedDate: json['publishedDate'] as String?,
       pageCount: json['pageCount'] as int?,
+      genre: json['genre'] as String? ?? '',
+      subgenres: List<String>.from(json['subgenres'] ?? []),
       communityTropes: List<String>.from(json['communityTropes'] ?? []),
       avgSpiceOnPage: (json['avgSpiceOnPage'] as num?)?.toDouble() ?? 0.0,
       avgEmotionalIntensity:
           (json['avgEmotionalIntensity'] as num?)?.toDouble() ?? 0.0,
       topWarnings: List<String>.from(json['topWarnings'] ?? []),
+      seriesName: json['seriesName'] as String?,
+      seriesNameNormalized: json['seriesName_normalized'] as String?,
+      seriesIndex: json['seriesIndex'] as int?,
       totalUserRatings: json['totalUserRatings'] as int? ?? 0,
     );
   }
@@ -95,10 +119,15 @@ class RomanceBook {
       'description': description,
       'publishedDate': publishedDate,
       'pageCount': pageCount,
+      'genre': genre,
+      'subgenres': subgenres,
       'communityTropes': communityTropes,
       'avgSpiceOnPage': avgSpiceOnPage,
       'avgEmotionalIntensity': avgEmotionalIntensity,
       'topWarnings': topWarnings,
+      'seriesName': seriesName,
+      'seriesName_normalized': seriesNameNormalized,
+      'seriesIndex': seriesIndex,
       'totalUserRatings': totalUserRatings,
     };
   }
@@ -112,10 +141,15 @@ class RomanceBook {
     String? description,
     String? publishedDate,
     int? pageCount,
+    String? genre,
+    List<String>? subgenres,
     List<String>? communityTropes,
     double? avgSpiceOnPage,
     double? avgEmotionalIntensity,
     List<String>? topWarnings,
+    String? seriesName,
+    String? seriesNameNormalized,
+    int? seriesIndex,
     int? totalUserRatings,
   }) {
     return RomanceBook(
@@ -127,11 +161,16 @@ class RomanceBook {
       description: description ?? this.description,
       publishedDate: publishedDate ?? this.publishedDate,
       pageCount: pageCount ?? this.pageCount,
+      genre: genre ?? this.genre,
+      subgenres: subgenres ?? this.subgenres,
       communityTropes: communityTropes ?? this.communityTropes,
       avgSpiceOnPage: avgSpiceOnPage ?? this.avgSpiceOnPage,
       avgEmotionalIntensity:
           avgEmotionalIntensity ?? this.avgEmotionalIntensity,
       topWarnings: topWarnings ?? this.topWarnings,
+      seriesName: seriesName ?? this.seriesName,
+      seriesNameNormalized: seriesNameNormalized ?? this.seriesNameNormalized,
+      seriesIndex: seriesIndex ?? this.seriesIndex,
       totalUserRatings: totalUserRatings ?? this.totalUserRatings,
     );
   }

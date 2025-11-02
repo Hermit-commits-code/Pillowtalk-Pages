@@ -22,21 +22,29 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final bool isVerified = prefs.getBool('age_verified') ?? false;
 
+    if (!mounted) return;
+
     if (!isVerified) {
-      await _showAgeVerificationDialog();
+      final accepted = await _showAgeVerificationDialog();
+      if (!mounted) return;
+      if (accepted == true) {
+        context.go('/login');
+        return;
+      }
+      return;
     } else {
       if (!mounted) return;
       context.go('/login');
     }
   }
 
-  Future<void> _showAgeVerificationDialog() async {
-    if (!mounted) return;
-    final theme = Theme.of(context);
-    return showDialog<void>(
+  Future<bool?> _showAgeVerificationDialog() async {
+    if (!mounted) return null;
+    return showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        final theme = Theme.of(dialogContext);
         return AlertDialog(
           backgroundColor: theme.cardTheme.color,
           title: Text(
@@ -70,14 +78,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 textStyle: const TextStyle(fontWeight: FontWeight.bold),
               ),
               child: const Text('I am 18 or older'),
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('age_verified', true);
-                if (!mounted) return;
-                Navigator.of(context).pop();
-                if (!mounted) return;
-                // After dialog closes, navigate to login
-                context.go('/login');
+              onPressed: () {
+                // Close the dialog immediately and persist verification in background.
+                Navigator.of(dialogContext).pop(true);
+                SharedPreferences.getInstance().then(
+                  (prefs) => prefs.setBool('age_verified', true),
+                );
               },
             ),
           ],

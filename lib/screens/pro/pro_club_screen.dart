@@ -63,7 +63,7 @@ class _ProClubScreenState extends State<ProClubScreen> {
           "The Connoisseur's Club",
           style: theme.appBarTheme.titleTextStyle,
         ),
-        backgroundColor: theme.appBarTheme.backgroundColor,
+        backgroundColor: theme.colorScheme.surface,
         elevation: theme.appBarTheme.elevation,
       ),
       body: Column(
@@ -143,13 +143,14 @@ class _ProClubScreenState extends State<ProClubScreen> {
                               const SizedBox(height: 12),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.secondary,
-                                  foregroundColor: theme.colorScheme.background,
+                                  backgroundColor: theme.colorScheme.surface,
+                                  foregroundColor: theme.colorScheme.onSurface,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 32,
                                     vertical: 16,
                                   ),
-                                  textStyle: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                                  textStyle: theme.textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -160,7 +161,8 @@ class _ProClubScreenState extends State<ProClubScreen> {
                                       content: const Text(
                                         'This is a placeholder. Configure IAP products in the store.',
                                       ),
-                                      backgroundColor: theme.colorScheme.primary,
+                                      backgroundColor:
+                                          theme.colorScheme.surface,
                                     ),
                                   );
                                 },
@@ -169,45 +171,55 @@ class _ProClubScreenState extends State<ProClubScreen> {
                             ],
                           )
                         else
-                          ..._products.map((product) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: theme.colorScheme.secondary,
-                                    foregroundColor: theme.colorScheme.background,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 16,
-                                    ),
-                                    textStyle: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                          ..._products.map(
+                            (product) => Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6.0,
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.surface,
+                                  foregroundColor: theme.colorScheme.onSurface,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32,
+                                    vertical: 16,
                                   ),
-                                  onPressed: () async {
-                                    try {
-                                      await _iapService.buy(product);
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Purchase failed: $e'),
-                                            backgroundColor: theme.colorScheme.error,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  child: Text(
-                                    '${_formatPlanName(product)} – ${product.price}',
+                                  textStyle: theme.textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                              )),
+                                onPressed: () async {
+                                  try {
+                                    await _iapService.buy(product);
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Purchase failed: $e'),
+                                          backgroundColor:
+                                              theme.colorScheme.error,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  '${_formatPlanName(product)} – ${product.price}',
+                                ),
+                              ),
+                            ),
+                          ),
                         const SizedBox(height: 16),
                         Text(
                           'Cancel anytime. Your sanctuary, your rules.',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                             fontStyle: FontStyle.italic,
                           ),
                           textAlign: TextAlign.center,
@@ -226,7 +238,10 @@ class _ProClubScreenState extends State<ProClubScreen> {
 
   String _formatPlanName(ProductDetails product) {
     final title = product.title;
-    final regex = RegExp(r'(Pro\s+Annual|Pro\s+Monthly|Annual|Monthly)', caseSensitive: false);
+    final regex = RegExp(
+      r'(Pro\s+Annual|Pro\s+Monthly|Annual|Monthly)',
+      caseSensitive: false,
+    );
     final match = regex.firstMatch(title);
     if (match != null) {
       final plan = match.group(0)!;

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../constants/genres.dart';
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
 import '../../services/community_data_service.dart';
@@ -18,6 +19,10 @@ class AddBookScreen extends StatefulWidget {
 }
 
 class _AddBookScreenState extends State<AddBookScreen> {
+  String? _selectedGenre;
+  List<String> _selectedSubgenres = [];
+  final TextEditingController _seriesNameController = TextEditingController();
+  final TextEditingController _seriesIndexController = TextEditingController();
   final GoogleBooksService _googleBooksService = GoogleBooksService();
   final UserLibraryService _userLibraryService = UserLibraryService();
   final TextEditingController _searchController = TextEditingController();
@@ -51,6 +56,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _addBookToLibrary(RomanceBook book) async {
+    if (_selectedGenre == null || _selectedGenre!.isEmpty) {
+      setState(() {
+        _error = 'Please select a genre.';
+      });
+      return;
+    }
     setState(() {
       _isLoading = true;
       _error = null;
@@ -64,10 +75,23 @@ class _AddBookScreenState extends State<AddBookScreen> {
         });
         return;
       }
-      
+
       // Save book data to Firestore books collection for community access
-      await CommunityDataService().updateCommunityBookData(book);
-      
+      // Add genre/subgenres to book for community data
+      final seriesName = _seriesNameController.text.trim().isNotEmpty
+          ? _seriesNameController.text.trim()
+          : null;
+      final seriesIndex = int.tryParse(_seriesIndexController.text.trim());
+
+      final bookWithGenre = book.copyWith(
+        genre: _selectedGenre!,
+        subgenres: _selectedSubgenres,
+        seriesName: seriesName,
+        seriesNameNormalized: seriesName?.toLowerCase().trim(),
+        seriesIndex: seriesIndex,
+      );
+      await CommunityDataService().updateCommunityBookData(bookWithGenre);
+
       // Add book to user's library
       final userBook = UserBook(
         id: book.id,
@@ -77,6 +101,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
         dateAdded: DateTime.now(),
         userSelectedTropes: const [],
         userContentWarnings: const [],
+        genre: _selectedGenre!,
+        subgenres: _selectedSubgenres,
+        seriesName: seriesName,
+        seriesNameNormalized: seriesName?.toLowerCase().trim(),
+        seriesIndex: seriesIndex,
       );
       await _userLibraryService.addBook(userBook);
       setState(() {
@@ -188,6 +217,52 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ],
             ),
             const SizedBox(height: 16),
+            // Genre selection
+            DropdownButtonFormField<String>(
+              initialValue: _selectedGenre,
+              items: romanceGenres
+                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                  .toList(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedGenre = val;
+                  _selectedSubgenres = [];
+                });
+              },
+              decoration: const InputDecoration(
+                labelText: 'Genre',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Subgenre selection (multi-select chips)
+            if (_selectedGenre != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Subgenres', style: theme.textTheme.bodyMedium),
+                  Wrap(
+                    spacing: 6,
+                    children: [
+                      ...?romanceSubgenres[_selectedGenre!]?.map(
+                        (sub) => FilterChip(
+                          label: Text(sub),
+                          selected: _selectedSubgenres.contains(sub),
+                          onSelected: (selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedSubgenres.add(sub);
+                              } else {
+                                _selectedSubgenres.remove(sub);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             if (_isLoading) const LinearProgressIndicator(),
             if (_error != null)
               Padding(
@@ -199,6 +274,24 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   ),
                 ),
               ),
+            const SizedBox(height: 8),
+            // Series inputs
+            TextField(
+              controller: _seriesNameController,
+              decoration: const InputDecoration(
+                labelText: 'Series (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _seriesIndexController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Book number in series (optional)',
+                border: OutlineInputBorder(),
+              ),
+            ),
             if (_success != null)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -276,6 +369,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _seriesNameController.dispose();
+    _seriesIndexController.dispose();
     super.dispose();
   }
 }
