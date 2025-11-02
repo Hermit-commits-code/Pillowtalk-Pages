@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../config/app_theme.dart';
+import '../../services/iap_service.dart';
+import '../../widgets/free_trial_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   final Widget? child;
@@ -15,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  bool isOnFreeTrial = false;
+  int trialDaysLeft = 0;
+  final IAPService _iapService = IAPService();
 
   static const List<String> _routes = [
     '/home',
@@ -33,17 +37,38 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedIndex = idx;
       });
     }
+    // Example: fetch real trial state from IAPService (replace with real logic)
+    // setState(() {
+    //   isOnFreeTrial = _iapService.isOnFreeTrial;
+    //   trialDaysLeft = _iapService.trialDaysLeft;
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      body: widget.child ?? const SizedBox.shrink(),
+      body: Column(
+        children: [
+          if (isOnFreeTrial)
+            FreeTrialBanner(
+              daysLeft: trialDaysLeft,
+              onManage: () {
+                // Navigate to Pro Club screen for subscription management
+                context.push('/pro-club');
+              },
+              onDismiss: () {
+                setState(() => isOnFreeTrial = false);
+              },
+            ),
+          Expanded(child: widget.child ?? const SizedBox.shrink()),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: cardDark,
-        selectedItemColor: primaryRose,
-        unselectedItemColor: textSoftWhite.withOpacity(0.6),
+        backgroundColor: theme.cardTheme.color,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withAlpha(153),
         currentIndex: _selectedIndex,
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -87,7 +112,10 @@ class HomeDashboard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => context.push('/add-book'),
-            color: theme.colorScheme.primary,
+            color: Theme.of(
+              context,
+            ).colorScheme.secondary, // Use gold for contrast
+            tooltip: 'Add Book',
           ),
         ],
       ),
@@ -101,7 +129,7 @@ class HomeDashboard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.4),
+                    color: Colors.black.withAlpha(102), // 40%
                     offset: const Offset(0, 2),
                     blurRadius: 6,
                   ),
@@ -113,11 +141,11 @@ class HomeDashboard extends StatelessWidget {
             Text(
               'Ready to dive into your next romantic adventure?',
               style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.secondary.withOpacity(0.85),
+                color: theme.colorScheme.secondary.withAlpha(217),
                 fontWeight: FontWeight.w500,
                 shadows: [
                   Shadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withAlpha(77), // 30%
                     offset: const Offset(0, 1),
                     blurRadius: 4,
                   ),

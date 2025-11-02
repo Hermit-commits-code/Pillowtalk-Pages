@@ -1,6 +1,8 @@
 # 💖 Pillowtalk Pages: The Ultimate Sanctuary Implementation Roadmap
 
-**The Vein of Truth:** "Romance is not a genre; it's a culture. We are the first book tracker built *inside* that culture."
+## The Vein of Truth
+
+"Romance is not a genre; it's a culture. We are the first book tracker built *inside* that culture."
 
 ---
 
@@ -148,14 +150,14 @@ git push origin --tags
 
 #### Step 1.1: Create Project & Define Dependencies
 
-**Command Line: Create Flutter Project**
+### Command Line: Create Flutter Project
 
 ```bash
 flutter create pillowtalk_pages
 cd pillowtalk_pages
 ```
 
-**Edit pubspec.yaml: Add Core Dependencies**
+### Edit pubspec.yaml: Add Core Dependencies
 
 ```yaml
 # pubspec.yaml
@@ -186,13 +188,13 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 ```
 
-**Command Line: Fetch Packages**
+### Command Line: Fetch Packages
 
 ```bash
 flutter pub get
 ```
 
-**🔄 Version Control: Complete Step 1.1**
+### 🔄 Version Control: Complete Step 1.1
 
 ```bash
 # Initialize Git repository (if not already done)
@@ -239,7 +241,7 @@ firebase login
 flutterfire configure
 ```
 
-**Firebase Console: Enable Services**
+### Firebase Console: Enable Services
 
 1. **Authentication:**
    - Go to Build → Authentication → Get started
@@ -250,7 +252,7 @@ flutterfire configure
    - Choose production mode
    - Select region (preferably US-central for performance)
 
-**🔄 Version Control: Complete Step 1.2**
+### 🔄 Version Control: Complete Step 1.2
 
 ```bash
 # Stage all changes
@@ -274,7 +276,7 @@ git push origin --tags
 
 #### Step 1.3: Firestore Security Rules (Critical MOAT Protection)
 
-**Firebase Console: Database → Rules**
+### Firebase Console: Database → Rules
 
 ```javascript
 // Firestore Security Rules
@@ -305,7 +307,7 @@ service cloud.firestore {
 }
 ```
 
-**🔄 Version Control: Complete Step 1.3**
+### 🔄 Version Control: Complete Step 1.3
 
 ```bash
 # Stage all changes
@@ -329,7 +331,7 @@ git push origin --tags
 
 #### Step 1.4: Define The Sensual Theme
 
-**Create lib/config/app_theme.dart**
+### Create lib/config/app_theme.dart
 
 ```dart
 // lib/config/app_theme.dart
@@ -406,7 +408,7 @@ final ThemeData pillowtalkTheme = ThemeData(
 );
 ```
 
-**🔄 Version Control: Complete Step 1.4**
+### 🔄 Version Control: Complete Step 1.4
 
 ```bash
 # Stage all changes
@@ -430,7 +432,7 @@ git push origin --tags
 
 #### Step 1.5: Firebase Initialization & Theme Application
 
-**Edit lib/main.dart**
+### Edit lib/main.dart
 
 ```dart
 // lib/main.dart
@@ -466,7 +468,7 @@ class PillowtalkPagesApp extends StatelessWidget {
 }
 ```
 
-**🔄 Version Control: Complete Step 1.5 (End of Phase 1)**
+### 🔄 Version Control: Complete Step 1.5 (End of Phase 1)
 
 ```bash
 # Stage all changes
@@ -492,7 +494,7 @@ git push origin --tags
 
 #### Step 2.1: Implement Splash Screen and Mandatory Age Gate
 
-**Create lib/screens/splash_screen.dart**
+### Create lib/screens/splash_screen.dart
 
 ```dart
 // lib/screens/splash_screen.dart
@@ -648,7 +650,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 #### Step 2.2: Implement Authentication Screens
 
-**Create lib/screens/auth/login_screen.dart**
+### Create lib/screens/auth/login_screen.dart
 
 ```dart
 // lib/screens/auth/login_screen.dart
@@ -837,7 +839,7 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 ```
 
-**Create lib/screens/auth/register_screen.dart**
+### Create lib/screens/auth/register_screen.dart
 
 ```dart
 // lib/screens/auth/register_screen.dart
@@ -1101,7 +1103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
 #### Step 2.3: Set Up Go Router Navigation
 
-**Create lib/config/router.dart**
+### Create lib/config/router.dart
 
 ```dart
 // lib/config/router.dart
@@ -1193,17 +1195,19 @@ final GoRouter router = GoRouter(
 
 ### Phase 3: Technical MOAT & Core Feature Implementation
 
-#### Step 3.2 Complete: Google Books API Service (v0.3.1)
+#### Step 3.1: Define Data Models (The Proprietary Schema)
+
+// Step 3.1 completed: Implemented RomanceBook and UserBook models. Version updated to v0.3.0.
+
+#### Step 3.2: Google Books API Service (Overview)
 
 // Step 3.2 completed: Implemented GoogleBooksService for book search and detail fetch, normalized to RomanceBook model. Version updated to v0.3.1.
-
-#### Step 3.1: Define Data Models (The Proprietary Schema)
 
 - Create `lib/models/book_model.dart` for the main book data structure (Google Books + proprietary fields).
 - Create `lib/models/user_book.dart` for user-specific tracking (status, ratings, notes, etc.).
 - Document all fields and relationships in code comments.
 
-#### Step 3.2: Google Books API Service
+#### Step 3.2: Google Books API Service (Implementation)
 
 - Create `lib/services/google_books_service.dart` to handle book search and detail fetch.
 - Implement searchBooks and getBookById methods.
@@ -1241,7 +1245,7 @@ final GoRouter router = GoRouter(
 
 - All core app logic and UI/backend integration for book tracking, ratings, and community data is complete.
 
-**Next:** Version bump to v0.3.3 and conventional commit/push
+**Next:** Version bump to v0.3.4 and conventional commit/push
 
 - **Book Tracking (Add/Update/Remove):**
   - Implement a `UserLibraryService` to handle adding, updating, and removing books from the user's library in Firestore.
@@ -1291,9 +1295,7 @@ final GoRouter router = GoRouter(
 - Manual testing of all flows (add/search/view books, update status, etc.).
 - Lint and analyze for code quality.
 
-#### Step 3.1: Define Data Models (The Proprietary Schema)
-
-**Create lib/models/book_model.dart**
+### Create lib/models/book_model.dart
 
 ```dart
 // lib/models/book_model.dart
@@ -1401,7 +1403,7 @@ class RomanceBook {
 }
 ```
 
-**Create lib/models/user_book.dart**
+### Create lib/models/user_book.dart
 
 ```dart
 // lib/models/user_book.dart
@@ -1486,7 +1488,7 @@ class UserBook {
 
 #### Step 3.2: Google Books API Service
 
-**Create lib/services/google_books_service.dart**
+### Create lib/services/google_books_service.dart
 
 ```dart
 // lib/services/google_books_service.dart
@@ -1582,9 +1584,9 @@ class GoogleBooksService {
 }
 ```
 
-#### Step 3.3: Implement Core Screens
+#### Step 3.3: Implement Core Screens (Overview)
 
-**Create lib/screens/home/home_screen.dart**
+### Create lib/screens/home/home_screen.dart
 
 ```dart
 // lib/screens/home/home_screen.dart
@@ -2023,7 +2025,7 @@ class ProClubScreen extends StatelessWidget {
 
 #### Step 4.2: Build and Test the App
 
-**Command Line: Test the app**
+### Command Line: Test the app
 
 ```bash
 # Run the app in debug mode
@@ -2038,7 +2040,7 @@ flutter analyze
 
 #### Step 4.3: Prepare for Production
 
-**Command Line: Build release version**
+### Command Line: Build release version
 
 ```bash
 # Generate the Android App Bundle for Play Store

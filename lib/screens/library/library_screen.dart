@@ -85,8 +85,13 @@ class LibraryScreen extends StatelessWidget {
                         ),
                       ),
                       subtitle: Text(
-                        'Status: \\${userBook.status.name}',
-                        style: theme.textTheme.bodyMedium,
+                        'Status: ${userBook.status.name}',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme
+                              .colorScheme
+                              .primary, // Use deep purple for contrast
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       trailing: Icon(
                         Icons.chevron_right,

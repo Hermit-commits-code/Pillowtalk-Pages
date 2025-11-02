@@ -1,4 +1,21 @@
-# 💖 Pillowtalk Pages
+
+# 🌶️ Spicy Reads
+
+## ⚖️ Google Play Compliance & Export Policy
+
+Spicy Reads is designed to comply with all [Google Play Developer Program Policies](https://play.google/developer-content-policy/), including but not limited to:
+
+- **Age-Appropriate Content:** The app is intended for adult romance readers (18+), with a mandatory age gate and clear content warnings for mature themes.
+- **User Data & Privacy:** We use Firebase for secure authentication and data storage, and comply with GDPR and Google Play privacy requirements. No sensitive personal data is collected or shared without user consent.
+- **Intellectual Property:** All book data is sourced from the Google Books API and user-generated content is moderated for compliance.
+- **Prohibited Content:** No sexually explicit images, hate speech, or illegal content is permitted. Community moderation and reporting tools are in place.
+- **Monetization:** In-app purchases are handled via Google Play Billing and comply with all payment policies.
+- **Export Compliance:**
+  - This application may be subject to United States export laws. By using or distributing this app, you certify that you comply with all such laws, including any requirements for software with encryption functions. The app is authorized for export from the United States under these laws. [Learn more](https://support.google.com/googleplay/android-developer/answer/113770?hl=en)
+
+For more information, see the [Google Play Developer Policy Center](https://play.google/developer-content-policy/).
+
+# 🌶️ Spicy Reads
 
 **The Ultimate Sanctuary for Romance Readers**
 
@@ -7,11 +24,11 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-0.1.0-8B0000.svg)](https://github.com/Hermit-commits-code/Pillowtalk-Pages/releases)
 
-> *"Romance is not a genre; it's a culture. We are the first book tracker built inside that culture."*
+> "Romance is not a genre; it's a culture. We are the first book tracker built inside that culture."
 
 ## 🌹 Overview
 
-Pillowtalk Pages is a specialized book tracking application designed exclusively for romance readers. Unlike generic book trackers, we understand the unique needs of the romance community - from granular trope categorization to sophisticated spice rating systems.
+Spicy Reads is a specialized book tracking application designed exclusively for romance readers. Unlike generic book trackers, we understand the unique needs of the romance community - from granular trope categorization to sophisticated spice rating systems.
 
 ### 🎯 The Technical MOAT
 
@@ -52,11 +69,13 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 
 ## 🎨 Design Philosophy
 
-**Sensual Aesthetic**: Dark, luxurious, and intimate
+**Spicy, Passionate, and Reader-Centric**: Rich, earthy backgrounds with vibrant red and gold accents, inspired by the romance and spice genres.
 
-- **Primary Rose** (`#8B0000`): Deep maroon for primary actions
-- **Secondary Gold** (`#FFD700`): Accent color for premium features
-- **Background Midnight** (`#0F0F0F`): Rich, sophisticated dark theme
+- **Primary Accent (Heat)** (`#D32F2F`): Classic, strong red for CTAs, high spice ratings, and active states
+- **Secondary Accent (Passion)** (`#4527A0`): Deep, luxurious indigo for romance, depth, and sophistication
+- **Mild Spice/Highlight** (`#FFB300`): Warm gold/amber for low-spice ratings, progress bars, and highlights
+- **Base Text/Dark Mode** (`#263238`): Deep charcoal for primary text and dark backgrounds
+- **Background/Light Mode** (`#FFF8E1`): Creamy off-white for main backgrounds in light mode
 - **Typography**: Cormorant Garamond for elegant readability
 
 ## 🚀 Quick Start
@@ -102,7 +121,7 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 
 ## 📁 Project Structure
 
-```
+```text
 lib/
 ├── config/
 │   ├── app_theme.dart          # Custom theme and color palette
@@ -251,12 +270,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<div align="center">
+---
 
-**Built with 💖 for the Romance Reading Community**
+<p align="center"><b>Built with 💖 for the Romance Reading Community</b></p>
 
-*Empowering readers to find their perfect next book through data-driven recommendations*
+<p align="center"><i>Empowering readers to find their perfect next book through data-driven recommendations</i></p>
 
-[Download on Google Play](#) • [View Documentation](ROADMAP.md) • [Join the Community](#)
-
-</div>
+<p align="center">
+<a href="https://play.google.com/store/apps/details?id=com.yourapp.spicyreads">Download on Google Play</a> • <a href="ROADMAP.md">View Documentation</a> • <a href="https://github.com/Hermit-commits-code/Pillowtalk-Pages/discussions">Join the Community</a>
+</p>
