@@ -1,4 +1,4 @@
-# 💖 Pillowtalk Pages: The Ultimate Sanctuary Implementation Roadmap
+# 💖 Spicy Reads: The Ultimate Sanctuary Implementation Roadmap
 
 ## The Vein of Truth
 
@@ -1289,7 +1289,43 @@ final GoRouter router = GoRouter(
 - GoRouter routes for all core screens.
 - Consistent theming and error handling.
 
-#### Step 3.6: Testing & Validation
+#### Step 3.6: Fix Critical Bugs & Complete Missing Features 🚧 IN PROGRESS
+
+**Current Issues Identified (November 2, 2025):**
+
+1. **Library Screen Bug:** Displays book IDs instead of titles
+   - Root cause: Book data not saved to Firestore `books` collection when adding
+   - Fix: Update AddBookScreen to save book data via CommunityDataService
+
+2. **Home Screen Empty:** No dashboard content
+   - Needs: Welcome message, stats (books read, avg spice), currently reading section
+   - Currently only shows add button in app bar
+
+3. **Profile Screen Placeholder:** Says "Profile implementation coming soon"
+   - Needs: User info, reading stats, settings, Pro status indicator, logout button
+
+4. **Deep Trope Search Unclear:** Says "Advanced search implementation coming soon"
+   - Decision needed: Keep as separate screen or merge with Add Book search?
+   - Current Add Book screen already has Google Books search
+
+**Tasks for 3.6:**
+
+- [ ] Fix Library screen bug: Save book data to Firestore when adding books
+- [ ] Implement Home Dashboard with personalized greeting and stats
+- [ ] Implement Profile Screen with user info, settings, and logout
+- [ ] Clarify/implement Deep Trope Search purpose
+- [ ] Run dart analyze and fix linting issues
+- [ ] Manual testing of all user flows
+
+**Acceptance Criteria:**
+
+- Library screen shows actual book titles and covers (not IDs)
+- Home screen has meaningful dashboard content
+- Profile screen is fully functional
+- All core user flows work end-to-end without errors
+- No linting errors or warnings
+
+#### Step 3.7: Testing & Validation (Deferred to after 3.6 fixes)
 
 - Unit tests for models and services.
 - Manual testing of all flows (add/search/view books, update status, etc.).
@@ -1911,7 +1947,75 @@ class ProfileTab extends StatelessWidget {
 }
 ```
 
-### Phase 4: Final Features & Distribution
+### Phase 4: Play Store Compliance & Distribution
+
+#### Step 4.1: Play Store Compliance Checklist 🚧 UPCOMING
+
+**Based on PLAY_STORE_COMPLIANCE.md requirements:**
+
+**Legal Documents (CRITICAL - Required before submission):**
+- [ ] Create Privacy Policy document
+  - Must include: data collection, Firebase Auth/Firestore usage, no data selling
+  - Host on accessible URL (GitHub Pages or similar)
+  - Link in app settings and Play Store listing
+
+- [ ] Create Terms of Service document
+  - Must include: acceptable use, subscription terms, cancellation policy
+  - Host on accessible URL
+  - Link in app settings and Play Store listing
+
+**Content Policy Compliance:**
+- [x] No sexually explicit images or graphic content in app
+- [x] Age gate (18+) implemented in splash screen
+- [ ] App description clearly states 18+ and discloses IAP
+- [ ] Screenshots do not show explicit content
+
+**In-App Purchase Compliance:**
+- [x] Google Play Billing implemented via in_app_purchase package
+- [x] Subscription UI shows clear pricing
+- [ ] Free trial terms clearly displayed (if offering trial)
+- [ ] Test IAP with uploaded Play Store build
+
+**Export Compliance:**
+- [ ] Add export compliance statement to Play Store listing
+- [ ] Confirm app uses only standard Firebase/Flutter encryption
+
+**App Listing Requirements:**
+- [ ] Write compliant app description (see PLAY_STORE_COMPLIANCE.md)
+- [ ] Create app screenshots (no explicit content)
+- [ ] Set content rating to Mature 17+ or 18+
+- [ ] Add privacy policy and terms links
+
+#### Step 4.2: Implement Legal Documents & Links 🚧 UPCOMING
+
+**Tasks:**
+- [ ] Create `PRIVACY_POLICY.md` and host publicly
+- [ ] Create `TERMS_OF_SERVICE.md` and host publicly
+- [ ] Add Settings section to Profile screen with links to legal docs
+- [ ] Test all links work correctly
+
+#### Step 4.3: Build Release Version & Final Testing 🚧 UPCOMING
+
+**Tasks:**
+- [ ] Update version to 0.4.0 (first release candidate)
+- [ ] Build release AAB: `flutter build appbundle --release`
+- [ ] Test release build on physical device
+- [ ] Upload to Play Console internal testing track
+- [ ] Test IAP with uploaded build (verify subscriptions work)
+- [ ] Final QA of all features
+
+#### Step 4.4: Play Store Submission 🚧 UPCOMING
+
+**Tasks:**
+- [ ] Complete Play Console listing (description, screenshots, category)
+- [ ] Set content rating
+- [ ] Add privacy policy and terms links
+- [ ] Submit for review
+- [ ] Monitor for approval or feedback
+
+---
+
+### OLD Phase 4 Content (Archive - To be removed after reorganization)
 
 #### Step 4.1: Placeholder Screens (To Complete Structure)
 
