@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../config/app_theme.dart';
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -65,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           content: Text(
             'Account created! Welcome, ${_displayNameController.text.trim()}!',
           ),
-          backgroundColor: primaryRose,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
       await Future.delayed(const Duration(seconds: 1));
@@ -76,7 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message ?? 'Registration failed'),
-          backgroundColor: primaryRose,
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
       );
     } finally {
@@ -92,11 +90,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [backgroundMidnight, Color(0xFF1A0000)],
+            colors: [theme.scaffoldBackgroundColor, Color(0xFF1A0000)],
           ),
         ),
         child: SafeArea(
@@ -214,17 +212,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
-                      labelStyle: const TextStyle(color: textSoftWhite),
-                      prefixIcon: const Icon(
+                      labelStyle: TextStyle(color: theme.colorScheme.primary),
+                      prefixIcon: Icon(
                         Icons.lock_outline,
-                        color: primaryRose,
+                        color: theme.colorScheme.primary,
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: primaryRose,
+                          color: theme.colorScheme.primary,
                         ),
                         onPressed: () {
                           setState(() {
@@ -247,13 +245,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _createAccount,
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                textSoftWhite,
+                                theme.colorScheme.surface,
                               ),
                             ),
                           )
@@ -262,9 +260,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => context.go('/login'),
-                    child: const Text(
+                    child: Text(
                       'Already have an account? Sign in',
-                      style: TextStyle(color: secondaryGold),
+                      style: TextStyle(color: theme.colorScheme.secondary),
                     ),
                   ),
                 ],

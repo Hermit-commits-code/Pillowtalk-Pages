@@ -3,8 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user_book.dart';
+import 'pro_status_service.dart';
+
+class ProUpgradeRequiredException implements Exception {
+  final String message;
+  ProUpgradeRequiredException(this.message);
+  @override
+  String toString() => message;
+}
 
 class UserLibraryService {
+  static const int freeUserBookLimit = 2;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -13,8 +22,19 @@ class UserLibraryService {
   CollectionReference<Map<String, dynamic>> get _libraryRef =>
       _firestore.collection('users').doc(_userId).collection('library');
 
-  /// Add a book to the user's library
+  /// Add a book to the user's library, enforcing free user limit
   Future<void> addBook(UserBook userBook) async {
+    final isPro = await ProStatusService().isPro();
+    if (!isPro) {
+      final count = await _libraryRef.count().get().then(
+        (snap) => snap.count ?? 0,
+      );
+      if (count >= freeUserBookLimit) {
+        throw ProUpgradeRequiredException(
+          'Free users can only track up to $freeUserBookLimit books. Upgrade to Pro for unlimited tracking.',
+        );
+      }
+    }
     await _libraryRef.doc(userBook.id).set(userBook.toJson());
   }
 

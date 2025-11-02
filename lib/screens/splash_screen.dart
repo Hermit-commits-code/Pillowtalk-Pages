@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../config/app_theme.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -34,36 +32,44 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _showAgeVerificationDialog() async {
     if (!mounted) return;
+    final theme = Theme.of(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: cardDark,
-          title: const Text(
-            '\ud83d\udd1e Mandatory Age Verification',
-            style: TextStyle(color: primaryRose, fontWeight: FontWeight.bold),
+          backgroundColor: theme.cardTheme.color,
+          title: Text(
+            '🔞 Mandatory Age Verification',
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          content: const Text(
-            "This app tracks and discusses mature, adult themes, including graphic sexual content (The Spice Meter). You must be 18 years of age or older to use Pillowtalk Pages.\\n\\nBy continuing, you affirm that you are 18 or older.",
-            style: TextStyle(color: textSoftWhite),
+          content: Text(
+            "This app tracks and discusses mature, adult themes, including graphic sexual content (The Spice Meter). You must be 18 years of age or older to use Spicy Reads.\n\nBy continuing, you affirm that you are 18 or older.",
+            style: TextStyle(color: theme.colorScheme.onSurface),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text(
-                'I am UNDER 18',
-                style: TextStyle(color: Colors.grey),
+              style: TextButton.styleFrom(
+                foregroundColor:
+                    theme.colorScheme.primary, // High-contrast purple
+                textStyle: const TextStyle(fontWeight: FontWeight.bold),
               ),
+              child: const Text('I am UNDER 18'),
               onPressed: () {
                 SystemNavigator.pop();
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: primaryRose),
-              child: const Text(
-                'I am 18 or older',
-                style: TextStyle(color: textSoftWhite),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor:
+                    theme.colorScheme.onPrimary, // Cream text on purple
+                textStyle: const TextStyle(fontWeight: FontWeight.bold),
               ),
+              child: const Text('I am 18 or older'),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('age_verified', true);
@@ -85,11 +91,11 @@ class _SplashScreenState extends State<SplashScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [backgroundMidnight, Color(0xFF1A0000)],
+            colors: [theme.scaffoldBackgroundColor, Color(0xFF1A0000)],
           ),
         ),
         child: Center(
@@ -104,7 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Pillowtalk Pages',
+                'Spicy Reads',
                 style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

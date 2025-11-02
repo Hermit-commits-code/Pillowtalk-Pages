@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
@@ -75,6 +76,53 @@ class _AddBookScreenState extends State<AddBookScreen> {
       setState(() {
         _success = 'Book added to your library!';
       });
+    } on ProUpgradeRequiredException catch (e) {
+      setState(() {
+        _error = null;
+        _success = null;
+      });
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: Theme.of(context).cardTheme.color,
+          shape: Theme.of(context).cardTheme.shape,
+          title: Text(
+            'Upgrade to Pro',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            e.message,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'Not Now',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                // Use GoRouter for navigation
+                GoRouter.of(context).push('/pro-club');
+              },
+              child: const Text('Learn More'),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
       setState(() {
         _error = 'Failed to add book: $e';
@@ -100,6 +148,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: TextField(
@@ -108,15 +157,27 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     decoration: InputDecoration(
                       labelText: 'Search for a book',
                       labelStyle: theme.textTheme.bodyMedium,
-                      border: const OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     onSubmitted: (_) => _searchBooks(),
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _searchBooks,
-                  child: const Icon(Icons.search),
+                SizedBox(
+                  height: 56, // Match default TextField height
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(56, 56), // Make button square
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _isLoading ? null : _searchBooks,
+                    child: const Icon(Icons.search, size: 28),
+                  ),
                 ),
               ],
             ),

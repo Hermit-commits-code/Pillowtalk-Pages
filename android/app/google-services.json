@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1050671872443:android:25b6665c1660d23bb12c9e",
+        "mobilesdk_app_id": "1:1050671872443:android:6451d9f5dad84258b12c9e",
         "android_client_info": {
-          "package_name": "com.example.pillowtalk_pages"
+          "package_name": "com.hermitstudios.spicyreads"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1050671872443-pbd3vltlkfrs715hlpeqnpglvva0jvl1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDt_FLVFg9WPXzAsvI16rQCua1mP9AwVWU"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1050671872443-pbd3vltlkfrs715hlpeqnpglvva0jvl1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1050671872443-g90fiiiv2s3d5kafvmrj0jghb8dfvb3n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.pillowtalkPages"
+              }
+            }
+          ]
         }
       }
     }

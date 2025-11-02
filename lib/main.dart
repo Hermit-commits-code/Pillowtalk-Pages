@@ -20,8 +20,10 @@ class PillowtalkPagesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Pillowtalk Pages',
-      theme: pillowtalkTheme,
+      title: 'Spicy Reads',
+      theme: spicyDarkTheme,
+      darkTheme: spicyDarkTheme,
+      themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
     );
