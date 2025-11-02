@@ -1,8 +1,6 @@
 
 # 🌶️ Spicy Reads
 
-## ⚖️ Google Play Compliance & Export Policy
-
 Spicy Reads is designed to comply with all [Google Play Developer Program Policies](https://play.google/developer-content-policy/), including but not limited to:
 
 - **Age-Appropriate Content:** The app is intended for adult romance readers (18+), with a mandatory age gate and clear content warnings for mature themes.
@@ -14,8 +12,6 @@ Spicy Reads is designed to comply with all [Google Play Developer Program Polici
   - This application may be subject to United States export laws. By using or distributing this app, you certify that you comply with all such laws, including any requirements for software with encryption functions. The app is authorized for export from the United States under these laws. [Learn more](https://support.google.com/googleplay/android-developer/answer/113770?hl=en)
 
 For more information, see the [Google Play Developer Policy Center](https://play.google/developer-content-policy/).
-
-# 🌶️ Spicy Reads
 
 **The Ultimate Sanctuary for Romance Readers**
 
@@ -272,10 +268,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<p align="center"><b>Built with 💖 for the Romance Reading Community</b></p>
+---
 
-<p align="center"><i>Empowering readers to find their perfect next book through data-driven recommendations</i></p>
+**Built with 💖 for the Romance Reading Community**
 
-<p align="center">
-<a href="https://play.google.com/store/apps/details?id=com.yourapp.spicyreads">Download on Google Play</a> • <a href="ROADMAP.md">View Documentation</a> • <a href="https://github.com/Hermit-commits-code/Pillowtalk-Pages/discussions">Join the Community</a>
-</p>
+*Empowering readers to find their perfect next book through data-driven recommendations*
+
+[Download on Google Play](https://play.google.com/store/apps/details?id=com.yourapp.spicyreads) • [View Documentation](ROADMAP.md) • [Join the Community](https://github.com/Hermit-commits-code/Pillowtalk-Pages/discussions)

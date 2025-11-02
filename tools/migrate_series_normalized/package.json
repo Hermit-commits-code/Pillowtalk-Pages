@@ -1,0 +1,24 @@
+{
+  "name": "spicyreads-migrate-series-normalized",
+  "version": "0.1.0",
+  "description": "Admin tool to migrate/import books and set seriesName_normalized",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dry-run": "node index.js --mode=migrate --dry-run --limit=50",
+    "test:emulator": "node test/emulator-test.js"
+  },
+  "dependencies": {
+    "csv-parse": "^5.4.0",
+    "firebase-admin": "^11.11.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^2.0.0",
+    "firebase-tools": "^11.27.2"
+  },
+  
+  "engines": {
+    "node": ">=16"
+  }
+}

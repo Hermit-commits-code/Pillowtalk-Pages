@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../services/iap_service.dart';
+// import removed: '../../services/iap_service.dart';
 import '../../widgets/free_trial_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   bool isOnFreeTrial = false;
   int trialDaysLeft = 0;
-  final IAPService _iapService = IAPService();
+  // Removed unused _iapService field
 
   static const List<String> _routes = [
     '/home',
@@ -39,8 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     // Example: fetch real trial state from IAPService (replace with real logic)
     // setState(() {
-    //   isOnFreeTrial = _iapService.isOnFreeTrial;
-    //   trialDaysLeft = _iapService.trialDaysLeft;
+    // Removed unused _iapService usages
     // });
   }
 

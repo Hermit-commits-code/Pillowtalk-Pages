@@ -1,0 +1,30 @@
+name: Run series migration
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Decode service account
+        if: secrets.SERVICE_ACCOUNT_JSON
+        run: |
+          echo "$SERVICE_ACCOUNT_JSON" | base64 --decode > service-account.json
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+      - name: Install dependencies
+        run: |
+          cd tools/migrate_series_normalized
+          npm ci
+      - name: Run migration (dry-run)
+        run: |
+          cd tools/migrate_series_normalized
+          node index.js --mode=migrate --serviceAccount=../service-account.json --dryRun
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: service-account.json

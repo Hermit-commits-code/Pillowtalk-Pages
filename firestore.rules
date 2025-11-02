@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Per-user documents (profile) and nested collections
+    match /users/{userId} {
+      // Allow only the user to create/read/update/delete their own top-level user doc
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+
+      // User's personal library (nested collection) - only the user can read/write
+      match /library/{bookId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Optional: ratings nested under user (recommended)
+      match /ratings/{ratingId} {
+        allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.keys().hasAll(['userId','bookId','spice'])
+          && request.resource.data.spice is int
+          && request.resource.data.spice >= 0
+          && request.resource.data.spice <= 5;
+
+        allow update, delete: if request.auth != null
+          && resource.data.userId == request.auth.uid;
+
+        allow read: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Books (community data) - public read, no client writes.
+    match /books/{bookId} {
+      allow read: if true;
+      // Only admin (custom claim) can write community documents
+      allow create, update, delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+
+    // Aggregated community summaries stored separately to avoid creating
+    // placeholder/partial `books/` documents. Clients may read aggregates
+    // freely but only admins can write them.
+    match /book_aggregates/{bookId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null
+        && request.auth.token.admin == true;
+    }
+
+    // If you keep ratings at top-level (not nested under users), secure them like this:
+    match /ratings/{ratingId} {
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['userId','bookId','spice'])
+        && request.resource.data.spice is int
+        && request.resource.data.spice >= 0
+        && request.resource.data.spice <= 5;
+
+      allow update, delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+
+      allow read: if true;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
