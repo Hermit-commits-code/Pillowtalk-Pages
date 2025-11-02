@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
+import '../../services/community_data_service.dart';
 import '../../services/google_books_service.dart';
 import '../../services/user_library_service.dart';
 
@@ -63,6 +64,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
         });
         return;
       }
+      
+      // Save book data to Firestore books collection for community access
+      await CommunityDataService().updateCommunityBookData(book);
+      
+      // Add book to user's library
       final userBook = UserBook(
         id: book.id,
         userId: user.uid,
