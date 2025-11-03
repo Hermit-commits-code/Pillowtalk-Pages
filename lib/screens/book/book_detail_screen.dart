@@ -47,6 +47,9 @@ class BookDetailScreen extends StatefulWidget {
   /// The user's library document id (used to update the user's library entry)
   final String? userBookId;
 
+  /// User's private notes about this book
+  final String? userNotes;
+
   const BookDetailScreen({
     super.key,
     required this.title,
@@ -65,6 +68,7 @@ class BookDetailScreen extends StatefulWidget {
     this.seriesIndex,
     this.bookId,
     this.userBookId,
+    this.userNotes,
   });
 
   @override
@@ -75,6 +79,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   late List<String> _userTropes;
   late List<String> _userWarnings;
   late double _spiceLevel;
+  late TextEditingController _notesController;
   Future<List<RomanceBook>>? _seriesFuture;
 
   @override
@@ -83,11 +88,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _userTropes = List.from(widget.userSelectedTropes ?? []);
     _userWarnings = List.from(widget.userContentWarnings ?? []);
     _spiceLevel = widget.spiceLevel ?? 0.0;
+    _notesController = TextEditingController(text: widget.userNotes ?? '');
     if (widget.seriesName != null && widget.seriesName!.isNotEmpty) {
       _seriesFuture = CommunityDataService().getBooksBySeries(
         widget.seriesName!,
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
   }
 
   void _onTropesChanged(List<String> updated) {
@@ -141,7 +153,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             spiceEmotional: existing.spiceEmotional,
             userSelectedTropes: _userTropes,
             userContentWarnings: _userWarnings,
-            userNotes: existing.userNotes,
+            userNotes: _notesController.text.trim().isNotEmpty
+                ? _notesController.text.trim()
+                : null,
             genre: existing.genre,
             subgenres: existing.subgenres,
           );
@@ -413,6 +427,36 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   const [],
               onTropesChanged: _onWarningsChanged,
               label: 'Content Warnings',
+            ),
+
+            const SizedBox(height: 16),
+
+            // Personal Notes Section
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Personal Notes (Private)',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      hintText: 'Add your private thoughts about this book...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 16),
