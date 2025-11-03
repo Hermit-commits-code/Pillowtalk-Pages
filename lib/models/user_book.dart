@@ -73,6 +73,16 @@ class UserBook {
   /// User's private notes about this book (may be null)
   final String? userNotes;
 
+  /// Cached top warnings from the community aggregate (optional)
+  final List<String> cachedTopWarnings;
+
+  /// Cached community tropes from the community aggregate (optional)
+  final List<String> cachedTropes;
+
+  /// If true, this userBook will ignore global filters and always be shown
+  /// in the user's library unless explicitly removed.
+  final bool ignoreFilters;
+
   /// Optional series name for this book in the user's library
   final String? seriesName;
 
@@ -88,6 +98,7 @@ class UserBook {
     required this.userId,
     required this.bookId,
     required this.status,
+    this.ignoreFilters = false,
     this.currentPage = 0,
     this.totalPages,
     required this.dateAdded,
@@ -106,6 +117,8 @@ class UserBook {
     this.seriesName,
     this.seriesNameNormalized,
     this.seriesIndex,
+    this.cachedTopWarnings = const [],
+    this.cachedTropes = const [],
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -137,6 +150,9 @@ class UserBook {
       seriesIndex: json['seriesIndex'] as int?,
       // support legacy and normalized fields
       seriesNameNormalized: json['seriesName_normalized'] as String?,
+      cachedTopWarnings: List<String>.from(json['cachedTopWarnings'] ?? []),
+      cachedTropes: List<String>.from(json['cachedTropes'] ?? []),
+      ignoreFilters: json['ignoreFilters'] as bool? ?? false,
     );
   }
 
@@ -164,6 +180,9 @@ class UserBook {
       'seriesName': seriesName,
       'seriesName_normalized': seriesNameNormalized,
       'seriesIndex': seriesIndex,
+      'cachedTopWarnings': cachedTopWarnings,
+      'cachedTropes': cachedTropes,
+      'ignoreFilters': ignoreFilters,
     };
   }
 }

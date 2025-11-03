@@ -13,7 +13,7 @@ Spicy Reads is designed to comply with all [Google Play Developer Program Polici
 
 For more information, see the [Google Play Developer Policy Center](https://play.google/developer-content-policy/).
 
-**The Ultimate Sanctuary for Romance Readers**
+## The Ultimate Sanctuary for Romance Readers
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B.svg?style=flat&logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Latest-FFCA28.svg?style=flat&logo=firebase)](https://firebase.google.com)
@@ -270,8 +270,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with 💖 for the Romance Reading Community**
+## Built with 💖 for the Romance Reading Community**
 
-*Empowering readers to find their perfect next book through data-driven recommendations*
+Empowering readers to find their perfect next book through data-driven recommendations
 
 [Download on Google Play](https://play.google.com/store/apps/details?id=com.yourapp.spicyreads) • [View Documentation](ROADMAP.md) • [Join the Community](https://github.com/Hermit-commits-code/Pillowtalk-Pages/discussions)

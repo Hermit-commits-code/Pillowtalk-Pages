@@ -1,6 +1,6 @@
 // lib/models/book_model.dart
 
-/// The core book model for Pillowtalk Pages.
+/// The core book model for Spicy Reads.
 ///
 /// Combines public metadata from Google Books with proprietary, community-driven fields
 /// that form the technical MOAT (tropes, spice, warnings, ratings).
@@ -87,9 +87,9 @@ class RomanceBook {
 
   factory RomanceBook.fromJson(Map<String, dynamic> json) {
     return RomanceBook(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       isbn: json['isbn'] as String? ?? '',
-      title: json['title'] as String,
+      title: json['title'] as String? ?? 'Unknown Title',
       authors: List<String>.from(json['authors'] ?? []),
       imageUrl: json['imageUrl'] as String?,
       description: json['description'] as String?,

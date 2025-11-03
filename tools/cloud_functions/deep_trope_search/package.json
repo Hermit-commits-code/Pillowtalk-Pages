@@ -1,0 +1,14 @@
+{
+  "name": "deep_trope_search",
+  "version": "0.1.0",
+  "main": "index.js",
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "firebase-functions": "^4.5.0"
+  }
+}

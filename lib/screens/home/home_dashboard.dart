@@ -1,4 +1,4 @@
-// lib/screens/home/home_screen.dart
+// lib/screens/home/home_dashboard.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,21 +8,15 @@ import '../../models/user_book.dart';
 import '../../services/community_data_service.dart';
 import '../../services/user_library_service.dart';
 import '../../widgets/compact_spice_rating.dart';
-import '../library/hidden_books_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  final Widget? child;
-  const HomeScreen({super.key, this.child});
+class HomeDashboard extends StatefulWidget {
+  const HomeDashboard({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeDashboard> createState() => _HomeDashboardState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  bool isOnFreeTrial = false;
-  int trialDaysLeft = 0;
-
-  // Local state used by filtering and UI
+class _HomeDashboardState extends State<HomeDashboard> {
   final UserLibraryService userLibraryService = UserLibraryService();
   Set<String> _filteredUserBookIds = <String>{};
   bool _isComputingFilters = false;
@@ -82,132 +76,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     final theme = Theme.of(context);
+    final user = FirebaseAuth.instance.currentUser;
     String displayName = user?.displayName ?? user?.email ?? 'Reader';
     if (displayName.startsWith('\\')) {
       displayName = displayName.substring(1);
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Your Sanctuary', style: theme.appBarTheme.titleTextStyle),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: theme.appBarTheme.elevation,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => context.push('/add-book'),
-            color: Theme.of(context).colorScheme.secondary,
-            tooltip: 'Add Book',
-          ),
-          IconButton(
-            tooltip: 'Hidden books',
-            icon: const Icon(Icons.visibility_off_outlined),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const HiddenBooksScreen()),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _getCurrentNavIndex(context),
-        onDestinationSelected: (int index) {
-          switch (index) {
-            case 0:
-              context.goNamed('home');
-              break;
-            case 1:
-              context.goNamed('search');
-              break;
-            case 2:
-              context.goNamed('library');
-              break;
-            case 3:
-              context.goNamed('profile');
-              break;
-          }
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.library_books_outlined),
-            selectedIcon: Icon(Icons.library_books),
-            label: 'Library',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outlined),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-      body: widget.child ?? _buildHomeDashboard(context, displayName),
-    );
-  }
 
-  Future<List<UserBook>> _filterLibraryLists(List<UserBook> books) async {
-    final community = CommunityDataService();
-    final out = <UserBook>[];
-    final filtered = <String>{};
-    _isComputingFilters = true;
-    try {
-      final futures = books.map((ub) async {
-        if (ub.ignoreFilters) return;
-        // Prefer cached fields
-        final cachedWarnings = ub.cachedTopWarnings;
-        final cachedTropes = ub.cachedTropes;
-        RomanceBook? doc;
-        bool matched = false;
-        if (cachedWarnings.isNotEmpty || cachedTropes.isNotEmpty) {
-          // Create a lightweight RomanceBook-like object for matching
-          doc = RomanceBook(
-            id: ub.bookId,
-            isbn: '',
-            title: '',
-            authors: const [],
-            description: '',
-            imageUrl: null,
-            genre: '',
-            subgenres: const [],
-            communityTropes: cachedTropes,
-            topWarnings: cachedWarnings,
-            avgSpiceOnPage: 0.0,
-            avgEmotionalIntensity: 0.0,
-            totalUserRatings: 0,
-          );
-          matched = _isBookFiltered(doc, ub);
-        } else {
-          doc = await community.getCommunityBookData(ub.bookId);
-          matched = _isBookFiltered(doc, ub);
-        }
-        if (matched) filtered.add(ub.id);
-        return;
-      });
-
-      await Future.wait(futures);
-    } finally {
-      _filteredUserBookIds = filtered;
-      _isComputingFilters = false;
-    }
-
-    for (final ub in books) {
-      if (!_filteredUserBookIds.contains(ub.id) || _showFiltered) out.add(ub);
-    }
-    return out;
-  }
-
-  Widget _buildHomeDashboard(BuildContext context, String displayName) {
-    final theme = Theme.of(context);
     return StreamBuilder<List<UserBook>>(
       stream: userLibraryService.getUserLibraryStream(),
       builder: (context, snapshot) {
@@ -340,13 +215,55 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  int _getCurrentNavIndex(BuildContext context) {
-    final uri = GoRouter.of(context).routeInformationProvider.value.uri;
-    final location = uri.path;
-    if (location.contains('/search')) return 1;
-    if (location.contains('/library')) return 2;
-    if (location.contains('/profile')) return 3;
-    return 0; // home
+  Future<List<UserBook>> _filterLibraryLists(List<UserBook> books) async {
+    final community = CommunityDataService();
+    final out = <UserBook>[];
+    final filtered = <String>{};
+    _isComputingFilters = true;
+    try {
+      final futures = books.map((ub) async {
+        if (ub.ignoreFilters) return;
+        // Prefer cached fields
+        final cachedWarnings = ub.cachedTopWarnings;
+        final cachedTropes = ub.cachedTropes;
+        RomanceBook? doc;
+        bool matched = false;
+        if (cachedWarnings.isNotEmpty || cachedTropes.isNotEmpty) {
+          // Create a lightweight RomanceBook-like object for matching
+          doc = RomanceBook(
+            id: ub.bookId,
+            isbn: '',
+            title: '',
+            authors: const [],
+            description: '',
+            imageUrl: null,
+            genre: '',
+            subgenres: const [],
+            communityTropes: cachedTropes,
+            topWarnings: cachedWarnings,
+            avgSpiceOnPage: 0.0,
+            avgEmotionalIntensity: 0.0,
+            totalUserRatings: 0,
+          );
+          matched = _isBookFiltered(doc, ub);
+        } else {
+          doc = await community.getCommunityBookData(ub.bookId);
+          matched = _isBookFiltered(doc, ub);
+        }
+        if (matched) filtered.add(ub.id);
+        return;
+      });
+
+      await Future.wait(futures);
+    } finally {
+      _filteredUserBookIds = filtered;
+      _isComputingFilters = false;
+    }
+
+    for (final ub in books) {
+      if (!_filteredUserBookIds.contains(ub.id) || _showFiltered) out.add(ub);
+    }
+    return out;
   }
 }
 

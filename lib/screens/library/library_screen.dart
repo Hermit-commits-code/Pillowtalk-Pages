@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
 import '../../services/community_data_service.dart';
+import '../../services/hard_stops_service.dart';
+import '../../services/kink_filter_service.dart';
 import '../../services/user_library_service.dart';
+import '../../widgets/compact_spice_rating.dart';
 import '../book/book_detail_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -17,6 +20,42 @@ class LibraryScreen extends StatefulWidget {
 
 class _LibraryScreenState extends State<LibraryScreen> {
   bool _isCleaning = false;
+  // Hard stops state
+  final HardStopsService _hardStopsService = HardStopsService();
+  List<String> _hardStops = [];
+  bool _hardStopsEnabled = true;
+  // Kink filters
+  final KinkFilterService _kinkFilterService = KinkFilterService();
+  List<String> _kinkFilters = [];
+  bool _kinkFilterEnabled = true;
+  Set<String> _filteredUserBookIds = {};
+  bool _isComputingFilters = false;
+  bool _showFiltered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen for changes to hard stops and recompute when they change
+    _hardStopsService.hardStopsStream().listen((stops) {
+      _hardStops = stops;
+      // recompute will be triggered when stream builder receives books
+      // but we proactively mark filtered set empty to force recompute
+      setState(() {
+        _filteredUserBookIds = {};
+      });
+    });
+    _hardStopsService.hardStopsEnabledStream().listen((enabled) {
+      setState(() => _hardStopsEnabled = enabled);
+    });
+    // Kink filter listeners
+    _kinkFilterService.kinkFilterStream().listen((filters) {
+      _kinkFilters = filters;
+      setState(() => _filteredUserBookIds = {});
+    });
+    _kinkFilterService.kinkFilterEnabledStream().listen((enabled) {
+      setState(() => _kinkFilterEnabled = enabled);
+    });
+  }
 
   Future<void> _cleanOrphans(UserLibraryService userLibraryService) async {
     if (!mounted) return;
@@ -90,6 +129,80 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return grouped;
   }
 
+  Future<void> _computeFilteredUserBooks(List<UserBook> books) async {
+    final filtersEnabled =
+        (_hardStopsEnabled && _hardStops.isNotEmpty) ||
+        (_kinkFilterEnabled && _kinkFilters.isNotEmpty);
+    if (!filtersEnabled) {
+      if (_filteredUserBookIds.isNotEmpty) {
+        setState(() => _filteredUserBookIds = {});
+      }
+      return;
+    }
+    if (_isComputingFilters) return;
+    _isComputingFilters = true;
+    final Set<String> filtered = {};
+    final community = CommunityDataService();
+    try {
+      final futures = books.map((ub) async {
+        if (ub.ignoreFilters) return;
+        final doc = await community.getCommunityBookData(ub.bookId);
+        if (doc != null) {
+          final topWarnings = doc.topWarnings;
+          final tropes = doc.communityTropes;
+
+          // Hard stops match topWarnings OR tropes
+          for (final w in topWarnings) {
+            for (final h in _hardStops) {
+              if (w.toLowerCase().contains(h.toLowerCase()) ||
+                  h.toLowerCase().contains(w.toLowerCase())) {
+                filtered.add(ub.id);
+                return;
+              }
+            }
+          }
+
+          for (final t in tropes) {
+            for (final h in _hardStops) {
+              if (t.toLowerCase().contains(h.toLowerCase()) ||
+                  h.toLowerCase().contains(t.toLowerCase())) {
+                filtered.add(ub.id);
+                return;
+              }
+            }
+          }
+
+          // Kink filters primarily match tropes (but also warnings as fallback)
+          for (final tp in tropes) {
+            for (final k in _kinkFilters) {
+              if (tp.toLowerCase().contains(k.toLowerCase()) ||
+                  k.toLowerCase().contains(tp.toLowerCase())) {
+                filtered.add(ub.id);
+                return;
+              }
+            }
+          }
+          for (final w in topWarnings) {
+            for (final k in _kinkFilters) {
+              if (w.toLowerCase().contains(k.toLowerCase()) ||
+                  k.toLowerCase().contains(w.toLowerCase())) {
+                filtered.add(ub.id);
+                return;
+              }
+            }
+          }
+        }
+      });
+
+      await Future.wait(futures);
+    } catch (_) {
+      // ignore errors per-book
+    } finally {
+      if (mounted) setState(() => _filteredUserBookIds = filtered);
+      _isComputingFilters = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserLibraryService userLibraryService = UserLibraryService();
@@ -133,6 +246,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
             );
           }
           final books = snapshot.data ?? [];
+          // Compute filtered set based on community warnings and user's hard stops
+          _computeFilteredUserBooks(books);
           if (books.isEmpty) {
             return Center(
               child: Column(
@@ -174,12 +289,52 @@ class _LibraryScreenState extends State<LibraryScreen> {
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.shield, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${_filteredUserBookIds.length} hidden by your content filters',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        if (_isComputingFilters) ...[
+                          const SizedBox(width: 8),
+                          const SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ],
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text('Show filtered'),
+                        Switch(
+                          value: _showFiltered,
+                          onChanged: (v) => setState(() => _showFiltered = v),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               for (final genre in genres)
                 if (groupedBooks[genre]!.isNotEmpty)
                   _BookCarousel(
                     title: genre,
                     books: groupedBooks[genre]!,
                     userLibraryService: userLibraryService,
+                    filteredUserBookIds: _filteredUserBookIds,
+                    showFiltered: _showFiltered,
                   ),
             ],
           );
@@ -194,16 +349,24 @@ class _BookCarousel extends StatelessWidget {
   final String title;
   final List<UserBook> books;
   final UserLibraryService userLibraryService;
+  final Set<String> filteredUserBookIds;
+  final bool showFiltered;
 
   const _BookCarousel({
     required this.title,
     required this.books,
     required this.userLibraryService,
+    this.filteredUserBookIds = const {},
+    this.showFiltered = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final visibleBooks = books
+        .where((b) => !filteredUserBookIds.contains(b.id) || showFiltered)
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,7 +389,7 @@ class _BookCarousel extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${books.length}',
+                  '${visibleBooks.length}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
@@ -241,9 +404,9 @@ class _BookCarousel extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: books.length,
+            itemCount: visibleBooks.length,
             itemBuilder: (context, index) {
-              final userBook = books[index];
+              final userBook = visibleBooks[index];
               return _BookCard(
                 userBook: userBook,
                 userLibraryService: userLibraryService,
@@ -411,6 +574,14 @@ class _BookCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 6),
+                      // Spice rating
+                      if (romanceBook != null)
+                        CompactSpiceRating(
+                          rating: romanceBook.avgSpiceOnPage,
+                          ratingCount: romanceBook.totalUserRatings,
+                          size: 12,
+                        ),
                     ],
                   ),
                 ),
@@ -475,18 +646,12 @@ class _BookCard extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Change Status'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showChangeStatusDialog(context);
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
                 title: const Text('Remove from Library'),
                 onTap: () async {
-                  Navigator.pop(context);
+                  debugPrint(
+                    'DEBUG: Remove from Library tapped for userBook.id: ${userBook.id}',
+                  );
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -509,83 +674,66 @@ class _BookCard extends StatelessWidget {
                       ],
                     ),
                   );
+                  debugPrint('DEBUG: Dialog result for delete: $confirm');
                   if (confirm == true && context.mounted) {
-                    await userLibraryService.removeBook(userBook.id);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Book removed from your library.'),
-                        ),
+                    debugPrint(
+                      'DEBUG: Calling removeBook with id: ${userBook.id}',
+                    );
+                    try {
+                      final backup = userBook;
+                      await userLibraryService.removeBook(userBook.id);
+                      debugPrint(
+                        'DEBUG: removeBook completed for id: ${userBook.id}',
                       );
+                      if (context.mounted) {
+                        Navigator.pop(context); // Now close the bottom sheet
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              'Book removed from your library.',
+                            ),
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () async {
+                                try {
+                                  await userLibraryService.setBook(backup);
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Failed to restore book: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      debugPrint('DEBUG: Exception in removeBook: $e');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error removing book: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   }
                 },
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ], // <-- Add this closing bracket for children
+          ), // <-- Close Column
+        ); // <-- Close SafeArea
+      }, // <-- Close builder
+    ); // <-- Close showModalBottomSheet
   }
 
-  void _showChangeStatusDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Change Status'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ReadingStatus.values.map((status) {
-            String label;
-            switch (status) {
-              case ReadingStatus.wantToRead:
-                label = 'Want to Read';
-                break;
-              case ReadingStatus.reading:
-                label = 'Currently Reading';
-                break;
-              case ReadingStatus.finished:
-                label = 'Finished';
-                break;
-            }
-            return ListTile(
-              title: Text(label),
-              selected: userBook.status == status,
-              onTap: () async {
-                Navigator.pop(context);
-                // Create updated book with new status
-                final updatedBook = UserBook(
-                  id: userBook.id,
-                  userId: userBook.userId,
-                  bookId: userBook.bookId,
-                  status: status,
-                  currentPage: userBook.currentPage,
-                  totalPages: userBook.totalPages,
-                  dateAdded: userBook.dateAdded,
-                  dateStarted: userBook.dateStarted,
-                  dateFinished: userBook.dateFinished,
-                  spiceSensual: userBook.spiceSensual,
-                  spicePower: userBook.spicePower,
-                  spiceIntensity: userBook.spiceIntensity,
-                  spiceConsent: userBook.spiceConsent,
-                  spiceEmotional: userBook.spiceEmotional,
-                  userSelectedTropes: userBook.userSelectedTropes,
-                  userContentWarnings: userBook.userContentWarnings,
-                  userNotes: userBook.userNotes,
-                  genre: userBook.genre,
-                  subgenres: userBook.subgenres,
-                );
-                await userLibraryService.updateBook(updatedBook);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Status updated to $label')),
-                  );
-                }
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+  // _showChangeStatusDialog was removed because it was unused. If you need
+  // this UI in future, reintroduce it and wire it into the call-sites.
 }
