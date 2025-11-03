@@ -298,6 +298,7 @@ class _BookCard extends StatelessWidget {
                     spiceLevel: romanceBook.avgSpiceOnPage,
                     bookId: romanceBook.id,
                     userBookId: userBook.id,
+                    userNotes: userBook.userNotes,
                   ),
                 ),
               );
@@ -466,6 +467,7 @@ class _BookCard extends StatelessWidget {
                           spiceLevel: romanceBook.avgSpiceOnPage,
                           bookId: romanceBook.id,
                           userBookId: userBook.id,
+                          userNotes: userBook.userNotes,
                         ),
                       ),
                     );
