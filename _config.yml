@@ -1,0 +1,34 @@
+# Jekyll config for GitHub Pages
+# This ensures markdown files are properly rendered and accessible
+
+title: Spicy Reads Documentation
+description: Legal documents and release notes for Spicy Reads app
+theme: jekyll-theme-minimal
+
+# Enable markdown rendering
+markdown: kramdown
+
+# Enable syntax highlighting
+highlighter: rouge
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:name
+
+# Permalink structure
+permalink: /:categories/:year/:month/:day/:title:output_ext
+
+# Include files
+include: ['.htaccess']
+
+# Exclude files
+exclude: ['*.gem', '*.gemspec', '*.md', 'Gemfile', 'Gemfile.lock', 'node_modules', 'vendor/bundle/', 'vendor/cache/', 'vendor/gems/', 'vendor/ruby/']
+
+# Site URL (update if using custom domain)
+url: 'https://hermit-commits-code.github.io'
+baseurl: '/Pillowtalk-Pages'
+
+# Show source
+show_source: true

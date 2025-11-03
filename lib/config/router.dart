@@ -5,6 +5,7 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/book/add_book_screen.dart';
 import '../screens/book/book_detail_screen.dart';
+import '../screens/home/home_dashboard.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/library/library_screen.dart';
 import '../screens/pro/pro_club_screen.dart';
@@ -26,18 +27,22 @@ final GoRouter router = GoRouter(
       routes: [
         GoRoute(
           path: '/home',
+          name: 'home',
           builder: (context, state) => const HomeDashboard(),
         ),
         GoRoute(
           path: '/search',
+          name: 'search',
           builder: (context, state) => const DeepTropeSearchScreen(),
         ),
         GoRoute(
           path: '/library',
+          name: 'library',
           builder: (context, state) => const LibraryScreen(),
         ),
         GoRoute(
           path: '/profile',
+          name: 'profile',
           builder: (context, state) => const ProfileScreen(),
         ),
       ],

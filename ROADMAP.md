@@ -1,5 +1,28 @@
 # 💖 Spicy Reads: The Ultimate Sanctuary Implementation Roadmap
 
+## Table of Contents
+
+- The Vein of Truth
+- I. Strategic Foundation: Technical MOAT & Competitive Edge
+  - The Core Philosophy
+  - Framework Decision Matrix
+  - Technical Stack Blueprint
+- II. The Sensual Aesthetic & Color Palette
+- III. Monetization & Revenue Strategy
+  - Pricing Tiers
+  - Revenue Projection
+  - Amazon Associates
+  - Amazon Associates Compliance
+- IV. Legal & Compliance Requirements (18+ App)
+  - Mandatory Age Gate
+  - Google Play Console Compliance
+- Git Version Control & Semantic Versioning
+- V. Hyper-Detailed Step-by-Step Implementation
+  - Phase 1: Project Initialization & Core Framework
+  - Phase 2: Critical Compliance & Authentication Flow
+  - Phase 3: Technical MOAT & Core Feature Implementation
+  - Phase 4: Play Store Compliance & Distribution
+
 ## The Vein of Truth
 
 "Romance is not a genre; it's a culture. We are the first book tracker built *inside* that culture."
@@ -20,7 +43,7 @@
 | **Vetted Spice Meter** | 0-5 Flames rating with mandatory sub-categories: Emotional Intensity, On-Page Sex, Content Warnings | The standard for vetting books, replacing generic competitors |
 | **Community-Driven Data** | Proprietary, validated metadata schema populated by gamified user contributions | Structurally insurmountable for generalist competitors |
 | **Hard Stops Filter** | User-defined content blocklist that filters out books with triggering content (e.g., violence, infidelity) | Protects mental health by preventing exposure to triggering content before reading |
-| **Kink Filter** | User-defined blocklist for specific kinks/fetishes (e.g., CNC, breeding, pet play, etc.), fully filterable and proprietary | Unmatched user safety and control, enables granular, private filtering of kink/fetish content |
+| **Kink Filter** | User-defined blocklist for specific kinks or tags that users may choose to exclude from results | Allows fine-grained user control over sensitive content |
 
 ### 1.B. Framework Decision Matrix
 
@@ -80,6 +103,21 @@
 
 ---
 
+## 📋 Amazon Associates Compliance
+
+### Mobile Application Policy (Amazon Associates)
+
+- The app must comply with the [Amazon Associates Program Mobile Application Policy](https://affiliate-program.amazon.com/help/operating/policies?ac-ms-src=ac-nav%23Associates%2520Program%2520Participation%2520Requirements#Associates%20Program%20Mobile%20Application%20Policy).
+- Key requirements:
+  - App must be available in Google Play, Apple, or Amazon app stores.
+  - App must be free to download and all Amazon links must be accessible without paywall.
+  - App must have original content and not emulate Amazon’s own shopping app functionality.
+  - App must not host or render Amazon web pages in WebViews.
+  - All Amazon links must use the correct Associates ID and be served by PA API or official linking tools.
+- See full policy: [Amazon Associates Mobile Application Policy](https://affiliate-program.amazon.com/help/operating/policies?ac-ms-src=ac-nav%23Associates%2520Program%2520Participation%2520Requirements#Associates%20Program%20Mobile%20Application%20Policy)
+
+---
+
 ## ⚖️ IV. Legal & Compliance Requirements (18+ App)
 
 ### 4.A. Mandatory Age Gate Implementation
@@ -105,7 +143,7 @@
 
 ---
 
-## � Git Version Control & Semantic Versioning Strategy
+## Git Version Control & Semantic Versioning Strategy
 
 ### Versioning Convention
 
@@ -142,6 +180,8 @@ git tag v[version]
 # Push commits and tags
 git push origin main
 git push origin --tags
+
+> Note: The git commands and version strings shown in this document are examples to demonstrate the workflow. They are illustrative unless an actual `git tag` was created and pushed from your local repository. Treat any in-doc version strings as target or guidance (for example: "target v0.4.0") until you run and verify the git tag and push steps in your environment.
 ```
 
 ---
@@ -560,22 +600,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
           content: const Text(
-            "This app tracks and discusses mature, adult themes, including graphic sexual content (The Spice Meter). You must be 18 years of age or older to use Pillowtalk Pages.\n\nBy continuing, you affirm that you are 18 or older.",
-            style: TextStyle(color: textSoftWhite),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text(
-                'I am UNDER 18',
-                style: TextStyle(color: Colors.grey),
-              ),
-              onPressed: () {
-                // Exit app immediately for underage users
-                SystemNavigator.pop();
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
+            "This app tracks and discusses
                 backgroundColor: primaryRose,
               ),
               child: const Text(
@@ -1293,54 +1318,81 @@ final GoRouter router = GoRouter(
 
 #### Step 3.6: Complete Missing MOAT Features 🚧 IN PROGRESS (v0.3.5 → v0.3.x)
 
-**Current Status (November 2, 2025):**
+**Current Status (November 3, 2025):**
 
 ✅ **COMPLETED:**
 
-- Basic app structure (auth, navigation, theme)
-- Book tracking (add/view/update status)
-- Library screen displays book titles and covers
-- Google Books API integration
-- User authentication and Firestore setup
-
-🚧 **IN PROGRESS:**
-
-- Fixing BookDetailScreen "not found" bug
+- [x] Basic app structure (auth, navigation, theme)
+- [x] Book tracking (add/view/update status)
+- [x] Library screen displays book titles and covers
+- [x] Google Books API integration
+- [x] User authentication and Firestore setup
+- [x] BookDetailScreen fully functional with ratings
+- [x] Spice Meter Rating System (0-5 flames + sub-categories)
+- [x] Trope Tagging System (community-driven with autocomplete)
+- [x] Personal Notes UI (implemented in BookDetailScreen)
+- [x] Community Data Aggregation (RatingsService + CommunityDataService)
+- [x] User Library Service (add/update/remove books)
+- [x] In-App Purchase service (Pro subscription)
+- [x] Theme Provider (light/dark mode switching)
+- [x] Full package rename from pillowtalk_pages to spicyreads
+- [x] Duplicate MainActivity.kt issue resolved
+- [x] App successfully builds and runs on Android
 
 ❌ **NOT IMPLEMENTED (Core MOAT Features):**
 
-1. **Deep Tropes Engine:** No trope tagging or multi-select search
-2. **Vetted Spice Meter:** No 0-5 flames rating UI or sub-categories
-3. **Community Data Aggregation:** No logic to aggregate ratings/tropes from all users
-4. **Star Rating System:** No 1-5 star ratings
-5. **Personal Notes:** Field exists in model but no UI
-6. **Hard Stops Content Filter:** Not implemented (NEW FEATURE - see below)
-7. **Home Dashboard:** Empty placeholder
-8. **Profile Screen:** Incomplete placeholder
-9. **Remove Book Functionality:** Cannot remove books from library
+1. **Deep Tropes Search Engine:** No multi-select AND/OR search UI
+2. **Hard Stops Content Filter:** Not implemented (NEW FEATURE - see below)
+3. **Kink Filter:** Not implemented (NEW FEATURE - see below)
+4. **Home Dashboard:** Empty placeholder (shows stats but needs enrichment)
+5. **Profile Screen:** Incomplete (missing settings, legal links, filter management)
+6. **Star Rating System:** May need 1-5 star display (currently uses spice meter)
 
 **Tasks for 3.6:**
 
 **Critical Bugs:**
 
-- [~] Fix BookDetailScreen "not found" bug (in progress)
-- [ ] Implement Remove Book from User Library
+- [x] ~~Fix BookDetailScreen "not found" bug~~ ✅ RESOLVED
+- [x] ~~Fix duplicate MainActivity.kt redeclaration~~ ✅ RESOLVED
+- [ ] Implement Remove Book from User Library UI
 
 **Core MOAT Features (Must implement before 1.0):**
 
-- [ ] Build Spice Meter Rating System (0-5 flames + sub-categories)
-- [ ] Implement Trope Tagging System (community-driven)
+- [x] ~~Build Spice Meter Rating System (0-5 flames + sub-categories)~~ ✅ DONE
+- [x] ~~Implement Trope Tagging System (community-driven)~~ ✅ DONE
 - [ ] Build Deep Tropes Search Engine (multi-select AND/OR logic)
-- [ ] Add Personal Notes UI (private, user-only)
-- [ ] Implement Star Rating System (1-5 stars, aggregate to community)
-- [ ] Build Community Data Aggregation (aggregate all user data to books collection)
+- [x] ~~Add Personal Notes UI (private, user-only)~~ ✅ DONE
+- [ ] Implement Star Rating System (1-5 stars display, if needed)
+- [x] ~~Build Community Data Aggregation~~ ✅ DONE
 - [ ] **NEW: Implement Hard Stops Content Filter** (see detailed spec below)
 - [ ] **NEW: Implement Kink Filter** (see detailed spec below)
 
 **UI Completion:**
 
-- [ ] Implement Home Dashboard (stats, currently reading)
-- [ ] Complete Profile Screen (user info, settings, logout, legal links)
+- [ ] Enhance Home Dashboard (stats, currently reading carousel, quick actions)
+- [ ] Complete Profile Screen (user info, settings, logout, legal links, filter management)
+
+### v0.4.0 — Release Candidate: Complete MOAT & Prepare Distribution
+
+Target: finish remaining core MOAT features and prepare a release candidate (v0.4.0). The items below are the prioritized work that will be included in the v0.4.0 milestone; these are TODOs (not yet shipped). The repository's tags or example version strings in this document are illustrative unless a git tag was explicitly created and pushed.
+
+Checklist (v0.4.0):
+
+- [x] Build Deep Tropes Search Engine (multi-select AND/OR search UI + backend support) ✅ DONE
+- [x] Implement Hard Stops Content Filter (user-managed content-warning blocklist) ✅ DONE
+- [x] Implement Kink Filter (user-managed kink blocklist and UI) ✅ DONE
+- [x] Enhance Home Dashboard (stats, currently reading carousel, quick actions) ✅ DONE
+- [x] Complete Profile Screen (settings, legal links, filter management for Hard Stops/Kink Filter) ✅ DONE
+- [x] Implement Remove Book UI (connect to existing `UserLibraryService` remove method) ✅ DONE
+- [x] Review Star Rating UX (decide whether to display 1-5 stars in addition to the Spice Meter) ✅ DONE - Implemented realistic flame colors (grey→blue), tappable flames, animations
+- [ ] Create and host `PRIVACY_POLICY.md` and `TERMS_OF_SERVICE.md` and link them in app settings
+- [ ] Finalize release notes and set project version for the RC (target `0.4.0`)
+- [ ] Build release AAB and run Play Console internal tests
+
+Notes:
+
+- Keep the roadmap's example version strings and git commands as guidance; do not assume a pushed tag exists until `git tag` and `git push --tags` are executed and verified.
+- Prioritize the search/filter work early in the RC (Deep Tropes + Hard Stops) because they form the product's MOAT and impact many surfaces (search results, library, recommendations).
 
 **NEW FEATURE: Hard Stops Content Filter** 🛡️
 **NEW FEATURE: Kink Filter** 🔥

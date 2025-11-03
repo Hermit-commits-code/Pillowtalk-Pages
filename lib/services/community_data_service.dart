@@ -125,4 +125,112 @@ class CommunityDataService {
     // calculate averages and top tropes/warnings, and update the book doc.
     // This can be implemented as a callable cloud function for scalability.
   }
+
+  /// Search books by trope tags.
+  ///
+  /// - If [orMode] is true, performs an `array-contains-any` style query
+  ///   (Firestore limitation: array-contains-any matches ANY of the provided
+  ///   values). Otherwise, performs a query for the first tag and filters
+  ///   the results locally to ensure all tags are present (AND semantics).
+  ///
+  /// This is intentionally pragmatic for an MVP. For large datasets you may
+  /// want to replace this with a dedicated search index (Algolia/Elasticsearch)
+  /// or a Cloud Function that performs server-side joins.
+  Future<List<RomanceBook>> searchBooksByTropes(
+    List<String> tags, {
+    bool orMode = true,
+    int limit = 50,
+  }) async {
+    if (tags.isEmpty) return [];
+
+    final tagNorm = tags
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
+    if (tagNorm.isEmpty) return [];
+
+    try {
+      final seen = <String>{};
+      final out = <RomanceBook>[];
+
+      // Primary: try aggregated docs collection first (if present)
+      final aggCol = _firestore.collection('book_aggregates');
+      final booksCol = _firestore.collection('books');
+
+      if (orMode) {
+        // Firestore supports array-contains-any for OR semantics (max 10 values).
+        final queries = <Future<QuerySnapshot>>[];
+        final chunk = tagNorm.length > 10 ? tagNorm.sublist(0, 10) : tagNorm;
+        queries.add(
+          aggCol
+              .where('communityTropes', arrayContainsAny: chunk)
+              .limit(limit)
+              .get(),
+        );
+        queries.add(
+          booksCol
+              .where('communityTropes', arrayContainsAny: chunk)
+              .limit(limit)
+              .get(),
+        );
+
+        final snaps = await Future.wait(queries);
+        for (final snap in snaps) {
+          for (final d in snap.docs) {
+            final id = d.id;
+            if (seen.add(id)) {
+              out.add(
+                RomanceBook.fromJson(
+                  Map<String, dynamic>.from(d.data() as Map),
+                ),
+              );
+            }
+          }
+        }
+      } else {
+        // AND mode: query for the first tag then filter locally for the rest.
+        final first = tagNorm.first;
+        final snaps = await Future.wait([
+          aggCol
+              .where('communityTropes', arrayContains: first)
+              .limit(limit)
+              .get(),
+          booksCol
+              .where('communityTropes', arrayContains: first)
+              .limit(limit)
+              .get(),
+        ]);
+
+        for (final snap in snaps) {
+          for (final d in snap.docs) {
+            final id = d.id;
+            if (!seen.add(id)) continue;
+            final data = Map<String, dynamic>.from(d.data() as Map);
+            final book = RomanceBook.fromJson(data);
+            final tropes = book.communityTropes
+                .map((t) => t.toLowerCase())
+                .toSet();
+            var ok = true;
+            for (final t in tagNorm) {
+              if (!tropes.any(
+                (tt) =>
+                    tt.contains(t.toLowerCase()) ||
+                    t.toLowerCase().contains(tt),
+              )) {
+                ok = false;
+                break;
+              }
+            }
+            if (ok) out.add(book);
+          }
+        }
+      }
+
+      return out;
+    } catch (e) {
+      // ignore: avoid_print
+      print('tropes search failed: $e');
+      return [];
+    }
+  }
 }

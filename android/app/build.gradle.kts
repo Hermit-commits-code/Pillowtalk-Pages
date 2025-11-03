@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pillowtalk_pages"
+    namespace = "com.example.spicyreads"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
