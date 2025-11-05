@@ -4,11 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../constants/genres.dart';
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
 import '../../services/google_books_service.dart';
 import '../../services/user_library_service.dart';
+import 'genre_selection_screen.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -28,10 +28,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _isLoading = false;
   String? _error;
 
-  String? _selectedGenre;
-  List<String> _selectedSubgenres = [];
+  List<String> _selectedGenres = [];
 
   List<RomanceBook> _searchResults = [];
+  bool _searchPerformed = false;
 
   @override
   void dispose() {
@@ -41,17 +41,32 @@ class _AddBookScreenState extends State<AddBookScreen> {
     super.dispose();
   }
 
+  Future<void> _selectGenres() async {
+    final result = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            GenreSelectionScreen(initialGenres: _selectedGenres),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedGenres = result;
+      });
+    }
+  }
+
   Future<void> _searchBooks() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) {
-      setState(() {
-        _error = 'Please enter a search term';
-      });
+      setState(() => _error = 'Please enter a search term');
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _searchPerformed = true;
       _error = null;
       _searchResults = [];
     });
@@ -65,13 +80,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
         }
       });
     } catch (e) {
-      setState(() {
-        _error = 'Search failed: $e';
-      });
+      setState(() => _error = 'Search failed: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
@@ -88,26 +99,20 @@ class _AddBookScreenState extends State<AddBookScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Build UserBook from the search result
-      final seriesName = _seriesNameController.text.trim();
-      final seriesIndexText = _seriesIndexController.text.trim();
-      final seriesIndex = seriesIndexText.isNotEmpty
-          ? int.tryParse(seriesIndexText)
-          : null;
-
       final userBook = UserBook(
         id: '${user.uid}_${book.id}',
         bookId: book.id,
         userId: user.uid,
+        title: book.title,
+        authors: book.authors,
+        imageUrl: book.imageUrl,
+        description: book.description,
         status: ReadingStatus.wantToRead,
-        dateAdded: DateTime.now(),
-        seriesName: seriesName.isNotEmpty ? seriesName : null,
-        seriesIndex: seriesIndex,
-        // Cache community fields if available
-        cachedTopWarnings: book.topWarnings,
-        cachedTropes: book.communityTropes,
-        genre: book.genre,
-        subgenres: book.subgenres,
+        genres: _selectedGenres,
+        seriesName: _seriesNameController.text.trim().isNotEmpty
+            ? _seriesNameController.text.trim()
+            : null,
+        seriesIndex: int.tryParse(_seriesIndexController.text.trim()),
       );
 
       await _userLibraryService.addBook(userBook);
@@ -117,12 +122,26 @@ class _AddBookScreenState extends State<AddBookScreen> {
         SnackBar(content: Text('Added "${book.title}" to your library')),
       );
       context.pop();
+    } on ProUpgradeRequiredException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          action: SnackBarAction(
+            label: 'UPGRADE',
+            onPressed: () => context.push('/pro-club'),
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Failed to add book: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add book: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add book: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -135,210 +154,131 @@ class _AddBookScreenState extends State<AddBookScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Book', style: theme.appBarTheme.titleTextStyle),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        elevation: theme.appBarTheme.elevation,
-      ),
+      appBar: AppBar(title: const Text('Add Book')),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search for a book',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onSubmitted: (_) => _searchBooks(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(56, 56),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _isLoading ? null : _searchBooks,
+                      child: const Icon(Icons.search, size: 28),
+                    ),
+                  ),
+                ],
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 32,
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('Genres'),
+                subtitle: _selectedGenres.isNotEmpty
+                    ? Text(_selectedGenres.join(', '))
+                    : const Text('Tap to select genres'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _selectGenres,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: theme.colorScheme.outline),
                 ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              style: theme.textTheme.bodyLarge,
-                              decoration: InputDecoration(
-                                labelText: 'Search for a book',
-                                labelStyle: theme.textTheme.bodyMedium,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onSubmitted: (_) => _searchBooks(),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            height: 56, // Match default TextField height
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                minimumSize: const Size(
-                                  56,
-                                  56,
-                                ), // Make button square
-                                padding: EdgeInsets.zero,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: _isLoading ? null : _searchBooks,
-                              child: const Icon(Icons.search, size: 28),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedGenre,
-                        items: romanceGenres
-                            .map(
-                              (g) => DropdownMenuItem(value: g, child: Text(g)),
-                            )
-                            .toList(),
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedGenre = val;
-                            _selectedSubgenres = [];
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Genre',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (_selectedGenre != null)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Subgenres',
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            Wrap(
-                              spacing: 6,
-                              children: [
-                                ...?romanceSubgenres[_selectedGenre!]?.map(
-                                  (sub) => FilterChip(
-                                    label: Text(sub),
-                                    selected: _selectedSubgenres.contains(sub),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        if (selected) {
-                                          _selectedSubgenres.add(sub);
-                                        } else {
-                                          _selectedSubgenres.remove(sub);
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      if (_isLoading) const LinearProgressIndicator(),
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            _error!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _seriesNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Series (optional)',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _seriesIndexController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Book number in series (optional)',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Expanded(
-                        child: _searchResults.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'No results',
-                                  style: theme.textTheme.bodyLarge,
-                                ),
-                              )
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                physics: const ClampingScrollPhysics(),
-                                itemCount: _searchResults.length,
-                                itemBuilder: (context, index) {
-                                  final book = _searchResults[index];
-                                  return Card(
-                                    color: theme.cardTheme.color,
-                                    shape: theme.cardTheme.shape,
-                                    elevation: theme.cardTheme.elevation,
-                                    child: ListTile(
-                                      leading: book.imageUrl != null
-                                          ? ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              child: Image.network(
-                                                book.imageUrl!,
-                                                width: 48,
-                                                height: 72,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            )
-                                          : Icon(
-                                              Icons.book,
-                                              size: 48,
-                                              color: theme.colorScheme.primary,
-                                            ),
-                                      title: Text(
-                                        book.title,
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      subtitle: Text(
-                                        book.authors.join(', '),
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      trailing: ElevatedButton(
-                                        onPressed: _isLoading
-                                            ? null
-                                            : () => _addBookToLibrary(book),
-                                        child: const Text('Add'),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
+              ),
+              const SizedBox(height: 16),
+              if (_isLoading) const LinearProgressIndicator(),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(color: theme.colorScheme.error),
                   ),
                 ),
+              TextField(
+                controller: _seriesNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Series (optional)',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            );
-          },
+              const SizedBox(height: 8),
+              TextField(
+                controller: _seriesIndexController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Book number in series (optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_searchPerformed) _buildSearchResults(theme),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSearchResults(ThemeData theme) {
+    if (_searchResults.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text('No results found.'),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const ClampingScrollPhysics(),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final book = _searchResults[index];
+        return Card(
+          child: ListTile(
+            leading: book.imageUrl != null
+                ? Image.network(
+                    book.imageUrl!,
+                    width: 48,
+                    height: 72,
+                    fit: BoxFit.cover,
+                  )
+                : const Icon(Icons.book, size: 48),
+            title: Text(
+              book.title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(book.authors.join(', ')),
+            trailing: ElevatedButton(
+              onPressed: _isLoading ? null : () => _addBookToLibrary(book),
+              child: const Text('Add'),
+            ),
+          ),
+        );
+      },
     );
   }
 }
