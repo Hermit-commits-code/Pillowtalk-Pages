@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../services/ratings_service.dart';
 import '../../services/user_library_service.dart';
 import '../../widgets/icon_rating_bar.dart';
 import 'genre_selection_screen.dart';
@@ -138,7 +137,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _saveChanges() async {
     if (!mounted) return;
 
-    final ratingsService = RatingsService();
     final userLib = UserLibraryService();
 
     ScaffoldMessenger.of(
@@ -146,20 +144,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     ).showSnackBar(const SnackBar(content: Text('Saving changes...')));
 
     try {
-      // Save rating data
-      if (widget.bookId != null && widget.bookId!.isNotEmpty) {
-        await ratingsService.submitRating(
-          bookId: widget.bookId!,
-          spiceOverall: _spiceOverall,
-          spiceIntensity: _spiceIntensity,
-          emotionalArc: _emotionalArc,
-          tropes: _userTropes,
-          warnings: _userWarnings,
-          genres: _selectedGenres,
-        );
-      }
-
-      // Update user's personal library
+      // Update user's personal library with all data (spice, tropes, warnings, etc.)
       if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
         final existing = await userLib.getUserBook(widget.userBookId!);
         if (existing != null) {
