@@ -9,73 +9,13 @@ service cloud.firestore {
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
 
       // User's personal library (nested collection) - only the user can read/write
-      // Allows updating fields like 'ownership', 'genres', etc.
+      // Allows updating fields like 'ownership', 'genres', 'tropes', 'warnings', etc.
       match /library/{bookId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-
-      // Optional: ratings nested under user (recommended)
-      match /ratings/{ratingId} {
-        allow create: if request.auth != null
-          && request.auth.uid == userId
-          && request.resource.data.userId == request.auth.uid;
-
-        allow update, delete: if request.auth != null
-          && resource.data.userId == request.auth.uid;
-
-        allow read: if request.auth != null && request.auth.uid == userId;
-      }
     }
 
-    // Books (community data) - public read, no client writes.
-    match /books/{bookId} {
-      allow read: if true;
-      // Only admin (custom claim) can write community documents
-      allow create, update, delete: if request.auth != null
-        && request.auth.token.admin == true;
-    }
-
-    // Aggregated community summaries stored separately to avoid creating
-    // placeholder/partial `books/` documents. Clients may read aggregates
-    // Community aggregates schema and write rules
-    //
-    // We store a per-book aggregate document under `book_aggregates/{bookId}`.
-    // Recommended fields (client code expects these):
-    // - totalUserRatings: int (total number of user ratings)
-    // - avgSpiceOnPage: number (average user-reported spice, e.g. 0.0-5.0)
-    // - avgEmotionalArc: number (average emotional arc, e.g. 0.0-5.0)
-    // - genres: array<string> (merged genres seen in ratings)
-    // - tropes: array<string> (merged tropes seen in ratings)
-    // - warnings: array<string> (merged content warnings)
-    // - lastUpdated: timestamp
-    // Optional fallback fields written by the client: lastSpiceOnPage, lastEmotionalArc
-    //
-    // Writes to aggregates can come from an admin (server) OR from authenticated
-    // clients, but client writes are validated to the expected types to reduce
-    // risk of malformed documents. If you prefer server-only writes, restrict
-    // the conditions below to admin-only.
-    match /book_aggregates/{bookId} {
-      // Aggregates are public read-only for clients
-      allow read: if true;
-
-      // Only server-side code (admin) may write or delete aggregate docs.
-      // Cloud Functions will run with admin privileges and is the recommended
-      // mechanism to update aggregates. This keeps rules simple and secure.
-      allow create, update, delete: if request.auth != null && request.auth.token.admin == true;
-    }
-
-    // Top-level ratings collection - more permissive rules for user ratings
-    match /ratings/{ratingId} {
-      allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid;
-
-      allow update, delete: if request.auth != null
-        && resource.data.userId == request.auth.uid;
-
-      allow read: if true;
-    }
-
-    // Default deny
+    // Default deny all other collections
     match /{document=**} {
       allow read, write: if false;
     }
