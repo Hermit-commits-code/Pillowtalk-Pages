@@ -50,7 +50,7 @@ const Map<String, List<String>> romanceSubgenres = {
     'MM', 'FF', 'Trans', 'Nonbinary', 'Other',
   ],
   'Science Fiction': [
-    'Alien', 'Space Opera', 'Time Travel', 'Dystopian', 'Other',
+    'Alien', 'Space Opera', 'Time Travel', 'Dystopian', 'Sci-Fi Romance', 'Other',
   ],
   'Urban': [
     'Street Lit', 'Gang', 'Other',

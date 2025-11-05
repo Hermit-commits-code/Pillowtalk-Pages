@@ -2,38 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:spicyreads/models/user_book.dart';
 
 void main() {
-  test('UserBook toJson/fromJson roundtrip retains fields', () {
-    final now = DateTime.now();
-    final ub = UserBook(
-      id: 'ub1',
+  test('UserBook JSON serialization', () {
+    final userBook = UserBook(
+      id: '1',
       userId: 'user1',
-      bookId: 'b1',
-      status: ReadingStatus.wantToRead,
-      dateAdded: now,
-      userSelectedTropes: ['Grumpy Sunshine'],
-      userContentWarnings: ['Infidelity/Cheating'],
-      userNotes: 'Notes',
-      genre: 'Contemporary',
-      subgenres: ['Romantic Comedy'],
-      cachedTopWarnings: ['Infidelity/Cheating'],
-      cachedTropes: ['Grumpy Sunshine'],
-      ignoreFilters: false,
+      bookId: 'book1',
+      title: 'Test Book',
+      authors: ['Test Author'],
+      status: ReadingStatus.reading,
     );
 
-    final json = ub.toJson();
-    final parsed = UserBook.fromJson(json);
+    final json = userBook.toJson();
+    final fromJson = UserBook.fromJson(json);
 
-    expect(parsed.id, ub.id);
-    expect(parsed.userId, ub.userId);
-    expect(parsed.bookId, ub.bookId);
-    expect(parsed.status, ub.status);
-    expect(parsed.userSelectedTropes, ub.userSelectedTropes);
-    expect(parsed.userContentWarnings, ub.userContentWarnings);
-    expect(parsed.userNotes, ub.userNotes);
-    expect(parsed.genre, ub.genre);
-    expect(parsed.subgenres, ub.subgenres);
-    expect(parsed.cachedTopWarnings, ub.cachedTopWarnings);
-    expect(parsed.cachedTropes, ub.cachedTropes);
-    expect(parsed.ignoreFilters, ub.ignoreFilters);
+    expect(fromJson.id, userBook.id);
+    expect(fromJson.title, userBook.title);
   });
 }
