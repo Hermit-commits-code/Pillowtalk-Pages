@@ -10,6 +10,7 @@ import '../../widgets/icon_rating_bar.dart';
 import 'genre_selection_screen.dart';
 import 'widgets/editable_tropes_section.dart';
 import '../../config/affiliate.dart';
+import '../../models/user_book.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String title;
@@ -64,6 +65,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   late String _spiceIntensity;
   late double _emotionalArc;
 
+  // Personal 1-5 star rating (private to the user)
+  int? _personalStars;
+
+  BookOwnership _ownership = BookOwnership.none;
+
   final Map<String, IconData> _intensityOptions = {
     'Emotional': Icons.favorite,
     'Physical': Icons.local_fire_department,
@@ -81,6 +87,25 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _spiceOverall = widget.spiceOverall ?? 0.0;
     _spiceIntensity = widget.spiceIntensity ?? _intensityOptions.keys.first;
     _emotionalArc = widget.emotionalArc ?? 0.0;
+
+    // Load existing userBook to obtain ownership and personalStars if available
+    if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
+      // Fire-and-forget load; if it completes after init it will call setState
+      UserLibraryService()
+          .getUserBook(widget.userBookId!)
+          .then((ub) {
+            if (ub == null) return;
+            if (!mounted) return;
+            setState(() {
+              _ownership = ub.ownership;
+              _personalStars = ub.personalStars;
+            });
+          })
+          .catchError((e) {
+            // ignore; non-fatal if load fails
+            print('Failed to load userBook in detail screen: $e');
+          });
+    }
   }
 
   @override
@@ -121,6 +146,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     ).showSnackBar(const SnackBar(content: Text('Saving changes...')));
 
     try {
+      // Save rating data
       if (widget.bookId != null && widget.bookId!.isNotEmpty) {
         await ratingsService.submitRating(
           bookId: widget.bookId!,
@@ -133,6 +159,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
       }
 
+      // Update user's personal library
       if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
         final existing = await userLib.getUserBook(widget.userBookId!);
         if (existing != null) {
@@ -146,34 +173,60 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             spiceOverall: _spiceOverall,
             spiceIntensity: _spiceIntensity,
             emotionalArc: _emotionalArc,
+            ownership: _ownership,
+            personalStars: _personalStars,
           );
           await userLib.updateBook(updated);
+
+          // Important: Refresh the UI state to show the updated data was saved
+          print('Book updated successfully: ${updated.id}');
         }
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Changes saved.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Changes saved successfully!')),
+      );
+      // Close this detail screen and return a success flag so calling UI can refresh if needed
+      Navigator.of(context).pop(true);
     } catch (e, st) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to save changes: $e')));
       // TODO: Consider using a proper logging framework instead of print
-      debugPrint('Error saving book details: $e\n$st');
+      print('Error saving book details: $e\n$st');
     }
   }
 
   Future<void> _launchAmazon() async {
-    final uri = buildAmazonSearchUrl(widget.title, widget.author, kAmazonAffiliateTag);
+    final uri = buildAmazonSearchUrl(
+      widget.title,
+      widget.author,
+      kAmazonAffiliateTag,
+    );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open Amazon.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open Amazon.')));
+    }
+  }
+
+  Color _ownershipColor(BookOwnership ownership) {
+    switch (ownership) {
+      case BookOwnership.physical:
+        return Colors.brown;
+      case BookOwnership.digital:
+        return Colors.blue;
+      case BookOwnership.both:
+        return Colors.green;
+      case BookOwnership.kindleUnlimited:
+        return Colors.purple;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -193,141 +246,272 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.coverUrl != null)
-              Center(child: Image.network(widget.coverUrl!, height: 180)),
+              Stack(
+                children: [
+                  Center(child: Image.network(widget.coverUrl!, height: 180)),
+                  if (_ownership != BookOwnership.none)
+                    Positioned(
+                      left: 8,
+                      bottom: 8,
+                      child: Chip(
+                        label: Text(
+                          _ownership == BookOwnership.physical
+                              ? 'Physical'
+                              : _ownership == BookOwnership.digital
+                              ? 'Digital'
+                              : _ownership == BookOwnership.both
+                              ? 'Owned Both'
+                              : _ownership == BookOwnership.kindleUnlimited
+                              ? 'Kindle Unlimited'
+                              : '',
+                        ),
+                        backgroundColor: _ownershipColor(_ownership),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            const SizedBox(height: 8),
+            // Ownership selection UI (now scrollable and color-coded)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Physical'),
+                    selected: _ownership == BookOwnership.physical,
+                    selectedColor: _ownershipColor(BookOwnership.physical),
+                    labelStyle: TextStyle(
+                      color: _ownership == BookOwnership.physical
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (selected) {
+                      setState(() {
+                        _ownership = selected
+                            ? BookOwnership.physical
+                            : BookOwnership.none;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: const Text('Digital'),
+                    selected: _ownership == BookOwnership.digital,
+                    selectedColor: _ownershipColor(BookOwnership.digital),
+                    labelStyle: TextStyle(
+                      color: _ownership == BookOwnership.digital
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (selected) {
+                      setState(() {
+                        _ownership = selected
+                            ? BookOwnership.digital
+                            : BookOwnership.none;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: const Text('Both'),
+                    selected: _ownership == BookOwnership.both,
+                    selectedColor: _ownershipColor(BookOwnership.both),
+                    labelStyle: TextStyle(
+                      color: _ownership == BookOwnership.both
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (selected) {
+                      setState(() {
+                        _ownership = selected
+                            ? BookOwnership.both
+                            : BookOwnership.none;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: const Text('Kindle Unlimited'),
+                    selected: _ownership == BookOwnership.kindleUnlimited,
+                    selectedColor: _ownershipColor(
+                      BookOwnership.kindleUnlimited,
+                    ),
+                    labelStyle: TextStyle(
+                      color: _ownership == BookOwnership.kindleUnlimited
+                          ? Colors.white
+                          : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onSelected: (selected) {
+                      setState(() {
+                        _ownership = selected
+                            ? BookOwnership.kindleUnlimited
+                            : BookOwnership.none;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
-            Center(
-              child: Text(
-                widget.title,
-                style: theme.textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Center(
-              child: Text(
-                'by ${widget.author}',
-                style: theme.textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 24),
 
             // --- VETTED SPICE METER ---
             Text('Your Spice Rating', style: theme.textTheme.titleLarge),
             const SizedBox(height: 16),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 28.0,
+                  horizontal: 20.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IconRatingBar(
+                    CenteredSection(
                       title: 'Overall Spice',
-                      rating: _spiceOverall,
-                      onRatingUpdate: (val) =>
-                          setState(() => _spiceOverall = val),
-                      filledIcon: Icons.local_fire_department,
-                      emptyIcon: Icons.local_fire_department_outlined,
-                      color: Colors.orange,
-                    ),
-                    const Text(
-                      'How much explicit, on-page spice is there?',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                      iconBar: IconRatingBar(
+                        title: '',
+                        rating: _spiceOverall,
+                        onRatingUpdate: (val) =>
+                            setState(() => _spiceOverall = val),
+                        filledIcon: Icons.local_fire_department,
+                        emptyIcon: Icons.local_fire_department_outlined,
+                        color: Colors.orange,
                       ),
+                      helperText: 'How much explicit, on-page spice is there?',
                     ),
-                    const SizedBox(height: 24),
-                    IconRatingBar(
+                    const SizedBox(height: 32),
+                    CenteredSection(
                       title: 'Emotional Arc',
-                      rating: _emotionalArc,
-                      onRatingUpdate: (val) =>
-                          setState(() => _emotionalArc = val),
-                      filledIcon: Icons.favorite,
-                      emptyIcon: Icons.favorite_border,
-                      color: Colors.pink,
-                    ),
-                    const Text(
-                      'How central is the romantic relationship to the plot?',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                      iconBar: IconRatingBar(
+                        title: '',
+                        rating: _emotionalArc,
+                        onRatingUpdate: (val) =>
+                            setState(() => _emotionalArc = val),
+                        filledIcon: Icons.favorite,
+                        emptyIcon: Icons.favorite_border,
+                        color: Colors.pink,
                       ),
+                      helperText:
+                          'How central is the romantic relationship to the plot?',
                     ),
-                    const SizedBox(height: 24),
-                    // Buy on Amazon button and disclosure
-                    ElevatedButton.icon(
-                      onPressed: _launchAmazon,
-                      icon: const Icon(Icons.shopping_bag),
-                      label: const Text('Buy on Amazon'),
-                    ),
-                    const SizedBox(height: 8),
-                    if (kAffiliateDisclosure.isNotEmpty)
-                      Text(
-                        kAffiliateDisclosure,
-                        style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    const SizedBox(height: 24),
-                    // Center the Primary Intensity Driver title and helper to match the IconRatingBar headings
-                    Center(
-                      child: Text(
-                        'Primary Intensity Driver',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Center(
-                      child: Text(
-                        'What is the main driver of the book\'s intensity?',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: _intensityOptions.entries.map((entry) {
-                        final isSelected = _spiceIntensity == entry.key;
-                        return InkWell(
-                          onTap: () =>
-                              setState(() => _spiceIntensity = entry.key),
-                          child: Column(
-                            children: [
-                              Icon(
-                                entry.value,
-                                size: 36,
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.disabledColor,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                entry.key,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : theme.disabledColor,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ],
+                    const SizedBox(height: 32),
+                    // --- Primary Intensity Driver ---
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Primary Intensity Driver',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      }).toList(),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'What is the main driver of the book\'s intensity?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: _intensityOptions.entries.map((entry) {
+                            final isSelected = _spiceIntensity == entry.key;
+                            return InkWell(
+                              onTap: () =>
+                                  setState(() => _spiceIntensity = entry.key),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    entry.value,
+                                    size: 36,
+                                    color: isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.disabledColor,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    entry.key,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : theme.disabledColor,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            // --- PERSONAL 1-5 STAR RATING (PRIVATE) ---
+            Text('Your Personal Rating', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12.0,
+                  horizontal: 16.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Rate this book (private)'),
+                    const SizedBox(height: 8),
+                    IconRatingBar(
+                      title: '',
+                      rating: (_personalStars ?? 0).toDouble(),
+                      onRatingUpdate: (val) =>
+                          setState(() => _personalStars = val.toInt()),
+                      filledIcon: Icons.star,
+                      emptyIcon: Icons.star_border,
+                      color: Colors.amber,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: (_ownership == BookOwnership.both)
+                  ? null
+                  : _launchAmazon,
+              icon: const Icon(Icons.shopping_bag),
+              label: const Text('Buy on Amazon'),
+            ),
+            if (kAffiliateDisclosure.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Text(
+                  kAffiliateDisclosure,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             const SizedBox(height: 24),
 
             // --- GENRE TAGS ---
@@ -336,7 +520,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             Card(
               child: ListTile(
                 title: _selectedGenres.isNotEmpty
-                    ? Text(_selectedGenres.join(', '))
+                    ? Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: _selectedGenres
+                            .map((g) => Chip(label: Text(g)))
+                            .toList(),
+                      )
                     : const Text('No genres selected'),
                 trailing: const Icon(Icons.edit),
                 onTap: _selectGenres,
@@ -397,6 +587,43 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// Add this widget at the top (after imports):
+class CenteredSection extends StatelessWidget {
+  final String title;
+  final Widget iconBar;
+  final String helperText;
+  const CenteredSection({
+    super.key,
+    required this.title,
+    required this.iconBar,
+    required this.helperText,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 2), // Tighter spacing between title and iconBar
+        iconBar,
+        const SizedBox(height: 4),
+        Text(
+          helperText,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+        ),
+      ],
     );
   }
 }

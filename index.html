@@ -1,60 +1,210 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Spicy Reads — Documentation & Policies</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spicy Reads — Discover, Track, and Rate Romance Books</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <style>
-    :root{--bg:#f7f5fb;--card:#fff;--muted:#6b6b7a;--accent:#7b4cff}
-    body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:#222;background:var(--bg)}
-    header{background:linear-gradient(90deg,#f4ebff,#fff);padding:40px 20px;text-align:center;border-bottom:1px solid #ece9f5}
-    header h1{margin:0;font-size:28px;color:#2b1437}
-    header p{margin:8px 0 0;color:var(--muted)}
-    main{max-width:920px;margin:28px auto;padding:20px}
-    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(21,16,44,0.06);padding:20px;margin-bottom:16px}
-    .links a{display:inline-block;margin-right:12px;color:var(--accent);text-decoration:none;font-weight:600}
-    footer{max-width:920px;margin:12px auto;padding:12px 20px;color:var(--muted);font-size:13px;text-align:center}
-    .brand{display:inline-flex;gap:10px;align-items:center}
-    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(180deg,#7b4cff,#9867ff);display:inline-block}
+    :root {
+      --primary: #7b4cff;
+      --secondary: #f7f5fb;
+      --card: #fff;
+      --muted: #6b6b7a;
+      --accent: #ffb347;
+      --radius: 16px;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: var(--secondary);
+      color: #222;
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(120deg, #f4ebff 0%, #e9e3ff 100%);
+      padding: 48px 0 32px 0;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(123,76,255,0.04);
+    }
+    .logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(123,76,255,0.12);
+      margin-bottom: 18px;
+      background: #fff;
+      object-fit: contain;
+      border: 2px solid #ece9f5;
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0 0 10px 0;
+      letter-spacing: -1px;
+    }
+    .hero-tagline {
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 14px 36px;
+      border-radius: 32px;
+      text-decoration: none;
+      box-shadow: 0 2px 12px rgba(123,76,255,0.10);
+      transition: background 0.2s;
+      margin-bottom: 8px;
+    }
+    .cta-btn:hover {
+      background: #5e36c6;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 28px;
+      margin: 48px auto 0 auto;
+      max-width: 900px;
+    }
+    .feature-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 16px rgba(21,16,44,0.06);
+      padding: 32px 24px 24px 24px;
+      flex: 1 1 220px;
+      min-width: 220px;
+      max-width: 260px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      box-shadow: 0 6px 32px rgba(123,76,255,0.10);
+    }
+    .feature-icon {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .feature-desc {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .docs-section {
+      max-width: 900px;
+      margin: 56px auto 0 auto;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 16px rgba(21,16,44,0.06);
+      padding: 32px 24px 24px 24px;
+    }
+    .docs-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .docs-links a {
+      color: var(--primary);
+      font-weight: 600;
+      margin-right: 18px;
+      text-decoration: none;
+      font-size: 1.08rem;
+    }
+    .docs-links a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 56px;
+      padding: 24px 0 16px 0;
+      background: #f4ebff;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.98rem;
+      border-top: 1px solid #ece9f5;
+    }
+    .affiliate {
+      font-size: 0.95rem;
+      color: #444;
+      margin-top: 8px;
+      font-style: italic;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (max-width: 700px) {
+      .features {
+        flex-direction: column;
+        gap: 18px;
+      }
+      .docs-section {
+        padding: 18px 6vw 18px 6vw;
+      }
+    }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="logo" aria-hidden="true"></span>
-      <div>
-        <h1>Spicy Reads</h1>
-        <p>Your companion for tracking, rating, and discovering romance intensity.</p>
-      </div>
-    </div>
-  </header>
-  <main>
-    <div class="card">
-      <h2>Documentation & Policies</h2>
-      <p style="color:var(--muted)">This repository hosts the Spicy Reads Flutter app. Use the links below to view docs and policies. If you are looking for the app itself, head to the GitHub repository.</p>
-      <div class="links" style="margin-top:16px">
-        <a href="/Spicy-Reads/docs/README.md">Docs README</a>
-        <a href="/Spicy-Reads/docs/PRIVACY_POLICY.md">Privacy Policy</a>
-        <a href="/Spicy-Reads/docs/TERMS_OF_SERVICE.md">Terms of Service</a>
-        <a href="/Spicy-Reads/docs/PLAY_STORE_COMPLIANCE.md">Play Store Compliance</a>
-      </div>
-    </div>
+  <section class="hero">
+    <img src="assets/logo.png" alt="Spicy Reads Logo" class="logo" />
+    <div class="hero-title">Spicy Reads</div>
+    <div class="hero-tagline">Discover, track, and rate the romance intensity of your favorite books.</div>
+    <a class="cta-btn" href="https://github.com/Hermit-commits-code/Spicy-Reads" target="_blank" rel="noopener">View on GitHub</a>
+  </section>
 
-    <div class="card">
-      <h3>Quick notes</h3>
-      <ul style="color:var(--muted)">
-        <li>The site is auto-generated from the repository's <code>/docs</code> directory (GitHub Pages).</li>
-        <li>If you'd like a full marketing landing page later, I can add a responsive one with screenshots and CTA buttons.</li>
-      </ul>
+  <section class="features">
+    <div class="feature-card">
+      <span class="feature-icon"><i class="ph ph-fire"></i></span>
+      <div class="feature-title">Spice Meter</div>
+      <div class="feature-desc">Rate and discover books by their explicitness and emotional arc, not just genre.</div>
     </div>
+    <div class="feature-card">
+      <span class="feature-icon"><i class="ph ph-books"></i></span>
+      <div class="feature-title">Track Your Library</div>
+      <div class="feature-desc">Organize your reads, set status, and keep private notes on every book.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><i class="ph ph-magnifying-glass"></i></span>
+      <div class="feature-title">Deep Trope Search</div>
+      <div class="feature-desc">Find books by tropes, tags, and intensity drivers for a truly custom experience.</div>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><i class="ph ph-shield-check"></i></span>
+      <div class="feature-title">Privacy First</div>
+      <div class="feature-desc">Your data stays yours. Transparent privacy policy and no surprise tracking.</div>
+    </div>
+  </section>
 
-    <div class="card">
-      <h3>Want it prettier?</h3>
-      <p style="color:var(--muted)">I can replace this with a small static marketing page (hero, features, privacy CTA) or wire up a GitHub Pages action to publish a built site. Tell me which you'd prefer and I’ll implement it.</p>
+  <section class="docs-section">
+    <div class="docs-title">Documentation & Policies</div>
+    <div class="docs-links">
+      <a href="docs/README.md">Docs README</a>
+      <a href="docs/PRIVACY_POLICY.md">Privacy Policy</a>
+      <a href="docs/TERMS_OF_SERVICE.md">Terms of Service</a>
+      <a href="docs/PLAY_STORE_COMPLIANCE.md">Play Store Compliance</a>
     </div>
-  </main>
-  <footer>
-    Spicy Reads — created by you. Hosted on GitHub Pages. &middot; <a href="https://github.com/Hermit-commits-code/Spicy-Reads" style="color:var(--accent)">Repository</a>
+  </section>
+
+  <footer class="footer">
+    <div>Spicy Reads &copy; 2025 &middot; <a href="https://github.com/Hermit-commits-code/Spicy-Reads" style="color:var(--primary);text-decoration:none;font-weight:600;">GitHub</a></div>
+    <div class="affiliate">
+      Spicy Reads participates in the Amazon Services LLC Associates Program and may earn from qualifying purchases.
+    </div>
   </footer>
 </body>
 </html>
+

@@ -27,36 +27,35 @@ class IconRatingBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // wrap title in Center to guarantee it's centered relative to the icons below
-        Center(
-          child: Text(
+        if (title.isNotEmpty)
+          Text(
             title,
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
                 ?.copyWith(fontWeight: FontWeight.bold),
+            textHeightBehavior: const TextHeightBehavior(
+              applyHeightToFirstAscent: false,
+              applyHeightToLastDescent: false,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        // ensure the row of icons is centered
-        Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(iconCount, (index) {
-              return IconButton(
-                iconSize: 36,
-                icon: Icon(
-                  index < rating ? filledIcon : emptyIcon,
-                  color: color,
-                ),
-                onPressed: () {
-                  onRatingUpdate(index + 1.0);
-                },
-              );
-            }),
-          ),
+        // No SizedBox or gap here
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(iconCount, (index) {
+            return IconButton(
+              iconSize: 36,
+              icon: Icon(
+                index < rating ? filledIcon : emptyIcon,
+                color: color,
+              ),
+              onPressed: () {
+                onRatingUpdate(index + 1.0);
+              },
+            );
+          }),
         ),
       ],
     );

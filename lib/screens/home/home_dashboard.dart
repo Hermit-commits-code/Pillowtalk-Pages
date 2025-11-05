@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/user_book.dart';
+import '../library/finished_books_screen.dart';
 import '../../services/user_library_service.dart';
 
 class HomeDashboard extends StatefulWidget {
@@ -29,9 +30,15 @@ class _HomeDashboardState extends State<HomeDashboard> {
         }
         final books = snapshot.data ?? [];
 
-        final wantToRead = books.where((b) => b.status == ReadingStatus.wantToRead).toList();
-        final currentlyReading = books.where((b) => b.status == ReadingStatus.reading).toList();
-        final finished = books.where((b) => b.status == ReadingStatus.finished).toList();
+        final wantToRead = books
+            .where((b) => b.status == ReadingStatus.wantToRead)
+            .toList();
+        final currentlyReading = books
+            .where((b) => b.status == ReadingStatus.reading)
+            .toList();
+        final finished = books
+            .where((b) => b.status == ReadingStatus.finished)
+            .toList();
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -41,9 +48,28 @@ class _HomeDashboardState extends State<HomeDashboard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _StatCard(label: 'Want to Read', count: wantToRead.length, color: Colors.blue),
-                  _StatCard(label: 'Reading', count: currentlyReading.length, color: Colors.purple),
-                  _StatCard(label: 'Finished', count: finished.length, color: Colors.green),
+                  _StatCard(
+                    label: 'Want to Read',
+                    count: wantToRead.length,
+                    color: Colors.blue,
+                  ),
+                  _StatCard(
+                    label: 'Reading',
+                    count: currentlyReading.length,
+                    color: Colors.purple,
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const FinishedBooksScreen(),
+                      ),
+                    ),
+                    child: _StatCard(
+                      label: 'Finished',
+                      count: finished.length,
+                      color: Colors.green,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -55,7 +81,8 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: currentlyReading.length,
-                    separatorBuilder: (context, index) => const SizedBox(width: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
                     itemBuilder: (context, idx) {
                       final book = currentlyReading[idx];
                       return _BookCard(userBook: book);
@@ -94,14 +121,16 @@ class _StatCard extends StatelessWidget {
             Text(
               '$count',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: color),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: color),
             ),
           ],
         ),
