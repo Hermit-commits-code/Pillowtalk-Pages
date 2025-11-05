@@ -23,7 +23,9 @@ exports.aggregateRating = onDocumentWritten(
     const bookRef = db.collection('book_aggregates').doc(bookId);
     const ratingsQuery = db.collection('ratings').where('bookId', '==', bookId);
 
-    const ratingsSnapshot = await ratingsQuery.get();
+      logger.log('aggregateRating triggered', { bookId, eventId: event.id });
+      const ratingsSnapshot = await ratingsQuery.get();
+      logger.log('ratingsSnapshot retrieved', { bookId, size: ratingsSnapshot.size });
 
     if (ratingsSnapshot.empty) {
       logger.log('No ratings found for book. Deleting aggregate.', { bookId });
@@ -31,7 +33,8 @@ exports.aggregateRating = onDocumentWritten(
       return;
     }
 
-    // Aggregate the new Vetted Spice Meter data
+  // Aggregate the new Vetted Spice Meter data
+  try {
     let totalSpice = 0.0;
     let totalEmotional = 0.0;
     let spiceCount = 0;
@@ -83,12 +86,13 @@ exports.aggregateRating = onDocumentWritten(
       warnings: Array.from(warningsSet),
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };
-
-    logger.log('Updating book aggregate (server).', {
-      bookId,
-      data: dataToUpdate,
-    });
+    logger.log('Updating book aggregate (server).', { bookId, data: dataToUpdate });
 
     await bookRef.set(dataToUpdate, { merge: true });
+    logger.log('book_aggregates write completed', { bookId });
+    } catch (err) {
+      logger.error('aggregateRating failed while computing/writing aggregates', { bookId, error: err });
+      throw err;
+    }
   },
 );
