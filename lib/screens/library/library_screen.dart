@@ -245,7 +245,7 @@ class _BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Debug: log ownership to help diagnose why ownership indicator may not show
     // This will print each time the book card is built.
-    print(
+    debugPrint(
       'BookCard render -> id=${userBook.id}, ownership=${userBook.ownership}',
     );
     return GestureDetector(

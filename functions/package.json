@@ -1,4 +1,21 @@
 {
+  "name": "spicy-reads-functions",
+  "version": "0.1.0",
+  "description": "Server verification functions for Spicy-Reads (Play subscription verification & RTDN handler)",
+  "main": "index.js",
+  "engines": {
+    "node": "18"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google-cloud/secret-manager": "^4.2.0",
+    "firebase-admin": "^11.10.0",
+    "googleapis": "^119.0.0"
+  }
+}
+{
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {

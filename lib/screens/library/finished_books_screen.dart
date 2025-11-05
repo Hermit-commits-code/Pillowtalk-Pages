@@ -55,7 +55,7 @@ class _FinishedBooksScreenState extends State<FinishedBooksScreen> {
           if (filtered.isEmpty) {
             return Center(
               child: Text(
-                'No finished books${_minStars != null ? ' (>= ${_minStars}★)' : ''}.',
+                'No finished books${_minStars != null ? ' (>= $_minStars★)' : ''}.',
               ),
             );
           }
@@ -63,7 +63,7 @@ class _FinishedBooksScreenState extends State<FinishedBooksScreen> {
           return ListView.separated(
             padding: const EdgeInsets.all(12),
             itemCount: filtered.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final ub = filtered[index];
               return ListTile(

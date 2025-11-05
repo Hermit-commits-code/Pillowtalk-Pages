@@ -25,7 +25,7 @@
 
 ## The Vein of Truth
 
-"Romance is not a genre; it's a culture. We are the first book tracker built *inside* that culture."
+"Romance is not a genre; it's a culture. We are the first book tracker built _inside_ that culture."
 
 ---
 
@@ -37,32 +37,32 @@
 
 **The Technical MOAT Components:**
 
-| Component | Description | Competitive Advantage |
-|-----------|-------------|----------------------|
-| **Deep Tropes Engine** | Multi-select search for complex combinations (e.g., "Enemies to Lovers AND Grumpy Sunshine AND Mutual Pining") | Goes beyond basic tags, serving specific search patterns of romance community |
-| **Vetted Spice Meter** | 0-5 Flames rating with mandatory sub-categories: Emotional Intensity, On-Page Sex, Content Warnings | The standard for vetting books, replacing generic competitors |
-| **Community-Driven Data** | Proprietary, validated metadata schema populated by gamified user contributions | Structurally insurmountable for generalist competitors |
-| **Hard Stops Filter** | User-defined content blocklist that filters out books with triggering content (e.g., violence, infidelity) | Protects mental health by preventing exposure to triggering content before reading |
-| **Kink Filter** | User-defined blocklist for specific kinks or tags that users may choose to exclude from results | Allows fine-grained user control over sensitive content |
+| Component                 | Description                                                                                                    | Competitive Advantage                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Deep Tropes Engine**    | Multi-select search for complex combinations (e.g., "Enemies to Lovers AND Grumpy Sunshine AND Mutual Pining") | Goes beyond basic tags, serving specific search patterns of romance community      |
+| **Vetted Spice Meter**    | 0-5 Flames rating with mandatory sub-categories: Emotional Intensity, On-Page Sex, Content Warnings            | The standard for vetting books, replacing generic competitors                      |
+| **Community-Driven Data** | Proprietary, validated metadata schema populated by gamified user contributions                                | Structurally insurmountable for generalist competitors                             |
+| **Hard Stops Filter**     | User-defined content blocklist that filters out books with triggering content (e.g., violence, infidelity)     | Protects mental health by preventing exposure to triggering content before reading |
+| **Kink Filter**           | User-defined blocklist for specific kinks or tags that users may choose to exclude from results                | Allows fine-grained user control over sensitive content                            |
 
 ### 1.B. Framework Decision Matrix
 
-| Framework | Pros | Cons | Verdict |
-|-----------|------|------|---------|
-| **Kotlin (Native)** | Best performance, true native look/feel | Android-only, highest learning curve, slowest to build | **REJECT**: Too slow and limited for rapid launch |
-| **React PWA** | Web-first, easy updates | Less native feel, custom UI/animations are cumbersome | **REJECT**: Aesthetic risk too high |
-| **Flutter** ✅ | Single codebase (Android/iOS/Web), excellent for custom UI, strong performance | Larger app size, slight learning curve | **CHOSEN**: Best blend of speed, aesthetics, cross-platform |
+| Framework           | Pros                                                                           | Cons                                                   | Verdict                                                     |
+| ------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------ | ----------------------------------------------------------- |
+| **Kotlin (Native)** | Best performance, true native look/feel                                        | Android-only, highest learning curve, slowest to build | **REJECT**: Too slow and limited for rapid launch           |
+| **React PWA**       | Web-first, easy updates                                                        | Less native feel, custom UI/animations are cumbersome  | **REJECT**: Aesthetic risk too high                         |
+| **Flutter** ✅      | Single codebase (Android/iOS/Web), excellent for custom UI, strong performance | Larger app size, slight learning curve                 | **CHOSEN**: Best blend of speed, aesthetics, cross-platform |
 
 ### 1.C. Technical Stack Blueprint
 
-| Feature | Technology | Rationale | Required Packages |
-|---------|------------|-----------|-------------------|
+| Feature                | Technology                  | Rationale                                    | Required Packages                                   |
+| ---------------------- | --------------------------- | -------------------------------------------- | --------------------------------------------------- |
 | **Backend & Database** | Firebase (Firestore & Auth) | Free tier, serverless, zero maintenance cost | `firebase_core`, `firebase_auth`, `cloud_firestore` |
-| **Book Data** | Google Books API (REST) | Free metadata (Title, Author, ISBN, Cover) | `dio` or `http` |
-| **Navigation** | Go Router | Modern declarative routing | `go_router` |
-| **Local Storage** | Shared Preferences | Age gate flag storage | `shared_preferences` |
-| **External Links** | URL Launcher | Amazon Associates links | `url_launcher` |
-| **Monetization** | In-App Purchase | Pro subscription handling | `in_app_purchase` |
+| **Book Data**          | Google Books API (REST)     | Free metadata (Title, Author, ISBN, Cover)   | `dio` or `http`                                     |
+| **Navigation**         | Go Router                   | Modern declarative routing                   | `go_router`                                         |
+| **Local Storage**      | Shared Preferences          | Age gate flag storage                        | `shared_preferences`                                |
+| **External Links**     | URL Launcher                | Amazon Associates links                      | `url_launcher`                                      |
+| **Monetization**       | In-App Purchase             | Pro subscription handling                    | `in_app_purchase`                                   |
 
 ---
 
@@ -70,13 +70,13 @@
 
 **Design Strategy:** Dark mode focus, exclusive, luxurious, and intimate feel.
 
-| Color Name | Hex Code | Usage |
-|------------|----------|-------|
-| **Primary Rose** | `0xFF8B0000` | Main accent, primary action buttons, branding |
-| **Secondary Gold** | `0xFFFFD700` | Highlights, Spice Meter flames, Pro feature call-outs |
-| **Background Midnight** | `0xFF0F0F0F` | Main background, depth, and luxury |
-| **Card Dark** | `0xFF1A1A1A` | Separating cards and list items |
-| **Text Soft White** | `0xFFF5F5F5` | Primary text for readability |
+| Color Name              | Hex Code     | Usage                                                 |
+| ----------------------- | ------------ | ----------------------------------------------------- |
+| **Primary Rose**        | `0xFF8B0000` | Main accent, primary action buttons, branding         |
+| **Secondary Gold**      | `0xFFFFD700` | Highlights, Spice Meter flames, Pro feature call-outs |
+| **Background Midnight** | `0xFF0F0F0F` | Main background, depth, and luxury                    |
+| **Card Dark**           | `0xFF1A1A1A` | Separating cards and list items                       |
+| **Text Soft White**     | `0xFFF5F5F5` | Primary text for readability                          |
 
 ---
 
@@ -84,9 +84,9 @@
 
 ### 3.A. Pricing Tiers
 
-| Tier | Feature Access | Value Proposition | Price |
-|------|----------------|-------------------|-------|
-| **Free (Default)** | Track up to 50 books, Basic Spice/Trope search (1-2 tags), Core reading log | Full functionality for casual readers | **$0.00** |
+| Tier                            | Feature Access                                                                                                   | Value Proposition                     | Price                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------------- |
+| **Free (Default)**              | Track up to 50 books, Basic Spice/Trope search (1-2 tags), Core reading log                                      | Full functionality for casual readers | **$0.00**                           |
 | **Pro: The Connoisseur's Club** | Unlimited tracking, Full Deep Tropes Engine (3+ tag combinations), Advanced analytics, Exclusive themes, Ad-free | Essential for serious romance readers | **Annual: $19.99** / Monthly: $2.99 |
 
 ### 3.B. Conservative Year 1 Revenue Projection
@@ -133,13 +133,13 @@
 
 ### 4.B. Google Play Console Compliance Checklist
 
-| Compliance Step | Action Required | Console Section |
-|-----------------|-----------------|-----------------|
-| **Content Rating** | Declare sexual content and user-generated content for Mature (17+) rating | App Content → Content Rating |
-| **Target Audience** | Select 18 and over | App Content → Target audience |
-| **App Access** | Provide test credentials for reviewer access | App Content → App Access |
-| **Privacy Policy** | Host public URL detailing data collection | App Content → Privacy Policy |
-| **Amazon Disclosure** | Visible affiliate disclosure in app | Store Listing and In-App UI |
+| Compliance Step       | Action Required                                                           | Console Section               |
+| --------------------- | ------------------------------------------------------------------------- | ----------------------------- |
+| **Content Rating**    | Declare sexual content and user-generated content for Mature (17+) rating | App Content → Content Rating  |
+| **Target Audience**   | Select 18 and over                                                        | App Content → Target audience |
+| **App Access**        | Provide test credentials for reviewer access                              | App Content → App Access      |
+| **Privacy Policy**    | Host public URL detailing data collection                                 | App Content → Privacy Policy  |
+| **Amazon Disclosure** | Visible affiliate disclosure in app                                       | Store Listing and In-App UI   |
 
 ---
 
@@ -155,13 +155,13 @@ We'll follow **Semantic Versioning (SemVer)** with the format: `MAJOR.MINOR.PATC
 
 ### Phase-Based Versioning Plan
 
-| Phase | Version Range | Description |
-|-------|---------------|-------------|
-| **Phase 1** | 0.1.0 - 0.1.x | Project setup, Firebase, Theme |
-| **Phase 2** | 0.2.0 - 0.2.x | Authentication & Compliance |
-| **Phase 3** | 0.3.0 - 0.3.x | Core features & MOAT |
-| **Phase 4** | 0.4.0 - 0.4.x | Distribution prep |
-| **Production** | 1.0.0+ | Play Store release |
+| Phase          | Version Range | Description                    |
+| -------------- | ------------- | ------------------------------ |
+| **Phase 1**    | 0.1.0 - 0.1.x | Project setup, Firebase, Theme |
+| **Phase 2**    | 0.2.0 - 0.2.x | Authentication & Compliance    |
+| **Phase 3**    | 0.3.0 - 0.3.x | Core features & MOAT           |
+| **Phase 4**    | 0.4.0 - 0.4.x | Distribution prep              |
+| **Production** | 1.0.0+        | Play Store release             |
 
 ### Git Workflow for Each Step
 
@@ -206,21 +206,21 @@ cd pillowtalk_pages
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # Firebase Core
   firebase_core: ^2.24.2
   firebase_auth: ^4.15.3
   cloud_firestore: ^4.13.6
-  
+
   # Utility & Navigation
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.2
   go_router: ^12.1.3
-  
+
   # API/Network & Monetization
   dio: ^5.4.0
   in_app_purchase: ^3.1.11
-  
+
   # UI Enhancements
   google_fonts: ^6.1.0
 
@@ -286,6 +286,7 @@ flutterfire configure
 ### Firebase Console: Enable Services
 
 1. **Authentication:**
+
    - Go to Build → Authentication → Get started
    - Sign-in method → Enable Email/Password and Google
 
@@ -334,15 +335,15 @@ service cloud.firestore {
     // The proprietary MOAT data collection
     match /books/{bookId} {
       // Allow read access to everyone (essential for search)
-      allow read: if true; 
+      allow read: if true;
       // Allow write only if authenticated
-      allow create, update: if request.auth.uid != null; 
+      allow create, update: if request.auth.uid != null;
     }
 
     // User-submitted ratings (contributes to MOAT)
     match /ratings/{ratingId} {
       // Users can only submit/edit their own ratings
-      allow read, write: if request.auth.uid != null 
+      allow read, write: if request.auth.uid != null
         && ratingId.matches('^' + request.auth.uid + '_.*');
     }
   }
@@ -391,7 +392,7 @@ final ThemeData pillowtalkTheme = ThemeData(
   primaryColor: primaryRose,
   scaffoldBackgroundColor: backgroundMidnight,
   brightness: Brightness.dark,
-  
+
   // Elegant Typography
   textTheme: GoogleFonts.cormorantGaramondTextTheme(
     ThemeData.dark().textTheme,
@@ -399,14 +400,14 @@ final ThemeData pillowtalkTheme = ThemeData(
     bodyColor: textSoftWhite,
     displayColor: textSoftWhite,
   ),
-  
+
   colorScheme: const ColorScheme.dark(
     primary: primaryRose,
     secondary: secondaryGold,
     surface: backgroundMidnight,
     onSurface: textSoftWhite,
   ),
-  
+
   appBarTheme: AppBarTheme(
     backgroundColor: backgroundMidnight,
     elevation: 0,
@@ -416,7 +417,7 @@ final ThemeData pillowtalkTheme = ThemeData(
       fontWeight: FontWeight.bold,
     ),
   ),
-  
+
   cardTheme: CardTheme(
     color: cardDark,
     shape: RoundedRectangleBorder(
@@ -424,7 +425,7 @@ final ThemeData pillowtalkTheme = ThemeData(
     ),
     elevation: 4.0,
   ),
-  
+
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: primaryRose,
@@ -434,7 +435,7 @@ final ThemeData pillowtalkTheme = ThemeData(
       ),
     ),
   ),
-  
+
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
     fillColor: cardDark,
@@ -486,12 +487,12 @@ import 'config/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase with generated options
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   runApp(const PillowtalkPagesApp());
 }
 
@@ -564,7 +565,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _initializeApp() async {
     // Add a brief delay for splash effect
     await Future.delayed(const Duration(seconds: 2));
-    
+
     final prefs = await SharedPreferences.getInstance();
     final bool isVerified = prefs.getBool('age_verified') ?? false;
 
@@ -585,7 +586,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _showAgeVerificationDialog() async {
     if (!mounted) return;
-    
+
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -719,7 +720,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      
+
       if (mounted) {
         context.go('/home');
       }
@@ -1275,31 +1276,37 @@ final GoRouter router = GoRouter(
 **Next:** Version bump to v0.3.4 and conventional commit/push
 
 - **Book Tracking (Add/Update/Remove):**
+
   - Implement a `UserLibraryService` to handle adding, updating, and removing books from the user's library in Firestore.
   - Use the `UserBook` model for all user-specific book data.
   - UI: Integrate add/update/remove actions into the Add Book screen and Library screen.
 
 - **Reading Status:**
+
   - Allow users to set and update reading status (Want to Read, Reading, Finished) for each book.
   - Store status in the `UserBook` document in Firestore.
   - UI: Status selector in Book Detail and Library screens.
 
 - **Ratings & Spice Meter:**
+
   - Allow users to rate books (Spice Meter, Emotional Intensity, Content Warnings) and add notes.
   - Store ratings in the `UserBook` document and aggregate in a `/ratings` or `/books` subcollection for community data.
   - UI: Rating widgets in Book Detail and Add Book screens.
 
 - **Community Data Aggregation:**
+
   - Aggregate ratings, tropes, and warnings from all users for each book.
   - Update the `RomanceBook` model with community averages and top tropes/warnings.
   - UI: Display community data in Book Detail and Search screens.
 
 - **Required Files/Services:**
+
   - `lib/services/user_library_service.dart` (new): Handles all user library CRUD operations.
   - Update `lib/models/user_book.dart` and `lib/models/book_model.dart` as needed.
   - Update Book Detail, Add Book, and Library screens to connect to these services.
 
 - **Firestore Structure:**
+
   - `/users/{userId}/library/{userBookId}`: User-specific book tracking.
   - `/books/{bookId}`: Aggregated book data (community ratings, tropes, etc).
   - `/ratings/{ratingId}`: (Optional) For advanced aggregation or analytics.
@@ -1404,11 +1411,13 @@ Notes:
 **Implementation Requirements:**
 
 1. **User Kink Filter Model:**
+
    - Add `kinkFilter: List<String>` to user profile document
    - Store in `/users/{userId}` Firestore document
    - Example values: ["CNC", "breeding", "pet play", "daddy kink", "age play", "exhibitionism"]
 
 1. **Kink Filter Management UI (Profile Screen):**
+
    - Add "Kink Filters" section in Profile
    - Display list of common kinks/fetishes with checkboxes
    - Allow custom text input for user-specific kinks
@@ -1444,16 +1453,19 @@ Notes:
    ```
 
 1. **Filtering Logic:**
+
    - When displaying book lists (Search, Library, Home), check each book's `communityKinks` or `topKinks` field (to be added to book model)
    - Filter out books where ANY kink matches user's `kinkFilter`
    - Show filter indicator: "X books hidden by your kink filters"
    - Add "Temporarily show filtered books" toggle for user control
 
 1. **Search Integration:**
+
    - Deep Trope Search and Add Book must respect Kink Filter by default
    - Library screen can show user's existing books (grandfathered) with warning badge
 
 1. **Data Model Updates:**
+
    - Update `/users/{userId}` document schema:
 
      ```dart
@@ -1495,11 +1507,13 @@ Notes:
 **Implementation Requirements:**
 
 1. **User Hard Stops Model:**
+
    - Add `hardStops: List<String>` to user profile document
    - Store in `/users/{userId}` Firestore document
    - Example values: ["infidelity", "violence", "dubious consent", "cheating", "death of parent", "sexual assault"]
 
 2. **Hard Stops Management UI (Profile Screen):**
+
    - Add "Content Filters" section in Profile
    - Display list of common content warnings with checkboxes
    - Allow custom text input for user-specific triggers
@@ -1529,17 +1543,20 @@ Notes:
    ```
 
 4. **Filtering Logic:**
+
    - When displaying book lists (Search, Library, Home), check each book's `topWarnings` field
    - Filter out books where ANY warning matches user's `hardStops`
    - Show filter indicator: "X books hidden by your content filters"
    - Add "Temporarily show filtered books" toggle for user control
 
 5. **Search Integration:**
+
    - Deep Trope Search must respect Hard Stops by default
    - Add Book screen search results must filter out hard stop books
    - Library screen can show user's existing books (grandfathered) with warning badge
 
 6. **Data Model Updates:**
+
    - Update `/users/{userId}` document schema:
 
      ```dart
@@ -1735,11 +1752,11 @@ class UserBook {
       currentPage: json['currentPage'] as int? ?? 0,
       totalPages: json['totalPages'] as int?,
       dateAdded: DateTime.parse(json['dateAdded'] as String),
-      dateStarted: json['dateStarted'] != null 
-          ? DateTime.parse(json['dateStarted'] as String) 
+      dateStarted: json['dateStarted'] != null
+          ? DateTime.parse(json['dateStarted'] as String)
           : null,
-      dateFinished: json['dateFinished'] != null 
-          ? DateTime.parse(json['dateFinished'] as String) 
+      dateFinished: json['dateFinished'] != null
+          ? DateTime.parse(json['dateFinished'] as String)
           : null,
       userSpiceRating: (json['userSpiceRating'] as num?)?.toDouble(),
       userEmotionalRating: (json['userEmotionalRating'] as num?)?.toDouble(),
@@ -1826,7 +1843,7 @@ class GoogleBooksService {
   RomanceBook _parseBookFromGoogleBooks(Map<String, dynamic> item) {
     final volumeInfo = item['volumeInfo'] as Map<String, dynamic>? ?? {};
     final industryIdentifiers = volumeInfo['industryIdentifiers'] as List<dynamic>? ?? [];
-    
+
     // Extract ISBN
     String isbn = '';
     for (final identifier in industryIdentifiers) {
@@ -1842,7 +1859,7 @@ class GoogleBooksService {
                       imageLinks['large'] as String? ??
                       imageLinks['medium'] as String? ??
                       imageLinks['thumbnail'] as String?;
-    
+
     // Convert HTTP to HTTPS for image URLs
     if (imageUrl != null && imageUrl.startsWith('http:')) {
       imageUrl = imageUrl.replaceFirst('http:', 'https:');
@@ -1941,7 +1958,7 @@ class HomeDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Sanctuary'),
@@ -2204,6 +2221,7 @@ class ProfileTab extends StatelessWidget {
 **Legal Documents (CRITICAL - Required before submission):**
 
 - [ ] Create Privacy Policy document
+
   - Must include: data collection, Firebase Auth/Firestore usage, no data selling
   - Host on accessible URL (GitHub Pages or similar)
   - Link in app settings and Play Store listing
@@ -2317,7 +2335,7 @@ import 'package:flutter/material.dart';
 
 class BookDetailScreen extends StatelessWidget {
   final String bookId;
-  
+
   const BookDetailScreen({super.key, required this.bookId});
 
   @override
@@ -2414,6 +2432,7 @@ flutter build appbundle --release
 **Pre-submission Checklist:**
 
 1. **Create Privacy Policy** (Required for Play Store)
+
    - Host a public URL with privacy policy
    - Include Firebase data collection disclosure
    - Include Amazon Associates disclosure
@@ -2484,23 +2503,23 @@ git push origin --tags
 
 ### Detailed Version History Plan
 
-| Step | Version | Commit Message | Key Changes |
-|------|---------|----------------|-------------|
-| **1.1** | v0.1.0 | `feat: project setup and dependencies` | Flutter project, pubspec.yaml |
-| **1.2** | v0.1.1 | `feat: Firebase project setup and configuration` | Firebase console, FlutterFire CLI |
-| **1.3** | v0.1.2 | `feat: Firestore security rules for MOAT protection` | Security rules implementation |
-| **1.4** | v0.1.3 | `feat: implement sensual theme and color palette` | Custom theme, color scheme |
-| **1.5** | v0.2.0 | `feat: Firebase initialization and theme application` | main.dart, router setup |
-| **2.1** | v0.2.1 | `feat: splash screen and mandatory age gate` | Age verification compliance |
-| **2.2** | v0.2.2 | `feat: authentication screens implementation` | Login/register UI |
-| **2.3** | v0.2.3 | `feat: navigation setup with go_router` | Route configuration |
-| **3.1** | v0.3.0 | `feat: data models for MOAT implementation` | Book and user models |
-| **3.2** | v0.3.1 | `feat: Google Books API service integration` | API service layer |
-| **3.3** | v0.3.2 | `feat: core screens and home dashboard` | Main UI screens |
-| **4.1** | v0.4.0 | `feat: placeholder screens for full structure` | Complete app structure |
-| **4.2** | v0.4.1 | `feat: build and testing setup` | Debug/test configuration |
-| **4.3** | v0.4.2 | `feat: production build preparation` | Release build setup |
-| **4.4** | v1.0.0 | `feat: Play Store submission ready` | Production release |
+| Step    | Version | Commit Message                                        | Key Changes                       |
+| ------- | ------- | ----------------------------------------------------- | --------------------------------- |
+| **1.1** | v0.1.0  | `feat: project setup and dependencies`                | Flutter project, pubspec.yaml     |
+| **1.2** | v0.1.1  | `feat: Firebase project setup and configuration`      | Firebase console, FlutterFire CLI |
+| **1.3** | v0.1.2  | `feat: Firestore security rules for MOAT protection`  | Security rules implementation     |
+| **1.4** | v0.1.3  | `feat: implement sensual theme and color palette`     | Custom theme, color scheme        |
+| **1.5** | v0.2.0  | `feat: Firebase initialization and theme application` | main.dart, router setup           |
+| **2.1** | v0.2.1  | `feat: splash screen and mandatory age gate`          | Age verification compliance       |
+| **2.2** | v0.2.2  | `feat: authentication screens implementation`         | Login/register UI                 |
+| **2.3** | v0.2.3  | `feat: navigation setup with go_router`               | Route configuration               |
+| **3.1** | v0.3.0  | `feat: data models for MOAT implementation`           | Book and user models              |
+| **3.2** | v0.3.1  | `feat: Google Books API service integration`          | API service layer                 |
+| **3.3** | v0.3.2  | `feat: core screens and home dashboard`               | Main UI screens                   |
+| **4.1** | v0.4.0  | `feat: placeholder screens for full structure`        | Complete app structure            |
+| **4.2** | v0.4.1  | `feat: build and testing setup`                       | Debug/test configuration          |
+| **4.3** | v0.4.2  | `feat: production build preparation`                  | Release build setup               |
+| **4.4** | v1.0.0  | `feat: Play Store submission ready`                   | Production release                |
 
 ### Branch Strategy (Optional)
 
@@ -2552,3 +2571,69 @@ git push origin --tags
 ```
 
 This version control strategy ensures complete traceability of your development progress and provides clear rollback points if needed during development.
+
+---
+
+## 2025-11: Single-user subscription-first pivot
+
+Goal: Stabilize Spicy Reads as a single-user, personal book-tracking app that
+leverages the SPICE meter and per-user Trope search, and support a paid
+subscription (monthly & annual) for power users.
+
+High-level objectives
+
+- Preserve and improve the per-user experience (users/{uid}/library) — no
+  client writes to shared `books/{bookId}` collection.
+- Gate premium capabilities behind a Pro subscription: unlimited books,
+  deep-trope features, advanced SPICE analytics, backups, and export.
+- Implement server-side verification for subscriptions (Google Play and
+  App Store). Use Cloud Functions / Cloud Run to verify receipts and handle
+  Real-Time Developer Notifications (RTDN). Client SDKs only initiate
+  purchases and forward tokens to the server for verification.
+
+Short-term milestones
+
+- [ ] Stabilize personal-only UX and remove or archive community/admin tools.
+- [ ] Add automated tests for Pro gating and trope search.
+- [ ] Implement server verification Cloud Function for Google Play.
+- [ ] Configure Play Console product IDs (pro_monthly, pro_annual) and
+      test via internal testing & license testers.
+
+Mapping to code & artifacts
+
+- Client-side:
+
+  - `lib/services/iap_service.dart` — in-app purchase handling (initiate,
+    restore, listen to purchase stream). Finalize to send purchase tokens to
+    the server for verification.
+  - `lib/services/pro_status_service.dart` — canonical source for whether a
+    user is Pro (reads `users/{uid}.isPro`). Keep small developer overrides
+    limited and documented.
+  - `lib/services/user_library_service.dart` — enforces Pro gating on adds.
+
+- Server-side:
+  - `functions/index.js` — includes a test `verifyPurchase` endpoint. This
+    will be extended to call Google Play Developer API and reconcile
+    subscription state.
+  - Pub/Sub + RTDN — subscribe to Play RTDN topic; functions will update
+    `users/{uid}.isPro` on renewals/cancellations.
+
+Security & privacy
+
+- Never mark users Pro from client-only events in production. All final
+  elevation to Pro must come from server-side verified receipts.
+- Use Secret Manager or proper service account runtime configuration; do not
+  check JSON keys into source control.
+
+Testing strategy
+
+- Use the test `verifyPurchase` endpoint for QA while building server
+  verification.
+- Use Play Console internal testing + license testers for Android.
+- Use App Store sandbox testers for iOS when ready.
+
+Notes
+
+- This pivot favors single-user functionality and subscription revenue.
+  Community writes and shared collection backfills should be archived or
+  moved to an admin-only tooling area.

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class IAPService {
@@ -52,16 +53,33 @@ class IAPService {
   }
 
   Future<void> _updateFirestoreWithPurchase(PurchaseDetails purchase) async {
-    // Implement Firestore update logic here.
-    // Example: Save purchase info to Firestore for tracking.
-    await FirebaseFirestore.instance.collection('purchases').add({
+    // Save purchase info to Firestore for tracking.
+    final data = {
       'purchaseID': purchase.purchaseID,
       'productID': purchase.productID,
       'status': purchase.status.toString(),
       'transactionDate': purchase.transactionDate,
       'verificationData': purchase.verificationData.serverVerificationData,
       'pendingCompletePurchase': purchase.pendingCompletePurchase,
-    });
+    };
+
+    await FirebaseFirestore.instance.collection('purchases').add(data);
+
+    // If we have a signed-in user, mark them as Pro (stub verification).
+    // NOTE: Replace this stub with server-side verification for production.
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'isPro': true,
+          'proProductId': purchase.productID,
+          'proSince': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        // If marking as Pro fails, we still keep the purchases record.
+        // Use debugPrint if available in this file context.
+      }
+    }
   }
 
   Future<void> restorePurchases() async {

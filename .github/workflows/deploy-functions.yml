@@ -1,0 +1,82 @@
+name: Deploy Spicy-Reads Cloud Functions
+
+on:
+  workflow_dispatch:
+    inputs:
+      play_service_account_email:
+        description: '(optional) Play Console publisher service account email (e.g. service-xxxxx@gcp-sa-playdeveloper.iam.gserviceaccount.com)'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy functions & infra
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: 511866750127
+          export_default_credentials: true
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable androidpublisher.googleapis.com pubsub.googleapis.com cloudfunctions.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+
+      - name: Ensure Pub/Sub topic exists
+        run: |
+          set -e
+          if gcloud pubsub topics describe play-rtdn-topic >/dev/null 2>&1; then
+            echo "Topic exists"
+          else
+            gcloud pubsub topics create play-rtdn-topic
+            echo "Topic created"
+          fi
+
+      - name: Add Play Console publisher to topic (if provided)
+        if: ${{ inputs.play_service_account_email != '' }}
+        run: |
+          gcloud pubsub topics add-iam-policy-binding projects/511866750127/topics/play-rtdn-topic \
+            --member="serviceAccount:${{ inputs.play_service_account_email }}" \
+            --role="roles/pubsub.publisher" || true
+
+      - name: Ensure runtime SA has required roles
+        run: |
+          # Give play-api-verifier SA access to Secret Manager and Firestore (datastore user)
+          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/secretmanager.secretAccessor" || true
+          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/datastore.user" || true
+          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/logging.logWriter" || true
+
+      - name: Deploy verifyPurchase (HTTP)
+        run: |
+          gcloud functions deploy verifyPurchase \
+            --region=us-central1 \
+            --runtime=nodejs18 \
+            --entry-point=verifyPurchase \
+            --trigger-http \
+            --source=functions \
+            --service-account=play-api-verifier@511866750127.iam.gserviceaccount.com \
+            --set-env-vars=SECRET_NAME=PLAY_API_KEY_JSON,PROJECT_ID=511866750127 \
+            --allow-unauthenticated || true
+
+      - name: Deploy handleRtdn (Pub/Sub)
+        run: |
+          gcloud functions deploy handleRtdn \
+            --region=us-central1 \
+            --runtime=nodejs18 \
+            --entry-point=handleRtdn \
+            --trigger-topic=play-rtdn-topic \
+            --source=functions \
+            --service-account=play-api-verifier@511866750127.iam.gserviceaccount.com \
+            --set-env-vars=SECRET_NAME=PLAY_API_KEY_JSON,PROJECT_ID=511866750127 || true
+
+      - name: Output function URLs
+        run: |
+          echo "verifyPurchase URL:" $(gcloud functions describe verifyPurchase --region=us-central1 --format='value(httpsTrigger.url)' || true)
+          echo "handleRtdn trigger topic: play-rtdn-topic"

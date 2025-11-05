@@ -10,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
-import '../../services/user_library_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   /// Optional provider for the current Firebase [User].
@@ -31,7 +30,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _hardStopsEnabled = true;
   final TextEditingController _customHardStopController =
       TextEditingController();
-  bool _isBackfilling = false;
   // Kink filter state
   List<String> _kinkFilters = [];
   bool _kinkFilterEnabled = true;
@@ -317,106 +315,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            onPressed: _isBackfilling
-                ? null
-                : () async {
-                    final outerMessenger = ScaffoldMessenger.of(context);
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (c) => AlertDialog(
-                        title: const Text('Backfill community cache'),
-                        content: const Text(
-                          'This will fetch community metadata for library entries that are missing cached tropes/warnings and update your library. Proceed?',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(c).pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(c).pop(true),
-                            child: const Text('Run'),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (confirm != true) return;
-                    if (!mounted) return;
-                    if (_isBackfilling) return;
-                    setState(() => _isBackfilling = true);
-                    final svc = UserLibraryService();
-                    String status = 'Starting...';
-                    // show progress dialog (outerMessenger captured earlier)
-                    showDialog<void>(
-                      // ignore: use_build_context_synchronously
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (ctx) {
-                        return StatefulBuilder(
-                          builder: (ctx, setStateDialog) {
-                            // capture the dialog navigator synchronously so the
-                            // async completion handler can safely pop it later
-                            final dialogNavigator = Navigator.of(ctx);
-                            svc
-                                .backfillCachedCommunityFields(
-                                  concurrency: 6,
-                                  onProgress: (done, total, updated, failed) {
-                                    setStateDialog(() {
-                                      status =
-                                          'Processed $done / $total — updated: $updated, failed: $failed';
-                                    });
-                                  },
-                                )
-                                .whenComplete(() {
-                                  if (mounted) {
-                                    // The dialog navigator was captured earlier; ensure
-                                    // the widget is still mounted before popping.
-                                    dialogNavigator.pop();
-                                    outerMessenger.showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Backfill complete — $status',
-                                        ),
-                                      ),
-                                    );
-                                    setState(() => _isBackfilling = false);
-                                  }
-                                });
-
-                            return AlertDialog(
-                              title: const Text('Backfilling...'),
-                              content: SizedBox(
-                                height: 80,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const LinearProgressIndicator(),
-                                    const SizedBox(height: 12),
-                                    Text(status),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-            icon: _isBackfilling
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.system_update_alt_outlined),
-            label: Text(
-              _isBackfilling
-                  ? 'Backfilling community cache'
-                  : 'Backfill community cache',
-            ),
-          ),
           const SizedBox(height: 16),
           Center(
             child: Text(

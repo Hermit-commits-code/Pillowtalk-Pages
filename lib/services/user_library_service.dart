@@ -4,22 +4,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 import '../models/user_book.dart';
-import 'community_data_service.dart';
-import 'google_books_service.dart';
 import 'pro_status_service.dart';
-
-class ProUpgradeRequiredException implements Exception {
-  final String message;
-  ProUpgradeRequiredException(this.message);
-  @override
-  String toString() => message;
-}
+import 'pro_exceptions.dart';
 
 class UserLibraryService {
+  /// Optional override for the current user id. Useful for single-user
+  /// setups or testing where FirebaseAuth may not be used.
+  final String? _overrideUserId;
+
+  UserLibraryService([this._overrideUserId]);
   static const int freeUserBookLimit = 2;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String get _userId {
+    if (_overrideUserId != null && _overrideUserId.isNotEmpty) {
+      return _overrideUserId;
+    }
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('User not logged in, cannot access library.');
@@ -31,15 +31,25 @@ class UserLibraryService {
       _firestore.collection('users').doc(_userId).collection('library');
 
   Future<void> addBook(UserBook userBook) async {
-    final isPro = await ProStatusService().isPro();
+    // Enforce Pro gating for adding books: users who are not Pro may only
+    // add up to `freeUserBookLimit` books. They can always read their library.
+    final proService = ProStatusService();
+    final isPro = await proService.isPro();
+
     if (!isPro) {
-      final count = await _libraryRef.count().get().then(
-        (snap) => snap.count ?? 0,
-      );
-      if (count >= freeUserBookLimit) {
-        throw ProUpgradeRequiredException(
-          'Free users can only track up to $freeUserBookLimit books. Upgrade to Pro for unlimited tracking.',
-        );
+      try {
+        final current = await _libraryRef.get();
+        if (current.docs.length >= freeUserBookLimit) {
+          throw ProUpgradeRequiredException(
+            'Upgrade to Pro to add more books. Visit The Connoisseur\'s Club to upgrade.',
+          );
+        }
+      } catch (e) {
+        // If it's a firebase exception or other, rethrow so callers can show a message.
+        if (e is ProUpgradeRequiredException) rethrow;
+        debugPrint('Error checking existing library size: $e');
+        // Allow attempt to continue if incidental read failed; downstream
+        // write will still surface an error if it fails.
       }
     }
 
@@ -112,60 +122,83 @@ class UserLibraryService {
     );
   }
 
+  /// Return top tropes from the current user's library (counts both
+  /// cachedTropes and userSelectedTropes). Used for personal autocomplete.
+  Future<List<String>> getTopTropesFromLibrary({int limit = 50}) async {
+    try {
+      final snap = await _libraryRef.get();
+      final Map<String, int> counts = {};
+      for (final doc in snap.docs) {
+        final data = doc.data();
+        final cached = List.from(
+          data['cachedTropes'] ?? <dynamic>[],
+        ).map((e) => e.toString()).toList();
+        final selected = List.from(
+          data['userSelectedTropes'] ?? <dynamic>[],
+        ).map((e) => e.toString()).toList();
+        for (final t in {...cached, ...selected}) {
+          final key = t.trim();
+          if (key.isEmpty) continue;
+          counts[key] = (counts[key] ?? 0) + 1;
+        }
+      }
+      final sorted = counts.keys.toList()
+        ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+      return sorted.take(limit).toList();
+    } catch (e) {
+      debugPrint('getTopTropesFromLibrary failed: $e');
+      return <String>[];
+    }
+  }
+
+  /// Search the current user's library for books that include the given
+  /// trope in either cachedTropes or userSelectedTropes. Returns a list of
+  /// RomanceBook objects (id = bookId) suitable for display/navigation.
+  Future<List<UserBook>> searchLibraryByTrope(
+    String trope, {
+    int limit = 50,
+  }) async {
+    try {
+      final results = <UserBook>[];
+      // Query both fields (Firestore doesn't support OR), so run two queries
+      final q1 = await _libraryRef
+          .where('cachedTropes', arrayContains: trope)
+          .limit(limit)
+          .get();
+      final q2 = await _libraryRef
+          .where('userSelectedTropes', arrayContains: trope)
+          .limit(limit)
+          .get();
+
+      final seen = <String>{};
+      void addFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+        final data = doc.data();
+        final ub = UserBook.fromJson(data);
+        final bookId = ub.bookId;
+        if (seen.contains(bookId)) return;
+        seen.add(bookId);
+        results.add(ub);
+      }
+
+      for (final d in q1.docs) {
+        addFromDoc(d);
+      }
+      for (final d in q2.docs) {
+        addFromDoc(d);
+      }
+
+      return results;
+    } catch (e) {
+      debugPrint('searchLibraryByTrope failed: $e');
+      return <UserBook>[];
+    }
+  }
+
   Future<UserBook?> getUserBook(String userBookId) async {
     final doc = await _libraryRef.doc(userBookId).get();
     if (doc.exists) {
       return UserBook.fromJson(doc.data()!);
     }
     return null;
-  }
-
-  Future<void> backfillCachedCommunityFields({
-    int concurrency = 6,
-    void Function(int done, int total, int updated, int failed)? onProgress,
-  }) async {
-    final all = await getUserLibraryStream().first;
-    final toProcess = all
-        .where((ub) => ub.description == null || ub.description!.isEmpty)
-        .toList();
-    final total = toProcess.length;
-    if (total == 0) {
-      if (onProgress != null) onProgress(0, 0, 0, 0);
-      return;
-    }
-    int done = 0, updated = 0, failed = 0;
-    final community = CommunityDataService();
-    final googleBooks = GoogleBooksService();
-
-    for (var i = 0; i < toProcess.length; i += concurrency) {
-      final batch = toProcess.skip(i).take(concurrency).toList();
-      final futures = batch.map((ub) async {
-        try {
-          String? description;
-          // First, try to get the description from the community data
-          final communityDoc = await community.getCommunityBookData(ub.bookId);
-          description = communityDoc?.description;
-
-          // If community data is missing, fall back to Google Books
-          if (description == null || description.isEmpty) {
-            final googleBook = await googleBooks.getBookById(ub.bookId);
-            description = googleBook?.description;
-          }
-
-          if (description != null && description.isNotEmpty) {
-            await _libraryRef.doc(ub.id).update({'description': description});
-            updated++;
-          } else {
-            failed++;
-          }
-        } catch (_) {
-          failed++;
-        } finally {
-          done++;
-          if (onProgress != null) onProgress(done, total, updated, failed);
-        }
-      });
-      await Future.wait(futures);
-    }
   }
 }

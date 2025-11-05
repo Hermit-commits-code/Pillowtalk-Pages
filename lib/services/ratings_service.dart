@@ -47,15 +47,17 @@ class RatingsService {
     try {
       // Debug: show the payload and reference path so we can confirm what the
       // client is writing (useful for investigating aggregation issues).
-      debugPrint('RatingsService: writing rating to ${ratingRef.path} with payload: $ratingData');
+      debugPrint(
+        'RatingsService: writing rating to ${ratingRef.path} with payload: $ratingData',
+      );
 
       // Read existing rating to determine if this is a new rating.
       final existing = await ratingRef.get();
       final bool isNewRating = !existing.exists;
 
-  // Save the individual rating
-  await ratingRef.set(ratingData, SetOptions(merge: true));
-  debugPrint('RatingsService: write to ${ratingRef.path} succeeded.');
+      // Save the individual rating
+      await ratingRef.set(ratingData, SetOptions(merge: true));
+      debugPrint('RatingsService: write to ${ratingRef.path} succeeded.');
       debugPrint(
         'Successfully submitted rating for book: $bookId (isNew=$isNewRating)',
       );

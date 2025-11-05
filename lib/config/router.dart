@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
 
 import '../models/book_model.dart';
@@ -9,15 +10,17 @@ import '../screens/book/book_detail_screen.dart';
 import '../screens/home/home_dashboard.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/library/library_screen.dart';
-import '../screens/pro/pro_club_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/search/deep_trope_search_screen.dart';
+import '../screens/pro/pro_club_screen.dart';
+import '../screens/dev/dev_qa_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
     final user = FirebaseAuth.instance.currentUser;
-    final isAuthRoute = state.matchedLocation == '/login' ||
+    final isAuthRoute =
+        state.matchedLocation == '/login' ||
         state.matchedLocation == '/register';
 
     if (user == null && !isAuthRoute) {
@@ -45,6 +48,11 @@ final GoRouter router = GoRouter(
           path: '/search',
           name: 'search',
           builder: (context, state) => const DeepTropeSearchScreen(),
+        ),
+        GoRoute(
+          path: '/pro-club',
+          name: 'pro-club',
+          builder: (context, state) => const ProClubScreen(),
         ),
         GoRoute(
           path: '/library',
@@ -83,9 +91,11 @@ final GoRouter router = GoRouter(
       path: '/add-book',
       builder: (context, state) => const AddBookScreen(),
     ),
-    GoRoute(
-      path: '/pro-club',
-      builder: (context, state) => const ProClubScreen(),
-    ),
+    if (kDebugMode)
+      GoRoute(
+        path: '/dev-qa',
+        builder: (context, state) => const DevQAScreen(),
+      ),
+    // Pro club route removed for single-user builds
   ],
 );

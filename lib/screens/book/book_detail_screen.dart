@@ -103,7 +103,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           })
           .catchError((e) {
             // ignore; non-fatal if load fails
-            print('Failed to load userBook in detail screen: $e');
+            debugPrint('Failed to load userBook in detail screen: $e');
           });
     }
   }
@@ -179,7 +179,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           await userLib.updateBook(updated);
 
           // Important: Refresh the UI state to show the updated data was saved
-          print('Book updated successfully: ${updated.id}');
+          debugPrint('Book updated successfully: ${updated.id}');
         }
       }
 
@@ -194,8 +194,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to save changes: $e')));
-      // TODO: Consider using a proper logging framework instead of print
-      print('Error saving book details: $e\n$st');
+      // Consider using a proper logging framework instead of print
+      debugPrint('Error saving book details: $e\n$st');
     }
   }
 
