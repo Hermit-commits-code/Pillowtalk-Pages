@@ -24,31 +24,39 @@ class IconRatingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       // center the title and icons so "Overall Spice" and "Emotional Arc" render centered
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.bold),
+        // wrap title in Center to guarantee it's centered relative to the icons below
+        Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(iconCount, (index) {
-            return IconButton(
-              iconSize: 36,
-              icon: Icon(
-                index < rating ? filledIcon : emptyIcon,
-                color: color,
-              ),
-              onPressed: () {
-                onRatingUpdate(index + 1.0);
-              },
-            );
-          }),
+        // ensure the row of icons is centered
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(iconCount, (index) {
+              return IconButton(
+                iconSize: 36,
+                icon: Icon(
+                  index < rating ? filledIcon : emptyIcon,
+                  color: color,
+                ),
+                onPressed: () {
+                  onRatingUpdate(index + 1.0);
+                },
+              );
+            }),
+          ),
         ),
       ],
     );
