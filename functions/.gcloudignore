@@ -1,0 +1,12 @@
+# .gcloudignore for functions deploys
+# Keep local development files and node_modules out of the uploaded source bundle.
+
+node_modules/
+package-lock.json
+npm-debug.log
+.env
+.DS_Store
+/.git
+/.github
+/.vscode
+*.log
