@@ -18,40 +18,24 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v1
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
           project_id: 511866750127
-          export_default_credentials: true
 
-      - name: Enable required APIs
-        run: |
-          gcloud services enable androidpublisher.googleapis.com pubsub.googleapis.com cloudfunctions.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+      # NOTE: For safety and least-privilege we skip enabling APIs and IAM bindings in CI.
+      # Please enable the required APIs and create the Pub/Sub topic + IAM bindings manually
+      # using the Console (instructions in .github/GCP_ACTIONS_README.md). This keeps the
+      # CI service account minimal and avoids serviceusage permission issues.
 
-      - name: Ensure Pub/Sub topic exists
+      - name: Ensure Pub/Sub topic exists (skipped in CI)
         run: |
-          set -e
-          if gcloud pubsub topics describe play-rtdn-topic >/dev/null 2>&1; then
-            echo "Topic exists"
-          else
-            gcloud pubsub topics create play-rtdn-topic
-            echo "Topic created"
-          fi
-
-      - name: Add Play Console publisher to topic (if provided)
-        if: ${{ inputs.play_service_account_email != '' }}
-        run: |
-          gcloud pubsub topics add-iam-policy-binding projects/511866750127/topics/play-rtdn-topic \
-            --member="serviceAccount:${{ inputs.play_service_account_email }}" \
-            --role="roles/pubsub.publisher" || true
-
-      - name: Ensure runtime SA has required roles
-        run: |
-          # Give play-api-verifier SA access to Secret Manager and Firestore (datastore user)
-          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/secretmanager.secretAccessor" || true
-          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/datastore.user" || true
-          gcloud projects add-iam-policy-binding 511866750127 --member="serviceAccount:play-api-verifier@511866750127.iam.gserviceaccount.com" --role="roles/logging.logWriter" || true
+          echo "Skipping topic creation in CI — please create 'play-rtdn-topic' manually in Cloud Console if it does not exist."
 
       - name: Deploy verifyPurchase (HTTP)
         run: |
