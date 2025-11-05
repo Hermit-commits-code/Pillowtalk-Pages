@@ -269,18 +269,25 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         textAlign: TextAlign.center,
                       ),
                     const SizedBox(height: 24),
-                    Text(
-                      'Primary Intensity Driver',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    // Center the Primary Intensity Driver title and helper to match the IconRatingBar headings
+                    Center(
+                      child: Text(
+                        'Primary Intensity Driver',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'What is the main driver of the book\'s intensity?',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                    const Center(
+                      child: Text(
+                        'What is the main driver of the book\'s intensity?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
