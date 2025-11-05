@@ -14,6 +14,82 @@ class LibraryScreen extends StatefulWidget {
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
+  int? _minStarsFilter;
+  String? _tropeFilter;
+
+  void _openFilterSheet() async {
+    final minStars = _minStarsFilter ?? 0;
+    final trope = _tropeFilter ?? '';
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      builder: (context) {
+        int selectedStars = minStars;
+        final TextEditingController tropeCtrl = TextEditingController(
+          text: trope,
+        );
+        return StatefulBuilder(
+          builder: (context, setLocalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Filter by minimum personal stars'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(6, (i) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ChoiceChip(
+                          label: Text(i == 0 ? 'Any' : '$i★'),
+                          selected: selectedStars == i,
+                          onSelected: (_) =>
+                              setLocalState(() => selectedStars = i),
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Trope contains (case-insensitive)'),
+                  const SizedBox(height: 8),
+                  TextField(controller: tropeCtrl),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(null),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop({
+                          'minStars': selectedStars == 0 ? null : selectedStars,
+                          'trope': tropeCtrl.text.trim().isEmpty
+                              ? null
+                              : tropeCtrl.text.trim(),
+                        }),
+                        child: const Text('Apply'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        _minStarsFilter = result['minStars'] as int?;
+        _tropeFilter = result['trope'] as String?;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserLibraryService userLibraryService = UserLibraryService();
@@ -22,6 +98,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Library', style: theme.appBarTheme.titleTextStyle),
+        actions: [
+          IconButton(
+            tooltip: 'Filter',
+            icon: const Icon(Icons.filter_list),
+            onPressed: _openFilterSheet,
+          ),
+        ],
       ),
       body: StreamBuilder<List<UserBook>>(
         stream: userLibraryService.getUserLibraryStream(),
@@ -38,7 +121,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
             return const Center(child: Text('Your library is empty.'));
           }
 
-          final groupedBooks = books.fold<Map<String, List<UserBook>>>({}, (
+          // Apply client-side filters if any
+          final filtered = books.where((book) {
+            if (_minStarsFilter != null) {
+              final stars = book.personalStars ?? 0;
+              if (stars < _minStarsFilter!) return false;
+            }
+            if (_tropeFilter != null && _tropeFilter!.isNotEmpty) {
+              final q = _tropeFilter!.toLowerCase();
+              final has = book.userSelectedTropes.any(
+                (t) => t.toLowerCase().contains(q),
+              );
+              if (!has) return false;
+            }
+            return true;
+          }).toList();
+
+          final groupedBooks = filtered.fold<Map<String, List<UserBook>>>({}, (
             map,
             book,
           ) {
@@ -144,6 +243,11 @@ class _BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Debug: log ownership to help diagnose why ownership indicator may not show
+    // This will print each time the book card is built.
+    print(
+      'BookCard render -> id=${userBook.id}, ownership=${userBook.ownership}',
+    );
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -162,6 +266,9 @@ class _BookCard extends StatelessWidget {
               bookId: userBook.bookId,
               userBookId: userBook.id,
               userNotes: userBook.userNotes,
+              spiceOverall: userBook.spiceOverall,
+              spiceIntensity: userBook.spiceIntensity,
+              emotionalArc: userBook.emotionalArc,
             ),
           ),
         );
@@ -199,6 +306,21 @@ class _BookCard extends StatelessWidget {
                                 _buildPlaceholder(),
                           )
                         : _buildPlaceholder(),
+                    // Ownership indicator circle
+                    if (userBook.ownership != BookOwnership.none)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: _ownershipColor(userBook.ownership),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                        ),
+                      ),
                     if (userBook.seriesIndex != null &&
                         userBook.seriesIndex! > 0)
                       Positioned(
@@ -267,5 +389,20 @@ class _BookCard extends StatelessWidget {
       color: Colors.grey[300],
       child: const Icon(Icons.book, size: 48),
     );
+  }
+
+  Color _ownershipColor(BookOwnership ownership) {
+    switch (ownership) {
+      case BookOwnership.physical:
+        return Colors.brown;
+      case BookOwnership.digital:
+        return Colors.blue;
+      case BookOwnership.both:
+        return Colors.green;
+      case BookOwnership.kindleUnlimited:
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }

@@ -29,6 +29,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _error;
 
   List<String> _selectedGenres = [];
+  BookOwnership _selectedOwnership =
+      BookOwnership.digital; // Default to digital
 
   List<RomanceBook> _searchResults = [];
   bool _searchPerformed = false;
@@ -109,6 +111,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         description: book.description,
         status: ReadingStatus.wantToRead,
         genres: _selectedGenres,
+        ownership: _selectedOwnership,
         seriesName: _seriesNameController.text.trim().isNotEmpty
             ? _seriesNameController.text.trim()
             : null,
@@ -207,6 +210,48 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: theme.colorScheme.outline),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ownership Status',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: BookOwnership.values.map((ownership) {
+                        final isSelected = _selectedOwnership == ownership;
+                        return FilterChip(
+                          label: Text(_ownershipLabel(ownership)),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedOwnership = ownership;
+                            });
+                          },
+                          avatar: isSelected
+                              ? null
+                              : CircleAvatar(
+                                  backgroundColor: _ownershipColor(ownership),
+                                  radius: 6,
+                                ),
+                          selectedColor: _ownershipColor(
+                            ownership,
+                          ).withValues(alpha: 0.3),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               if (_isLoading) const LinearProgressIndicator(),
               if (_error != null)
                 Padding(
@@ -280,5 +325,35 @@ class _AddBookScreenState extends State<AddBookScreen> {
         );
       },
     );
+  }
+
+  String _ownershipLabel(BookOwnership ownership) {
+    switch (ownership) {
+      case BookOwnership.none:
+        return 'None';
+      case BookOwnership.physical:
+        return 'Physical';
+      case BookOwnership.digital:
+        return 'Digital';
+      case BookOwnership.both:
+        return 'Both';
+      case BookOwnership.kindleUnlimited:
+        return 'Kindle Unlimited';
+    }
+  }
+
+  Color _ownershipColor(BookOwnership ownership) {
+    switch (ownership) {
+      case BookOwnership.physical:
+        return Colors.brown;
+      case BookOwnership.digital:
+        return Colors.blue;
+      case BookOwnership.both:
+        return Colors.green;
+      case BookOwnership.kindleUnlimited:
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }

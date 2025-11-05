@@ -34,8 +34,8 @@ class UserLibraryService {
     final isPro = await ProStatusService().isPro();
     if (!isPro) {
       final count = await _libraryRef.count().get().then(
-            (snap) => snap.count ?? 0,
-          );
+        (snap) => snap.count ?? 0,
+      );
       if (count >= freeUserBookLimit) {
         throw ProUpgradeRequiredException(
           'Free users can only track up to $freeUserBookLimit books. Upgrade to Pro for unlimited tracking.',
@@ -53,24 +53,42 @@ class UserLibraryService {
       await docRef.set(bookJson);
 
       debugPrint('Verifying write by reading back from server...');
-      final snapshot = await docRef.get(const GetOptions(source: Source.server));
+      final snapshot = await docRef.get(
+        const GetOptions(source: Source.server),
+      );
 
       if (!snapshot.exists) {
-        throw Exception('Verification failed: Document does not exist on server after write.');
+        throw Exception(
+          'Verification failed: Document does not exist on server after write.',
+        );
       }
 
       debugPrint('SUCCESS: Document verified on server.');
     } on FirebaseException catch (e) {
-      debugPrint('FATAL: A FirebaseException occurred during write/verification: ${e.code} - ${e.message}');
+      debugPrint(
+        'FATAL: A FirebaseException occurred during write/verification: ${e.code} - ${e.message}',
+      );
       throw Exception('Database Error: ${e.message}');
     } catch (e) {
-      debugPrint('FATAL: A general exception occurred during write/verification: $e');
+      debugPrint(
+        'FATAL: A general exception occurred during write/verification: $e',
+      );
       throw Exception('An unexpected error occurred during save. Error: $e');
     }
   }
 
   Future<void> updateBook(UserBook userBook) async {
-    await _libraryRef.doc(userBook.id).update(userBook.toJson());
+    try {
+      debugPrint('Attempting to update book: ${userBook.id}');
+      await _libraryRef.doc(userBook.id).update(userBook.toJson());
+      debugPrint('Successfully updated book: ${userBook.id}');
+    } on FirebaseException catch (e) {
+      debugPrint('Firebase error updating book: ${e.code} - ${e.message}');
+      throw Exception('Database Error: ${e.message}');
+    } catch (e) {
+      debugPrint('General error updating book: $e');
+      throw Exception('An unexpected error occurred during update. Error: $e');
+    }
   }
 
   Future<void> setBook(UserBook userBook) async {
@@ -89,7 +107,7 @@ class UserLibraryService {
 
   Stream<List<UserBook>> getUserLibraryStream() {
     return _libraryRef.snapshots().map(
-          (snapshot) =>
+      (snapshot) =>
           snapshot.docs.map((doc) => UserBook.fromJson(doc.data())).toList(),
     );
   }
@@ -107,7 +125,9 @@ class UserLibraryService {
     void Function(int done, int total, int updated, int failed)? onProgress,
   }) async {
     final all = await getUserLibraryStream().first;
-    final toProcess = all.where((ub) => ub.description == null || ub.description!.isEmpty).toList();
+    final toProcess = all
+        .where((ub) => ub.description == null || ub.description!.isEmpty)
+        .toList();
     final total = toProcess.length;
     if (total == 0) {
       if (onProgress != null) onProgress(0, 0, 0, 0);

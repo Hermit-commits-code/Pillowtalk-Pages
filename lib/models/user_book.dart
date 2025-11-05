@@ -1,11 +1,9 @@
 // lib/models/user_book.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum ReadingStatus {
-  wantToRead,
-  reading,
-  finished,
-}
+enum ReadingStatus { wantToRead, reading, finished }
+
+enum BookOwnership { none, physical, digital, both, kindleUnlimited }
 
 class UserBook {
   final String id;
@@ -31,6 +29,8 @@ class UserBook {
   final List<String> cachedTopWarnings;
   final List<String> cachedTropes;
   final bool ignoreFilters;
+  final BookOwnership ownership;
+  final int? personalStars; // 1-5 user-only personal rating
 
   const UserBook({
     required this.id,
@@ -56,6 +56,8 @@ class UserBook {
     this.seriesIndex,
     this.cachedTopWarnings = const [],
     this.cachedTropes = const [],
+    this.ownership = BookOwnership.none,
+    this.personalStars,
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -73,7 +75,9 @@ class UserBook {
       authors: List<String>.from(json['authors'] ?? []),
       imageUrl: json['imageUrl'] as String?,
       description: json['description'] as String?,
-      status: ReadingStatus.values.byName(json['status'] as String? ?? 'wantToRead'),
+      status: ReadingStatus.values.byName(
+        json['status'] as String? ?? 'wantToRead',
+      ),
       genres: List<String>.from(json['genres'] ?? []),
       ignoreFilters: json['ignoreFilters'] as bool? ?? false,
       dateAdded: parseDate(json['dateAdded']),
@@ -89,6 +93,10 @@ class UserBook {
       seriesIndex: json['seriesIndex'] as int?,
       cachedTopWarnings: List<String>.from(json['cachedTopWarnings'] ?? []),
       cachedTropes: List<String>.from(json['cachedTropes'] ?? []),
+      ownership: BookOwnership.values.byName(
+        json['ownership'] as String? ?? 'none',
+      ),
+      personalStars: (json['personalStars'] as num?)?.toInt(),
     );
   }
 
@@ -116,6 +124,8 @@ class UserBook {
       'seriesIndex': seriesIndex,
       'cachedTopWarnings': cachedTopWarnings,
       'cachedTropes': cachedTropes,
+      'ownership': ownership.name,
+      'personalStars': personalStars,
     };
   }
 
@@ -143,6 +153,8 @@ class UserBook {
     int? seriesIndex,
     List<String>? cachedTopWarnings,
     List<String>? cachedTropes,
+    BookOwnership? ownership,
+    int? personalStars,
   }) {
     return UserBook(
       id: id ?? this.id,
@@ -168,6 +180,8 @@ class UserBook {
       seriesIndex: seriesIndex ?? this.seriesIndex,
       cachedTopWarnings: cachedTopWarnings ?? this.cachedTopWarnings,
       cachedTropes: cachedTropes ?? this.cachedTropes,
+      ownership: ownership ?? this.ownership,
+      personalStars: personalStars ?? this.personalStars,
     );
   }
 }
