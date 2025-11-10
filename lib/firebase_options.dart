@@ -50,11 +50,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDt_FLVFg9WPXzAsvI16rQCua1mP9AwVWU',
-    appId: '1:1050671872443:android:25b6665c1660d23bb12c9e',
-    messagingSenderId: '1050671872443',
-    projectId: 'pillowtalk-pages',
-    storageBucket: 'pillowtalk-pages.firebasestorage.app',
+    apiKey: 'AIzaSyBzsNqhc2DtxXT4tF9lVxodCQesG639Klk',
+    appId: '1:511866750127:android:96c7be549e967bd280405a',
+    messagingSenderId: '511866750127',
+    projectId: 'spicy-reads-1',
+    storageBucket: 'spicy-reads-1.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

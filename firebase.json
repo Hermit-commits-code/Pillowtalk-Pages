@@ -12,20 +12,16 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "pillowtalk-pages",
-          "appId": "1:1050671872443:android:25b6665c1660d23bb12c9e",
+          "projectId": "spicy-reads-1",
+          "appId": "1:511866750127:android:96c7be549e967bd280405a",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "pillowtalk-pages",
+          "projectId": "spicy-reads-1",
           "configurations": {
-            "android": "1:1050671872443:android:25b6665c1660d23bb12c9e",
-            "ios": "1:1050671872443:ios:13d4a19061669387b12c9e",
-            "macos": "1:1050671872443:ios:13d4a19061669387b12c9e",
-            "web": "1:1050671872443:web:0b12d31db7737bc4b12c9e",
-            "windows": "1:1050671872443:web:34377e3b23facb85b12c9e"
+            "android": "1:511866750127:android:96c7be549e967bd280405a"
           }
         }
       }
