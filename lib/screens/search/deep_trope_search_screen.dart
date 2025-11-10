@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/user_book.dart';
 import '../../services/user_library_service.dart';
+import '../book/genre_selection_screen.dart';
+import '../book/trope_selection_screen.dart';
 
 class DeepTropeSearchScreen extends StatefulWidget {
   const DeepTropeSearchScreen({super.key});
@@ -12,64 +14,68 @@ class DeepTropeSearchScreen extends StatefulWidget {
 }
 
 class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
   List<UserBook> _searchResults = [];
   bool _isLoading = false;
   String? _error;
-  List<String> _suggestions = [];
+
+  List<String> _selectedGenres = [];
+  List<String> _selectedTropes = [];
+  ReadingStatus? _selectedStatus;
+  BookOwnership? _selectedOwnership;
 
   @override
   void dispose() {
-    _searchController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    // Load top tropes from the current user's library for autocomplete
-    UserLibraryService()
-        .getTopTropesFromLibrary(limit: 100)
-        .then((list) {
-          setState(() => _suggestions = list);
-        })
-        .catchError((e) {
-          // ignore errors - suggestions are optional
-        });
   }
 
-  Future<void> _performSearch() async {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _error = null;
-      });
-      return;
-    }
-
+  Future<void> _applyFilters() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
-      final results = await UserLibraryService().searchLibraryByTrope(query);
+      final results = await UserLibraryService().searchLibraryByFilters(
+        genres: _selectedGenres,
+        tropes: _selectedTropes,
+        status: _selectedStatus,
+        ownership: _selectedOwnership,
+      );
       setState(() {
         _searchResults = results;
-        if (_searchResults.isEmpty) {
-          _error = 'No books found matching that trope.';
-        }
+        if (_searchResults.isEmpty)
+          _error = 'No books found with those filters.';
       });
     } catch (e) {
-      setState(() {
-        _error = 'Search failed: $e';
-      });
+      setState(() => _error = 'Filter search failed: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _pickGenres() async {
+    final result = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GenreSelectionScreen(initialGenres: _selectedGenres),
+      ),
+    );
+    if (result != null) setState(() => _selectedGenres = result);
+  }
+
+  Future<void> _pickTropes() async {
+    final result = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TropeSelectionScreen(initialTropes: _selectedTropes),
+      ),
+    );
+    if (result != null) setState(() => _selectedTropes = result);
   }
 
   @override
@@ -78,71 +84,102 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Trope Search', style: theme.appBarTheme.titleTextStyle),
+        title: Text('Filters', style: theme.appBarTheme.titleTextStyle),
         backgroundColor: theme.appBarTheme.backgroundColor,
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                final input = textEditingValue.text.trim();
-                if (input.isEmpty) return const Iterable<String>.empty();
-                final lower = input.toLowerCase();
-                return _suggestions.where(
-                  (s) => s.toLowerCase().contains(lower),
-                );
-              },
-              onSelected: (selection) {
-                _searchController.text = selection;
-                _performSearch();
-              },
-              fieldViewBuilder:
-                  (context, controller, focusNode, onFieldSubmitted) {
-                    controller.text = _searchController.text;
-                    return TextField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      decoration: InputDecoration(
-                        labelText: 'Enter a trope to search for',
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: _performSearch,
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                ListTile(
+                  title: const Text('Genres'),
+                  subtitle: _selectedGenres.isNotEmpty
+                      ? Text(_selectedGenres.join(', '))
+                      : const Text('Tap to select genres'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickGenres,
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  title: const Text('Tropes'),
+                  subtitle: _selectedTropes.isNotEmpty
+                      ? Text(_selectedTropes.join(', '))
+                      : const Text('Tap to select tropes'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickTropes,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<ReadingStatus?>(
+                        value: _selectedStatus,
+                        decoration: const InputDecoration(
+                          labelText: 'Reading status',
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onSubmitted: (_) => _performSearch(),
-                    );
-                  },
-              optionsViewBuilder: (context, onSelected, options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    elevation: 4,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxHeight: 200,
-                        maxWidth: 400,
-                      ),
-                      child: ListView(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        children: options
-                            .map(
-                              (o) => ListTile(
-                                title: Text(o),
-                                onTap: () => onSelected(o),
-                              ),
-                            )
-                            .toList(),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('Any'),
+                          ),
+                          ...ReadingStatus.values.map(
+                            (s) =>
+                                DropdownMenuItem(value: s, child: Text(s.name)),
+                          ),
+                        ],
+                        onChanged: (v) => setState(() => _selectedStatus = v),
                       ),
                     ),
-                  ),
-                );
-              },
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButtonFormField<BookOwnership?>(
+                        value: _selectedOwnership,
+                        decoration: const InputDecoration(
+                          labelText: 'Ownership',
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: null,
+                            child: Text('Any'),
+                          ),
+                          ...BookOwnership.values.map(
+                            (o) =>
+                                DropdownMenuItem(value: o, child: Text(o.name)),
+                          ),
+                        ],
+                        onChanged: (v) =>
+                            setState(() => _selectedOwnership = v),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _applyFilters,
+                      icon: const Icon(Icons.filter_list),
+                      label: const Text('Apply Filters'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedGenres = [];
+                          _selectedTropes = [];
+                          _selectedStatus = null;
+                          _selectedOwnership = null;
+                          _searchResults = [];
+                          _error = null;
+                        });
+                      },
+                      child: const Text('Clear'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           if (_isLoading)
@@ -199,7 +236,9 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
             )
           else
             const Expanded(
-              child: Center(child: Text('Enter a search term to begin.')),
+              child: Center(
+                child: Text('Select filters and tap Apply to begin.'),
+              ),
             ),
         ],
       ),

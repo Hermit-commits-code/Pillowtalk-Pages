@@ -201,4 +201,159 @@ class UserLibraryService {
     }
     return null;
   }
+
+  /// Search the current user's library with combined filters.
+  ///
+  /// Behavior:
+  /// - If only `genres` provided: performs an `array-contains-any` on `genres` (OR semantics).
+  /// - If only `tropes` provided: performs `array-contains-any` on both `cachedTropes` and
+  ///   `userSelectedTropes` and merges results (OR semantics).
+  /// - If both provided: queries using the smaller selection (to limit server results) and
+  ///   client-side filters to require at least one match from each selected category
+  ///   (i.e., OR within a category, AND across categories).
+  /// - If `status` or `ownership` provided they are added to the primary server-side query
+  ///   when possible to reduce the candidate set.
+  Future<List<UserBook>> searchLibraryByFilters({
+    List<String>? genres,
+    List<String>? tropes,
+    ReadingStatus? status,
+    BookOwnership? ownership,
+    int limit = 200,
+  }) async {
+    try {
+      // Normalize inputs
+      final selGenres = (genres ?? [])
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final selTropes = (tropes ?? [])
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+
+      // If nothing provided, return empty
+      if (selGenres.isEmpty &&
+          selTropes.isEmpty &&
+          status == null &&
+          ownership == null) {
+        return <UserBook>[];
+      }
+
+      final results = <UserBook>[];
+      final seen = <String>{};
+
+      // Helper to add doc results
+      void addFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+        final ub = UserBook.fromJson(doc.data());
+        if (seen.contains(ub.bookId)) return;
+        seen.add(ub.bookId);
+        results.add(ub);
+      }
+
+      // Build base query with optional status/ownership
+      Query<Map<String, dynamic>> baseQuery = _libraryRef;
+      if (status != null)
+        baseQuery = baseQuery.where('status', isEqualTo: status.name);
+      if (ownership != null)
+        baseQuery = baseQuery.where('ownership', isEqualTo: ownership.name);
+
+      // If only genres
+      if (selGenres.isNotEmpty && selTropes.isEmpty) {
+        if (selGenres.length <= 10) {
+          final q = await baseQuery
+              .where('genres', arrayContainsAny: selGenres)
+              .limit(limit)
+              .get();
+          for (final d in q.docs) addFromDoc(d);
+        } else {
+          // Too many values for array-contains-any: fetch all and filter client-side
+          final q = await baseQuery.get();
+          for (final d in q.docs) {
+            final ub = UserBook.fromJson(d.data());
+            if (ub.genres.any((g) => selGenres.contains(g))) addFromDoc(d);
+          }
+        }
+        return results;
+      }
+
+      // If only tropes
+      if (selTropes.isNotEmpty && selGenres.isEmpty) {
+        if (selTropes.length <= 10) {
+          final q1 = await baseQuery
+              .where('cachedTropes', arrayContainsAny: selTropes)
+              .limit(limit)
+              .get();
+          final q2 = await baseQuery
+              .where('userSelectedTropes', arrayContainsAny: selTropes)
+              .limit(limit)
+              .get();
+          for (final d in q1.docs) addFromDoc(d);
+          for (final d in q2.docs) addFromDoc(d);
+        } else {
+          // Fallback: fetch all and filter client-side
+          final q = await baseQuery.get();
+          for (final d in q.docs) {
+            final ub = UserBook.fromJson(d.data());
+            final tropesUnion = {
+              ...ub.cachedTropes,
+              ...ub.userSelectedTropes,
+            }.map((t) => t.trim()).toSet();
+            if (tropesUnion.any((t) => selTropes.contains(t))) addFromDoc(d);
+          }
+        }
+        return results;
+      }
+
+      // Both genres and tropes provided: pick the smaller selector for server query
+      final useGenresFirst =
+          selGenres.length <= (selTropes.length == 0 ? 9999 : selTropes.length);
+
+      if (useGenresFirst) {
+        if (selGenres.length <= 10) {
+          final q = await baseQuery
+              .where('genres', arrayContainsAny: selGenres)
+              .limit(limit)
+              .get();
+          for (final d in q.docs) addFromDoc(d);
+        } else {
+          final q = await baseQuery.get();
+          for (final d in q.docs) addFromDoc(d);
+        }
+      } else {
+        if (selTropes.length <= 10) {
+          final q1 = await baseQuery
+              .where('cachedTropes', arrayContainsAny: selTropes)
+              .limit(limit)
+              .get();
+          final q2 = await baseQuery
+              .where('userSelectedTropes', arrayContainsAny: selTropes)
+              .limit(limit)
+              .get();
+          for (final d in q1.docs) addFromDoc(d);
+          for (final d in q2.docs) addFromDoc(d);
+        } else {
+          final q = await baseQuery.get();
+          for (final d in q.docs) addFromDoc(d);
+        }
+      }
+
+      // Client-side filter to ensure book matches at least one genre AND at least one trope
+      final filtered = results.where((ub) {
+        final matchesGenre =
+            selGenres.isEmpty || ub.genres.any((g) => selGenres.contains(g));
+        final tropesUnion = {
+          ...ub.cachedTropes,
+          ...ub.userSelectedTropes,
+        }.map((t) => t.trim()).toSet();
+        final matchesTrope =
+            selTropes.isEmpty || tropesUnion.any((t) => selTropes.contains(t));
+        return matchesGenre && matchesTrope;
+      }).toList();
+
+      return filtered;
+    } catch (e) {
+      debugPrint('searchLibraryByFilters failed: $e');
+      return <UserBook>[];
+    }
+  }
 }
