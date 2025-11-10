@@ -10,6 +10,7 @@ import '../../services/google_books_service.dart';
 import '../../services/user_library_service.dart';
 import '../../services/pro_exceptions.dart';
 import 'genre_selection_screen.dart';
+import 'trope_selection_screen.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -30,6 +31,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _error;
 
   List<String> _selectedGenres = [];
+  List<String> _selectedTropes = [];
   BookOwnership _selectedOwnership =
       BookOwnership.digital; // Default to digital
 
@@ -56,6 +58,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (result != null) {
       setState(() {
         _selectedGenres = result;
+      });
+    }
+  }
+
+  Future<void> _selectTropes() async {
+    final result = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            TropeSelectionScreen(initialTropes: _selectedTropes),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedTropes = result;
       });
     }
   }
@@ -112,6 +130,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         description: book.description,
         status: ReadingStatus.wantToRead,
         genres: _selectedGenres,
+        userSelectedTropes: _selectedTropes,
         ownership: _selectedOwnership,
         seriesName: _seriesNameController.text.trim().isNotEmpty
             ? _seriesNameController.text.trim()
@@ -205,6 +224,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     : const Text('Tap to select genres'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _selectGenres,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: theme.colorScheme.outline),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('Tropes'),
+                subtitle: _selectedTropes.isNotEmpty
+                    ? Text(_selectedTropes.join(', '))
+                    : const Text('Tap to select tropes (optional)'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _selectTropes,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: theme.colorScheme.outline),
