@@ -1346,12 +1346,20 @@ final GoRouter router = GoRouter(
 - [x] Duplicate MainActivity.kt issue resolved
 - [x] App successfully builds and runs on Android
 
+- [x] Lists UI: Selected-list chips in Add/Edit flows and compact `ListsDropdown` (shows chosen lists as chips) ✅ DONE (Nov 11, 2025)
+- [x] Lists management screens: `ListsScreen` and `ListDetailScreen` (list shows books with cover/title/author) ✅ DONE (Nov 11, 2025)
+- [x] Reading status UI: Status selector added to `EditBookModal`, persisted on save, and Home dashboard stat cards navigate to status listings ✅ DONE (Nov 11, 2025)
+- [x] Automatic status date handling: `dateStarted`/`dateFinished` set when status transitions to Reading/Finished in save flow ✅ DONE (Nov 11, 2025)
+- [x] Tests & test harness: shared test fakes, stabilized widget tests (`test/edit_book_modal_test.dart`, `test/list_creation_chip_test.dart`, `test/list_selection_e2e_test.dart`) ✅ DONE (Nov 11, 2025)
+- [x] CI and quality gates: `.github/workflows/flutter_ci.yml` added to run analyzer + tests on PRs ✅ DONE (Nov 11, 2025)
+- [x] Version bump on feature branch: `pubspec.yaml` bumped to `0.5.3+1` and pushed (feature branch: `feat/list-chips-and-test-fakes`) ✅ DONE (Nov 11, 2025)
+
 ❌ **NOT IMPLEMENTED (Core MOAT Features):**
 
 1. **Deep Tropes Search Engine:** No multi-select AND/OR search UI
 2. **Hard Stops Content Filter:** Not implemented (NEW FEATURE - see below)
 3. **Kink Filter:** Not implemented (NEW FEATURE - see below)
-4. **Home Dashboard:** Empty placeholder (shows stats but needs enrichment)
+4. **Home Dashboard:** (Previously a placeholder) Now shows stats and navigable status lists; remaining enrichment tasks still open
 5. **Profile Screen:** Incomplete (missing settings, legal links, filter management)
 6. **Star Rating System:** May need 1-5 star display (currently uses spice meter)
 
@@ -1460,6 +1468,9 @@ Top priorities (why/what/outcome):
 
   - Add analytics events and dashboards (onboarding funnel, add-book, create-list, apply-filter, upgrade events).
   - Finish `ListsService` unit tests and AddBook->Lists widget test; configure CI pipeline to run analyze/tests.
+    - ✅ AddBook->Lists widget tests (EditBookModal / list chips) added and stabilized in `test/edit_book_modal_test.dart` & `test/list_creation_chip_test.dart` (Nov 11, 2025)
+    - ✅ CI pipeline created: `.github/workflows/flutter_ci.yml` runs `flutter analyze` and `flutter test` on PRs (Nov 11, 2025)
+    - ⚪ Unit tests for `ListsService` and `UserLibraryService` (use Firestore emulator or mocking lib) — still pending
 
 - Week 2–4: Search scaling experiments
 
@@ -1509,7 +1520,7 @@ Action plan when scaling is required:
 Appendix: Quick checklist to ship Beta
 
 - Add analytics events & dashboards
-- Finish Lists tests and CI
+- [x] Finish Lists tests and CI (widget tests + CI workflow added — Nov 11, 2025)
 - Draft privacy & ToS, host publicly
 - Decide on a search scaling approach (Firestore optimizations, local/offline index, or self-hosted infra) and document the chosen plan
 - Onboard 3 micro-influencers and prepare seed lists
