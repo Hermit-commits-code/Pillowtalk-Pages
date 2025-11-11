@@ -1,5 +1,7 @@
 // lib/screens/book/add_book_screen.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
@@ -15,10 +17,27 @@ import '../../services/kink_filter_service.dart';
 import '../../services/hard_stops_service.dart';
 import 'widgets/lists_dropdown.dart';
 import '../../widgets/trope_dropdown_tile.dart';
+import '../../models/user_list.dart';
 import 'genre_selection_screen.dart';
 
 class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+  /// Optional initial tropes (useful for tests) and optional injectable
+  /// services to avoid direct Firestore/Firebase access in widget tests.
+  const AddBookScreen({
+    super.key,
+    this.initialSelectedTropes,
+    this.kinkFilterService,
+    this.hardStopsService,
+    this.userLibraryService,
+    this.listsService,
+  });
+
+  final List<String>? initialSelectedTropes;
+  final dynamic kinkFilterService; // KinkFilterService or test double
+  final dynamic hardStopsService; // HardStopsService or test double
+  final dynamic
+  userLibraryService; // Optional test double for UserLibraryService
+  final dynamic listsService; // Optional test double for ListsService
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -30,7 +49,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController _seriesIndexController = TextEditingController();
 
   final GoogleBooksService _googleBooksService = GoogleBooksService();
-  final UserLibraryService _userLibraryService = UserLibraryService();
+  // Defer creating UserLibraryService until actually needed so tests that
+  // pump this widget don't instantiate Firestore/Firebase. Use
+  // `widget.userLibraryService` if provided (test injection).
 
   bool _isLoading = false;
   String? _error;
@@ -38,6 +59,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   List<String> _selectedGenres = [];
   List<String> _selectedTropes = [];
   List<String> _selectedListIds = [];
+  Map<String, String> _availableListNames = {};
+  StreamSubscription<List<UserList>>? _listsSub;
   BookOwnership _selectedOwnership =
       BookOwnership.digital; // Default to digital
 
@@ -46,10 +69,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   @override
   void dispose() {
+    _listsSub?.cancel();
     _searchController.dispose();
     _seriesNameController.dispose();
     _seriesIndexController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialSelectedTropes != null) {
+      _selectedTropes = List<String>.from(widget.initialSelectedTropes!);
+    }
+    // Subscribe to lists so we can display human-friendly names for selected
+    // list IDs. Use injected service when provided to keep tests hermetic.
+    try {
+      final ls = widget.listsService ?? ListsService();
+      _listsSub = ls.getUserListsStream().listen((lists) {
+        setState(() {
+          _availableListNames = {for (var l in lists) l.id: l.name};
+        });
+      });
+    } catch (_) {
+      // ignore - showing raw ids is acceptable when lists can't be loaded.
+    }
   }
 
   Future<void> _selectGenres() async {
@@ -106,14 +150,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   /// Check if any selected tropes conflict with user's kink filters or hard stops.
   /// Returns a map: {'hasConflicts': bool, 'conflictingTropes': List<String>}
-  Future<Map<String, dynamic>> _checkForTropeConflicts() async {
+  /// Public for tests: check if any selected tropes conflict with user's
+  /// kink filters or hard stops. Returns {'hasConflicts': bool, 'conflictingTropes': List<String>}.
+  Future<Map<String, dynamic>> checkForTropeConflicts() async {
     if (_selectedTropes.isEmpty) {
       return {'hasConflicts': false, 'conflictingTropes': <String>[]};
     }
 
     try {
-      final kinkService = KinkFilterService();
-      final hardStopsService = HardStopsService();
+      final kinkService = widget.kinkFilterService ?? KinkFilterService();
+      final hardStopsService = widget.hardStopsService ?? HardStopsService();
 
       final kinkData = await kinkService.getKinkFilterOnce();
       final hardStopsData = await hardStopsService.getHardStopsOnce();
@@ -155,60 +201,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  /// Show a confirmation dialog if there are kink/hard-stop conflicts.
-  /// Returns true if user confirms to proceed, false if user cancels.
-  Future<bool> _showConflictConfirmation(List<String> conflictingTropes) async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Trope Conflict Warning'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'The following selected tropes match your kink filters or hard stops:',
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: conflictingTropes.map((trope) {
-                    return Chip(
-                      label: Text(trope),
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.error.withAlpha(51),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'You can update your filters/hard stops in your Profile, or proceed with this selection.',
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Proceed Anyway'),
-            ),
-          ],
-        );
-      },
-    );
-
-    return result ?? false;
-  }
+  // Conflict confirmation dialog removed: policy is to block saves that
+  // contain tropes matching the user's kink filters or hard stops. This
+  // keeps the behavior strict: users must remove conflicting tropes or
+  // update their profile filters before adding the book.
 
   Future<void> _addBookToLibrary(RomanceBook book) async {
     final user = AuthService.instance.currentUser;
@@ -223,20 +219,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Check for kink/hard-stop conflicts before saving
-      final conflictCheck = await _checkForTropeConflicts();
+      // Check for kink/hard-stop conflicts before saving. Under the
+      // stricter policy we block saves if conflicts are present.
+      final conflictCheck = await checkForTropeConflicts();
       if (conflictCheck['hasConflicts'] as bool) {
         setState(() => _isLoading = false);
-
-        final confirmed = await _showConflictConfirmation(
-          List<String>.from(conflictCheck['conflictingTropes'] as List),
+        final conflicts = List<String>.from(
+          conflictCheck['conflictingTropes'] as List,
         );
-
-        if (!confirmed) {
-          return; // User cancelled
-        }
-
-        setState(() => _isLoading = true);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Cannot add book: selected tropes conflict with your filters/hard stops: ${conflicts.join(', ')}. Update your Profile or remove these tropes.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 6),
+          ),
+        );
+        return;
       }
 
       final userBook = UserBook(
@@ -257,7 +258,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         seriesIndex: int.tryParse(_seriesIndexController.text.trim()),
       );
 
-      await _userLibraryService.addBook(userBook);
+      final userLib = widget.userLibraryService ?? UserLibraryService();
+      await userLib.addBook(userBook);
 
       // Analytics: record add_book
       try {
@@ -272,7 +274,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       // Add to selected lists (if any)
       if (_selectedListIds.isNotEmpty) {
         try {
-          final listsService = ListsService();
+          final listsService = widget.listsService ?? ListsService();
           await listsService.addBookToLists(_selectedListIds, userBook.id);
         } catch (e) {
           debugPrint('Failed to add book to lists: $e');
@@ -375,6 +377,37 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 onChanged: (res) => setState(() => _selectedTropes = res),
               ),
               const SizedBox(height: 16),
+              // Show selected lists as chips (so users see current choices at a glance)
+              if (_selectedListIds.isNotEmpty) ...[
+                SizedBox(
+                  height: 44,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    children: _selectedListIds.map((id) {
+                      final name = _availableListNames[id] ?? id;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: InputChip(
+                          label: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 160),
+                            child: Tooltip(
+                              message: name,
+                              child: Text(
+                                name,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          onDeleted: () =>
+                              setState(() => _selectedListIds.remove(id)),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               // Reusable compact lists dropdown used by both Add and Edit flows.
               ListsDropdown(
                 initialSelectedListIds: _selectedListIds,
@@ -384,6 +417,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 onChanged: (ids) {
                   setState(() => _selectedListIds = ids);
                 },
+                listsService: widget.listsService,
               ),
               const SizedBox(height: 16),
               Container(

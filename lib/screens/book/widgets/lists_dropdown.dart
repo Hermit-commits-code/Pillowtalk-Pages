@@ -10,12 +10,14 @@ class ListsDropdown extends StatelessWidget {
   final List<String> initialSelectedListIds;
   final ValueChanged<List<String>>? onChanged;
   final String placeholder;
+  final dynamic listsService;
 
   const ListsDropdown({
     super.key,
     this.initialSelectedListIds = const [],
     this.onChanged,
     this.placeholder = 'Add to lists',
+    this.listsService,
   });
 
   Future<void> _openSelector(BuildContext context) async {
@@ -29,7 +31,10 @@ class ListsDropdown extends StatelessWidget {
             // The page is referenced by type via string to avoid analyzer
             // complaining if file ordering changes. Instead, push by route
             // using the same widget when available in the project tree.
-            _ListSelectionProxy(initial: initialSelectedListIds),
+            _ListSelectionProxy(
+              initial: initialSelectedListIds,
+              listsService: listsService,
+            ),
       ),
     );
 
@@ -38,17 +43,26 @@ class ListsDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return OutlinedButton(
       onPressed: () => _openSelector(context),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // Ensure color and border match the theme (works for dark/light modes)
+        foregroundColor: theme.colorScheme.onSurface,
+        side: BorderSide(color: theme.colorScheme.onSurface),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(placeholder)),
-          const Icon(Icons.arrow_drop_down),
+          Expanded(
+            child: Text(
+              placeholder,
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            ),
+          ),
+          Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurface),
         ],
       ),
     );
@@ -60,13 +74,17 @@ class ListsDropdown extends StatelessWidget {
 // forwards to the real screen implementation which lives near it.
 class _ListSelectionProxy extends StatelessWidget {
   final List<String> initial;
-  const _ListSelectionProxy({required this.initial});
+  final dynamic listsService;
+  const _ListSelectionProxy({required this.initial, this.listsService});
 
   @override
   Widget build(BuildContext context) {
     // Import the real screen here to avoid static import cycles in other
     // files that import this widget.
-    return (ListSelectionScreenProxy(initialSelectedListIds: initial));
+    return (ListSelectionScreenProxy(
+      initialSelectedListIds: initial,
+      listsService: listsService,
+    ));
   }
 }
 
@@ -76,9 +94,11 @@ class _ListSelectionProxy extends StatelessWidget {
 // screen file directly and risk circular imports.
 class ListSelectionScreenProxy extends StatefulWidget {
   final List<String> initialSelectedListIds;
+  final dynamic listsService;
   const ListSelectionScreenProxy({
     super.key,
     this.initialSelectedListIds = const [],
+    this.listsService,
   });
 
   @override
@@ -87,7 +107,20 @@ class ListSelectionScreenProxy extends StatefulWidget {
 }
 
 class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
-  final ListsService _listsService = ListsService();
+  late final dynamic _listsService;
+
+  // Track the current selections in state so the AppBar 'Done' action can
+  // return the current selection (not the original initial selection).
+  late List<String> _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = List<String>.from(widget.initialSelectedListIds);
+    // Use injected listsService when provided (tests); otherwise construct
+    // a real ListsService for production behavior.
+    _listsService = widget.listsService ?? ListsService();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +129,7 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
         title: const Text('Select Lists'),
         actions: [
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, widget.initialSelectedListIds),
+            onPressed: () => Navigator.pop(context, _selected),
             child: const Text('Done', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -113,7 +145,6 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
               lists.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
-          final selected = List<String>.from(widget.initialSelectedListIds);
           return Column(
             children: [
               Expanded(
@@ -121,7 +152,7 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
                   itemCount: lists.length,
                   itemBuilder: (context, index) {
                     final l = lists[index];
-                    final isSel = selected.contains(l.id);
+                    final isSel = _selected.contains(l.id);
                     return CheckboxListTile(
                       title: Text(l.name),
                       subtitle: l.description != null
@@ -131,9 +162,9 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
                       onChanged: (_) {
                         setState(() {
                           if (isSel) {
-                            selected.remove(l.id);
+                            _selected.remove(l.id);
                           } else {
-                            selected.add(l.id);
+                            _selected.add(l.id);
                           }
                         });
                       },
@@ -189,7 +220,7 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
                               description: descCtrl.text.trim(),
                             );
                             setState(() {
-                              selected.add(created.id);
+                              _selected.add(created.id);
                             });
                           }
                         },
@@ -198,7 +229,7 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () => Navigator.pop(context, selected),
+                      onPressed: () => Navigator.pop(context, _selected),
                       child: const Text('Done'),
                     ),
                   ],

@@ -19,16 +19,23 @@ class _TestHostState extends State<_TestHost> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              final res = await Navigator.of(context).push<List<String>>(
-                MaterialPageRoute(
-                  builder: (_) => const TropeSelectionScreen(initialTropes: []),
-                ),
-              );
-              setState(() => result = res);
-            },
-            child: const Text('Open'),
+          child: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                final res = await Navigator.of(context).push<List<String>>(
+                  MaterialPageRoute(
+                    builder: (_) => TropeSelectionScreen(
+                      initialTropes: [],
+                      // Use a test-friendly proCheck so widget tests don't
+                      // attempt to hit Firebase/Firestore.
+                      proCheck: () async => true,
+                    ),
+                  ),
+                );
+                setState(() => result = res);
+              },
+              child: const Text('Open'),
+            ),
           ),
         ),
       ),
@@ -41,20 +48,10 @@ void main() {
     await tester.pumpWidget(const _TestHost());
     await tester.pumpAndSettle();
 
-    // Push the selector route directly via the test's Navigator (more
-    // reliable in widget tests than calling Navigator.of from a widget
-    // closure in this environment).
-    final navigatorState = tester.state<NavigatorState>(find.byType(Navigator));
-    await navigatorState.push<List<String>>(
-      MaterialPageRoute(
-        builder: (_) => TropeSelectionScreen(
-          initialTropes: [],
-          // Inject a fast proCheck to avoid touching Firebase/Firestore
-          // during widget tests which can hang if plugins aren't available.
-          proCheck: () async => true,
-        ),
-      ),
-    );
+    // Open the selector via the host button so the host receives the
+    // returned result and we avoid awaiting a push future which would
+    // block the test while it waits for a pop.
+    await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
     // Ensure categories are present

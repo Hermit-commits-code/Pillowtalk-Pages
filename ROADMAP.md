@@ -1433,6 +1433,7 @@ Top priorities (why/what/outcome):
 
   - Unit tests for `ListsService` and `UserLibraryService` (use Firestore emulator or mocking lib).
   - Widget test: AddBook -> List selection flow.
+    - ✅ Completed: `EditBookModal` lists selection flow covered by `test/edit_book_modal_test.dart` and `test/list_creation_chip_test.dart` (Nov 11, 2025)
   - CI: run `flutter analyze` and `flutter test` automatically on PRs.
   - Outcome: safer refactors and higher confidence for rapid iteration.
 
