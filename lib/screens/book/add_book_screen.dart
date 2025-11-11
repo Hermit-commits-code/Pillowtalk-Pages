@@ -1,6 +1,5 @@
 // lib/screens/book/add_book_screen.dart
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
@@ -12,8 +11,9 @@ import '../../services/user_library_service.dart';
 import '../../services/pro_exceptions.dart';
 import '../../services/lists_service.dart';
 import '../../services/analytics_service.dart';
+import '../../services/kink_filter_service.dart';
+import '../../services/hard_stops_service.dart';
 import 'widgets/lists_dropdown.dart';
-import 'trope_selection_screen.dart';
 import '../../widgets/trope_dropdown_tile.dart';
 import 'genre_selection_screen.dart';
 
@@ -104,6 +104,108 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   // Tropes are now selected via the compact TropeDropdownTile (two-pane picker).
 
+  /// Check if any selected tropes conflict with user's kink filters or hard stops.
+  /// Returns a map: {'hasConflicts': bool, 'conflictingTropes': List<String>}
+  Future<Map<String, dynamic>> _checkForTropeConflicts() async {
+    if (_selectedTropes.isEmpty) {
+      return {'hasConflicts': false, 'conflictingTropes': <String>[]};
+    }
+
+    try {
+      final kinkService = KinkFilterService();
+      final hardStopsService = HardStopsService();
+
+      final kinkData = await kinkService.getKinkFilterOnce();
+      final hardStopsData = await hardStopsService.getHardStopsOnce();
+
+      final kinkEnabled = kinkData['enabled'] as bool? ?? true;
+      final hardStopsEnabled = hardStopsData['enabled'] as bool? ?? true;
+
+      final kinkFilters = (kinkData['kinkFilter'] as List<String>?) ?? <String>[];
+      final hardStops = (hardStopsData['hardStops'] as List<String>?) ?? <String>[];
+
+      final conflicts = <String>[];
+
+      if (kinkEnabled) {
+        for (final trope in _selectedTropes) {
+          if (kinkFilters.contains(trope)) {
+            conflicts.add(trope);
+          }
+        }
+      }
+
+      if (hardStopsEnabled) {
+        for (final trope in _selectedTropes) {
+          if (hardStops.contains(trope) && !conflicts.contains(trope)) {
+            conflicts.add(trope);
+          }
+        }
+      }
+
+      return {
+        'hasConflicts': conflicts.isNotEmpty,
+        'conflictingTropes': conflicts,
+      };
+    } catch (e) {
+      debugPrint('Error checking trope conflicts: $e');
+      // On error, allow the user to proceed without conflicts check
+      return {'hasConflicts': false, 'conflictingTropes': <String>[]};
+    }
+  }
+
+  /// Show a confirmation dialog if there are kink/hard-stop conflicts.
+  /// Returns true if user confirms to proceed, false if user cancels.
+  Future<bool> _showConflictConfirmation(List<String> conflictingTropes) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Trope Conflict Warning'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'The following selected tropes match your kink filters or hard stops:',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: conflictingTropes.map((trope) {
+                    return Chip(
+                      label: Text(trope),
+                      backgroundColor: Theme.of(context).colorScheme.error.withAlpha(51),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'You can update your filters/hard stops in your Profile, or proceed with this selection.',
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Proceed Anyway'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   Future<void> _addBookToLibrary(RomanceBook book) async {
     final user = AuthService.instance.currentUser;
     if (user == null) {
@@ -117,6 +219,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Check for kink/hard-stop conflicts before saving
+      final conflictCheck = await _checkForTropeConflicts();
+      if (conflictCheck['hasConflicts'] as bool) {
+        setState(() => _isLoading = false);
+        
+        final confirmed = await _showConflictConfirmation(
+          List<String>.from(conflictCheck['conflictingTropes'] as List),
+        );
+        
+        if (!confirmed) {
+          return; // User cancelled
+        }
+        
+        setState(() => _isLoading = true);
+      }
+
       final userBook = UserBook(
         id: '${user.uid}_${book.id}',
         bookId: book.id,
