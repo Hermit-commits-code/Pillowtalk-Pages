@@ -16,8 +16,7 @@ class MockAnalyticsRecorder {
 
   Map<String, Object?>? lastEvent() => events.isNotEmpty ? events.last : null;
 
-  int eventCount(String name) =>
-      events.where((e) => e['name'] == name).length;
+  int eventCount(String name) => events.where((e) => e['name'] == name).length;
 }
 
 void main() {
@@ -136,7 +135,10 @@ void main() {
 
       expect(recorder.eventCount('upgrade_to_pro'), 1);
       final event = recorder.lastEvent();
-      expect(event?['params'], containsPair('source', 'trope_selection_screen'));
+      expect(
+        event?['params'],
+        containsPair('source', 'trope_selection_screen'),
+      );
     });
 
     test('logEvent allows arbitrary event names and parameters', () {
@@ -187,8 +189,14 @@ void main() {
       final timestamp = event?['timestamp'] as DateTime?;
 
       expect(timestamp, isNotNull);
-      expect(timestamp!.isAfter(before) || timestamp.isAtSameMomentAs(before), true);
-      expect(timestamp.isBefore(after) || timestamp.isAtSameMomentAs(after), true);
+      expect(
+        timestamp!.isAfter(before) || timestamp.isAtSameMomentAs(before),
+        true,
+      );
+      expect(
+        timestamp.isBefore(after) || timestamp.isAtSameMomentAs(after),
+        true,
+      );
     });
 
     test('Clear removes all recorded events', () {
@@ -207,7 +215,10 @@ void main() {
       recorder.recordEvent('add_book', params: {'book_id': 'b1'});
       recorder.recordEvent('add_book', params: {'book_id': 'b2'});
       recorder.recordEvent('create_list', params: {'list_id': 'l1'});
-      recorder.recordEvent('upgrade_to_pro', params: {'source': 'book_add_flow'});
+      recorder.recordEvent(
+        'upgrade_to_pro',
+        params: {'source': 'book_add_flow'},
+      );
 
       expect(recorder.events.length, 5);
       expect(recorder.eventCount('add_book'), 2);
