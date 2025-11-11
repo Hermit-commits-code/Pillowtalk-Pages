@@ -69,7 +69,7 @@
 
 ## Marriage
 
-- Arranged marriage
+- Arranged Marriage
 - Altar diplomacy (political arranged marriage)
 - Honorable marriage (historical)
 - Marriage before romance

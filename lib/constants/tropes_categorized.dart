@@ -66,7 +66,7 @@ const Map<String, List<String>> tropeCategories = {
     'Fling / one night stand',
   ],
   'Marriage': [
-    'Arranged marriage',
+    'Arranged Marriage',
     'Altar diplomacy (political arranged marriage)',
     'Honorable marriage (historical)',
     'Marriage before romance',
@@ -153,9 +153,6 @@ const Map<String, List<String>> tropeCategories = {
     'Fairytale retelling (Cinderella, Beauty and the Beast, etc.)',
     'Fish out of water',
     'Time travel',
-    'Keep one trope per bullet line.',
-    'Use H2 headings (##) for top-level categories. If you want sub-categories, use H3 (###).',
-    'If a trope belongs in multiple categories, list it where it best fits; import scripts will deduplicate automatically.',
   ],
 };
 
