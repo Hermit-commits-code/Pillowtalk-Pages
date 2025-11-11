@@ -3,14 +3,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../services/auth_service.dart';
 
 import '../../models/book_model.dart';
 import '../../models/user_book.dart';
 import '../../services/google_books_service.dart';
 import '../../services/user_library_service.dart';
 import '../../services/pro_exceptions.dart';
-import 'genre_selection_screen.dart';
+import '../../services/lists_service.dart';
+import '../../services/analytics_service.dart';
+import 'widgets/lists_dropdown.dart';
 import 'trope_selection_screen.dart';
+import '../../widgets/trope_dropdown_tile.dart';
+import 'genre_selection_screen.dart';
 
 class AddBookScreen extends StatefulWidget {
   const AddBookScreen({super.key});
@@ -32,6 +37,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   List<String> _selectedGenres = [];
   List<String> _selectedTropes = [];
+  List<String> _selectedListIds = [];
   BookOwnership _selectedOwnership =
       BookOwnership.digital; // Default to digital
 
@@ -62,21 +68,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  Future<void> _selectTropes() async {
-    final result = await Navigator.push<List<String>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            TropeSelectionScreen(initialTropes: _selectedTropes),
-      ),
-    );
+  // Trope selection no longer uses the full-screen selector; we use a
+  // compact dropdown in the add modal. (Trope engine deprecated.)
 
-    if (result != null) {
-      setState(() {
-        _selectedTropes = result;
-      });
-    }
-  }
+  // Lists are selected via the compact ListsDropdown widget below.
 
   Future<void> _searchBooks() async {
     final query = _searchController.text.trim();
@@ -107,8 +102,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  // Tropes are now selected via the compact TropeDropdownTile (two-pane picker).
+
   Future<void> _addBookToLibrary(RomanceBook book) async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService.instance.currentUser;
     if (user == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,6 +136,26 @@ class _AddBookScreenState extends State<AddBookScreen> {
       );
 
       await _userLibraryService.addBook(userBook);
+
+      // Analytics: record add_book
+      try {
+        await AnalyticsService.instance.logAddBook(
+          userBookId: userBook.id,
+          bookId: book.id,
+        );
+      } catch (e) {
+        debugPrint('Analytics logAddBook failed: $e');
+      }
+
+      // Add to selected lists (if any)
+      if (_selectedListIds.isNotEmpty) {
+        try {
+          final listsService = ListsService();
+          await listsService.addBookToLists(_selectedListIds, userBook.id);
+        } catch (e) {
+          debugPrint('Failed to add book to lists: $e');
+        }
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -230,17 +247,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Tropes'),
-                subtitle: _selectedTropes.isNotEmpty
-                    ? Text(_selectedTropes.join(', '))
-                    : const Text('Tap to select tropes (optional)'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _selectTropes,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: theme.colorScheme.outline),
-                ),
+              // Tropes: compact categorized dropdown (two-pane picker)
+              TropeDropdownTile(
+                selectedTropes: _selectedTropes,
+                onChanged: (res) => setState(() => _selectedTropes = res),
+              ),
+              const SizedBox(height: 16),
+              // Reusable compact lists dropdown used by both Add and Edit flows.
+              ListsDropdown(
+                initialSelectedListIds: _selectedListIds,
+                placeholder: _selectedListIds.isNotEmpty
+                    ? '${_selectedListIds.length} selected'
+                    : 'Add to one or more lists (optional)',
+                onChanged: (ids) {
+                  setState(() => _selectedListIds = ids);
+                },
               ),
               const SizedBox(height: 16),
               Container(
@@ -371,7 +392,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       case BookOwnership.both:
         return 'Both';
       case BookOwnership.kindleUnlimited:
-        return 'Kindle Unlimited';
+        return 'Borrowed on Kindle';
     }
   }
 

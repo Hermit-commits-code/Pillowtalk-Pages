@@ -1,6 +1,6 @@
 // lib/services/user_library_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 import '../models/user_book.dart';
@@ -20,7 +20,7 @@ class UserLibraryService {
     if (_overrideUserId != null && _overrideUserId.isNotEmpty) {
       return _overrideUserId;
     }
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService.instance.currentUser;
     if (user == null) {
       throw Exception('User not logged in, cannot access library.');
     }
@@ -252,10 +252,12 @@ class UserLibraryService {
 
       // Build base query with optional status/ownership
       Query<Map<String, dynamic>> baseQuery = _libraryRef;
-      if (status != null)
+      if (status != null) {
         baseQuery = baseQuery.where('status', isEqualTo: status.name);
-      if (ownership != null)
+      }
+      if (ownership != null) {
         baseQuery = baseQuery.where('ownership', isEqualTo: ownership.name);
+      }
 
       // If only genres
       if (selGenres.isNotEmpty && selTropes.isEmpty) {
@@ -264,13 +266,17 @@ class UserLibraryService {
               .where('genres', arrayContainsAny: selGenres)
               .limit(limit)
               .get();
-          for (final d in q.docs) addFromDoc(d);
+          for (final d in q.docs) {
+            addFromDoc(d);
+          }
         } else {
           // Too many values for array-contains-any: fetch all and filter client-side
           final q = await baseQuery.get();
           for (final d in q.docs) {
             final ub = UserBook.fromJson(d.data());
-            if (ub.genres.any((g) => selGenres.contains(g))) addFromDoc(d);
+            if (ub.genres.any((g) => selGenres.contains(g))) {
+              addFromDoc(d);
+            }
           }
         }
         return results;
@@ -287,8 +293,12 @@ class UserLibraryService {
               .where('userSelectedTropes', arrayContainsAny: selTropes)
               .limit(limit)
               .get();
-          for (final d in q1.docs) addFromDoc(d);
-          for (final d in q2.docs) addFromDoc(d);
+          for (final d in q1.docs) {
+            addFromDoc(d);
+          }
+          for (final d in q2.docs) {
+            addFromDoc(d);
+          }
         } else {
           // Fallback: fetch all and filter client-side
           final q = await baseQuery.get();
@@ -298,7 +308,9 @@ class UserLibraryService {
               ...ub.cachedTropes,
               ...ub.userSelectedTropes,
             }.map((t) => t.trim()).toSet();
-            if (tropesUnion.any((t) => selTropes.contains(t))) addFromDoc(d);
+            if (tropesUnion.any((t) => selTropes.contains(t))) {
+              addFromDoc(d);
+            }
           }
         }
         return results;
@@ -306,7 +318,7 @@ class UserLibraryService {
 
       // Both genres and tropes provided: pick the smaller selector for server query
       final useGenresFirst =
-          selGenres.length <= (selTropes.length == 0 ? 9999 : selTropes.length);
+          selGenres.length <= (selTropes.isEmpty ? 9999 : selTropes.length);
 
       if (useGenresFirst) {
         if (selGenres.length <= 10) {
@@ -314,10 +326,14 @@ class UserLibraryService {
               .where('genres', arrayContainsAny: selGenres)
               .limit(limit)
               .get();
-          for (final d in q.docs) addFromDoc(d);
+          for (final d in q.docs) {
+            addFromDoc(d);
+          }
         } else {
           final q = await baseQuery.get();
-          for (final d in q.docs) addFromDoc(d);
+          for (final d in q.docs) {
+            addFromDoc(d);
+          }
         }
       } else {
         if (selTropes.length <= 10) {
@@ -329,11 +345,17 @@ class UserLibraryService {
               .where('userSelectedTropes', arrayContainsAny: selTropes)
               .limit(limit)
               .get();
-          for (final d in q1.docs) addFromDoc(d);
-          for (final d in q2.docs) addFromDoc(d);
+          for (final d in q1.docs) {
+            addFromDoc(d);
+          }
+          for (final d in q2.docs) {
+            addFromDoc(d);
+          }
         } else {
           final q = await baseQuery.get();
-          for (final d in q.docs) addFromDoc(d);
+          for (final d in q.docs) {
+            addFromDoc(d);
+          }
         }
       }
 

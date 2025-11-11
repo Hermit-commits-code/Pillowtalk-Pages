@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
 
@@ -18,7 +18,7 @@ import '../screens/dev/dev_qa_screen.dart';
 final GoRouter router = GoRouter(
   initialLocation: '/',
   redirect: (context, state) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService.instance.currentUser;
     final isAuthRoute =
         state.matchedLocation == '/login' ||
         state.matchedLocation == '/register';
@@ -49,6 +49,10 @@ final GoRouter router = GoRouter(
           name: 'search',
           builder: (context, state) => const DeepTropeSearchScreen(),
         ),
+        // Backwards-compatible alias: some parts of the app (or older
+        // installs) may navigate to `/home`. Keep a short redirect so
+        // those navigations don't throw a GoException.
+        GoRoute(path: '/home', redirect: (context, state) => '/'),
         GoRoute(
           path: '/pro-club',
           name: 'pro-club',

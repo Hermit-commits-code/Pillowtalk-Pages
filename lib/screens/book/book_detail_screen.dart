@@ -5,11 +5,15 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/user_library_service.dart';
+import '../../services/lists_service.dart';
+import 'widgets/lists_dropdown.dart';
 import '../../widgets/icon_rating_bar.dart';
 import 'genre_selection_screen.dart';
 import 'widgets/editable_tropes_section.dart';
+import '../../widgets/trope_dropdown_tile.dart';
 import '../../config/affiliate.dart';
 import '../../models/user_book.dart';
+import '../../models/user_list.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String title;
@@ -247,7 +251,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               : _ownership == BookOwnership.both
                               ? 'Owned Both'
                               : _ownership == BookOwnership.kindleUnlimited
-                              ? 'Kindle Unlimited'
+                              ? 'Borrowed on Kindle'
                               : '',
                         ),
                         backgroundColor: _ownershipColor(_ownership),
@@ -324,7 +328,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   ),
                   const SizedBox(width: 8),
                   ChoiceChip(
-                    label: const Text('Kindle Unlimited'),
+                    label: const Text('Borrowed on Kindle'),
                     selected: _ownership == BookOwnership.kindleUnlimited,
                     selectedColor: _ownershipColor(
                       BookOwnership.kindleUnlimited,
@@ -517,14 +521,69 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 onTap: _selectGenres,
               ),
             ),
+            const SizedBox(height: 16),
+            // --- LIST MEMBERSHIP ---
+            Text('Your Lists', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: StreamBuilder<List<UserList>>(
+                  stream: ListsService().getUserListsStream(),
+                  builder: (context, snap) {
+                    if (!snap.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final lists = snap.data!;
+                    final current = lists
+                        .where(
+                          (l) =>
+                              widget.userBookId != null &&
+                              widget.userBookId!.isNotEmpty &&
+                              l.bookIds.contains(widget.userBookId),
+                        )
+                        .map((l) => l.id)
+                        .toList();
+                    return ListsDropdown(
+                      initialSelectedListIds: current,
+                      placeholder: current.isNotEmpty
+                          ? '${current.length} selected'
+                          : 'Add to one or more lists (optional)',
+                      onChanged: (newIds) async {
+                        final service = ListsService();
+                        final added = newIds.where(
+                          (id) => !current.contains(id),
+                        );
+                        final removed = current.where(
+                          (id) => !newIds.contains(id),
+                        );
+                        if (widget.userBookId == null ||
+                            widget.userBookId!.isEmpty) {
+                          return;
+                        }
+                        for (final id in added) {
+                          await service.addBookToList(id, widget.userBookId!);
+                        }
+                        for (final id in removed) {
+                          await service.removeBookFromList(
+                            id,
+                            widget.userBookId!,
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // --- TROPES AND WARNINGS ---
-            EditableTropesSection(
-              tropes: _userTropes,
-              availableTropes: const [], // Replace with actual available tropes
-              onTropesChanged: _onTropesChanged,
-              label: 'Your Tropes',
+            TropeDropdownTile(
+              selectedTropes: _userTropes,
+              onChanged: (res) => _onTropesChanged(res),
+              title: 'Your Tropes',
+              placeholder: 'Tap to edit tropes',
             ),
             const SizedBox(height: 12),
             EditableTropesSection(

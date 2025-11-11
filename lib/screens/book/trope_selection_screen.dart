@@ -1,12 +1,23 @@
+// lib/screens/book/trope_selection_screen.dart
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../constants/tropes.dart';
+import '../../constants/tropes_categorized.dart';
 
+/// Trope selection screen modeled after GenreSelectionScreen but with categories.
 class TropeSelectionScreen extends StatefulWidget {
   final List<String> initialTropes;
-  const TropeSelectionScreen({super.key, required this.initialTropes});
+
+  /// Optional override for checking pro status. If provided, this will be
+  /// used instead of querying FirebaseAuth/Firestore which simplifies testing.
+  final Future<bool> Function()? proCheck;
+
+  const TropeSelectionScreen({
+    super.key,
+    required this.initialTropes,
+    this.proCheck,
+  });
 
   @override
   State<TropeSelectionScreen> createState() => _TropeSelectionScreenState();
@@ -24,7 +35,7 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
     _selectedTropes = Set.from(widget.initialTropes);
     // Separate custom tropes from predefined ones
     for (var trope in _selectedTropes) {
-      if (!romanceTropes.contains(trope)) {
+      if (!romanceTropesCategorized.contains(trope)) {
         _customTropes.add(trope);
       }
     }
@@ -32,9 +43,28 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
   }
 
   Future<void> _checkProStatus() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    // If a proCheck override is provided (useful for tests), use it.
+    if (widget.proCheck != null) {
       try {
+        final val = await widget.proCheck!();
+        if (mounted) {
+          setState(() {
+            _isPro = val;
+            _isLoading = false;
+          });
+        }
+        return;
+      } catch (_) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+    }
+
+    try {
+      final user = AuthService.instance.currentUser;
+      if (user != null) {
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
@@ -45,19 +75,11 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
             _isLoading = false;
           });
         }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+      } else {
+        if (mounted) setState(() => _isLoading = false);
       }
-    } else {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -147,8 +169,7 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
       );
     }
 
-    // Combine predefined and custom tropes for display
-    final allDisplayTropes = <String>[...romanceTropes, ..._customTropes];
+    final categories = tropeCategories.keys.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -163,10 +184,10 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
         ],
       ),
       body: ListView.builder(
-        itemCount: allDisplayTropes.length + 1,
+        itemCount: categories.length + 1,
         itemBuilder: (context, index) {
-          if (index == allDisplayTropes.length) {
-            // This is the "Add Custom" button
+          if (index == categories.length) {
+            // Add custom
             return ListTile(
               leading: const Icon(Icons.add),
               title: const Text('Add a custom trope...'),
@@ -174,14 +195,38 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
             );
           }
 
-          final trope = allDisplayTropes[index];
-
-          return CheckboxListTile(
-            title: Text(trope),
-            value: _selectedTropes.contains(trope),
-            onChanged: (bool? selected) {
-              _toggleTrope(trope);
-            },
+          final cat = categories[index];
+          final items = tropeCategories[cat] ?? [];
+          return ExpansionTile(
+            title: Text(cat),
+            initiallyExpanded: items.any((i) => _selectedTropes.contains(i)),
+            children: [
+              CheckboxListTile(
+                title: Text('All $cat'),
+                value:
+                    items.every((i) => _selectedTropes.contains(i)) &&
+                    items.isNotEmpty,
+                onChanged: (sel) {
+                  setState(() {
+                    if (sel == true) {
+                      _selectedTropes.addAll(items);
+                    } else {
+                      for (final i in items) _selectedTropes.remove(i);
+                    }
+                  });
+                },
+              ),
+              ...items.map(
+                (t) => CheckboxListTile(
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(t),
+                  ),
+                  value: _selectedTropes.contains(t),
+                  onChanged: (_) => _toggleTrope(t),
+                ),
+              ),
+            ],
           );
         },
       ),

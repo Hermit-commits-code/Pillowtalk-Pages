@@ -1401,6 +1401,122 @@ Notes:
 - Keep the roadmap's example version strings and git commands as guidance; do not assume a pushed tag exists until `git tag` and `git push --tags` are executed and verified.
 - Prioritize the search/filter work early in the RC (Deep Tropes + Hard Stops) because they form the product's MOAT and impact many surfaces (search results, library, recommendations).
 
+---
+
+## Tactical Next Steps (updated — Nov 10, 2025)
+
+This project has reached a strong engineering foundation: core user flows (Auth, Add Book, Library, Book Detail), the Spice Meter, Trope tagging, and a hybrid Firestore-based filter/search are implemented. Below are the prioritized, professional next steps to move from a working prototype to a measurable, launch-ready product.
+
+Important decision: Tropes engine status
+
+- A hybrid Firestore approach for trope filtering and faceted library queries is implemented and functional (no external index required). This works well for small-to-medium user bases and avoids managing an external search cluster or index keys in client apps.
+- A hybrid Firestore approach for trope filtering and faceted library queries is implemented and functional (no external index required). This works well for small-to-medium user bases and avoids managing an external search cluster or index keys in client apps.
+- For larger scale or ultra-low-latency faceted queries we will prioritize in-place optimizations and low-maintenance alternatives rather than introducing a hosted search SaaS. Short-term options include Firestore query tuning, composite indexes, denormalized/aggregated facet fields, and server-side caching. For device-side needs, a local full-text index (SQLite FTS) can provide fast offline search without adding external SaaS dependencies.
+
+Top priorities (why/what/outcome):
+
+- Instrumentation & analytics (high priority):
+
+  - Add Firebase Analytics events for onboarding flows, add-book, create-list, apply-filter, view-list, upgrade-to-pro.
+  - Outcome: measurable funnels so we can iterate on retention & conversion.
+
+- Search scaling alternatives (technical priority — medium-term):
+
+- Profile current query latency and identify expensive queries (use Firestore profiler and Cloud Monitoring).
+- Add composite Firestore indexes and denormalized/aggregated fields on `/books` documents to reduce client-side joins and repeated scans.
+- Implement a server-side aggregation job (Cloud Run / Cloud Function) that maintains denormalized facet fields and summary documents on a schedule, reducing real-time query complexity.
+- Consider a client-side/local index POC (SQLite FTS via `sqflite`/`sqlite3` or `moor`/`drift`) for offline/full-text scenarios where appropriate.
+- Add an optional small caching layer (Cloud Run + Redis or in-process cache) for very hot queries; prefer self-hosted or infra under our control if used.
+- Outcome: measurable reduction in query latency and operational overhead without relying on hosted search SaaS.
+
+- Tests & QA (engineering hygiene):
+
+  - Unit tests for `ListsService` and `UserLibraryService` (use Firestore emulator or mocking lib).
+  - Widget test: AddBook -> List selection flow.
+  - CI: run `flutter analyze` and `flutter test` automatically on PRs.
+  - Outcome: safer refactors and higher confidence for rapid iteration.
+
+- Privacy/Compliance & App store prep:
+
+  - Draft and host `PRIVACY_POLICY.md` and `TERMS_OF_SERVICE.md` and link them from settings and Play/App Store listing.
+  - Verify age gating and content rating metadata for Play/App Store submissions.
+  - Outcome: reduce risk of store rejections and legal exposure.
+
+- Launch plan & early marketing:
+
+  - Soft launch to targeted romance communities (Discord, Reddit/r/romancebooks, BookTok creators) with curated trope lists.
+  - Provide seed content (starter lists, trope bundles) for creators to share.
+  - Outcome: early user feedback, community seeding, and organic growth.
+
+- Retention & growth features:
+  - Add onboarding that prompts new users to pick favorite tropes and set Hard Stops/Kink Filters.
+  - Social sharing for lists and referral incentives for Pro trials.
+  - Outcome: improved day-1 activation and referral-driven acquisition.
+
+90-day tactical roadmap (minimal, measurable):
+
+- Week 0–2: Instrumentation + tests
+
+  - Add analytics events and dashboards (onboarding funnel, add-book, create-list, apply-filter, upgrade events).
+  - Finish `ListsService` unit tests and AddBook->Lists widget test; configure CI pipeline to run analyze/tests.
+
+- Week 2–4: Search scaling experiments
+
+- Profile and benchmark the current Firestore queries against representative datasets.
+- Add missing composite indexes and test query improvements.
+- Build a small denormalization/aggregation job to maintain facet-ready fields on `/books` documents and measure latency gains.
+- Prototype a local FTS POC (SQLite) for offline/near-device search to evaluate UX and storage/CPU tradeoffs.
+
+- Week 4–6: UX polish for filters & onboarding
+
+  - Complete Profile UI for Hard Stops & Kink Filters and include onboarding prompts to set them.
+  - Improve first-run onboarding to prompt trope selection and filter setup.
+
+- Week 6–8: Beta release + influencer experiments
+
+  - Soft-launch to a small cohort; seed the community with curated lists and coordinate with 2–3 micro-influencers.
+  - Track DAU, 7-day retention, and conversion rates by channel.
+
+- Week 8–12: Iterate and prepare RC
+  - Iterate based on metrics, finalize privacy/legal docs, and prepare Play internal testing (AAB). Decide whether to fully switch Filter screen to Algolia queries based on POC.
+
+Key KPIs to track (first 3 months):
+
+- DAU / WAU and 7-day retention (target >= 20% for a niche app)
+- Conversion Free → Pro (initial benchmark 2–5%)
+- Filters used per session and average session length
+- CAC by acquisition channel (influencer, organic, paid)
+
+Decision guidance: Tropes engine
+
+- Continue using the hybrid Firestore solution now (it is implemented and reduces operational overhead). Escalate to advanced scaling if and only if the profiling and experiments show sustained latency or functional limits that cannot be reasonably solved with Firestore optimizations.
+
+When to consider advanced options (order of preference):
+
+1. Firestore query & schema optimizations — composite indexes, denormalized facet fields, and server-side aggregation jobs.
+2. Small managed caching layer (Cloud Run + Redis) for hot queries and dashboards.
+3. Device-local full-text/indexing (SQLite FTS) for offline or near-device high-performance search.
+4. Self-hosted search infrastructure (if absolutely required) — evaluate carefully for operational burden, security, and cost before adopting.
+
+Action plan when scaling is required:
+
+1. Run end-to-end profiling on representative datasets and traffic patterns.
+2. Implement composite indexes and a denormalized `/books` summary document; re-run benchmarks.
+3. If latency targets are still unmet, trial the local FTS POC and a small caching layer.
+4. Only after exhausting these steps, evaluate a self-hosted search option; keep any cloud-hosted SaaS out of scope unless explicitly approved.
+
+Appendix: Quick checklist to ship Beta
+
+- Add analytics events & dashboards
+- Finish Lists tests and CI
+- Draft privacy & ToS, host publicly
+- Decide on a search scaling approach (Firestore optimizations, local/offline index, or self-hosted infra) and document the chosen plan
+- Onboard 3 micro-influencers and prepare seed lists
+
+---
+
+_Roadmap updated — Nov 10, 2025_
+
 **NEW FEATURE: Hard Stops Content Filter** 🛡️
 **NEW FEATURE: Kink Filter** 🔥
 

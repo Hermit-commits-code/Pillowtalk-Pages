@@ -48,8 +48,9 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
       );
       setState(() {
         _searchResults = results;
-        if (_searchResults.isEmpty)
+        if (_searchResults.isEmpty) {
           _error = 'No books found with those filters.';
+        }
       });
     } catch (e) {
       setState(() => _error = 'Filter search failed: $e');
@@ -115,7 +116,7 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<ReadingStatus?>(
-                        value: _selectedStatus,
+                        initialValue: _selectedStatus,
                         decoration: const InputDecoration(
                           labelText: 'Reading status',
                         ),
@@ -135,7 +136,7 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: DropdownButtonFormField<BookOwnership?>(
-                        value: _selectedOwnership,
+                        initialValue: _selectedOwnership,
                         decoration: const InputDecoration(
                           labelText: 'Ownership',
                         ),
