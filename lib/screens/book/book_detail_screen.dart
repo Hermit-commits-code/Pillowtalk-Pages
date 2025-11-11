@@ -531,10 +531,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 child: StreamBuilder<List<UserList>>(
                   stream: ListsService().getUserListsStream(),
                   builder: (context, snap) {
-                    if (!snap.hasData) {
+                    if (snap.hasError) {
+                      final errorMsg = snap.error.toString();
+                      return Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              errorMsg.contains('permission')
+                                  ? 'Unable to load your lists. Check Firestore permissions.'
+                                  : 'Error loading lists',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    final lists = snap.data ?? [];
+                    if (snap.connectionState == ConnectionState.waiting &&
+                        lists.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    final lists = snap.data!;
                     final current = lists
                         .where(
                           (l) =>

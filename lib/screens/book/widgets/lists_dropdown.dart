@@ -105,10 +105,14 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
       body: StreamBuilder<List<UserList>>(
         stream: _listsService.getUserListsStream(),
         builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+          if (snap.hasError) {
+            return Center(child: Text('Error loading lists: ${snap.error}'));
           }
           final lists = snap.data ?? [];
+          if (snap.connectionState == ConnectionState.waiting &&
+              lists.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
           final selected = List<String>.from(widget.initialSelectedListIds);
           return Column(
             children: [
