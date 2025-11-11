@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 class IAPService {
@@ -67,7 +67,7 @@ class IAPService {
 
     // If we have a signed-in user, mark them as Pro (stub verification).
     // NOTE: Replace this stub with server-side verification for production.
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService.instance.currentUser;
     if (user != null) {
       try {
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({

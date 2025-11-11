@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +23,7 @@ class _DevQAScreenState extends State<DevQAScreen> {
   }
 
   Future<void> _ensureSignedIn() async {
-    final auth = FirebaseAuth.instance;
+    final auth = AuthService.instance;
     if (auth.currentUser != null) {
       _log('Already signed in as ${auth.currentUser!.uid}');
       return;
@@ -37,7 +37,7 @@ class _DevQAScreenState extends State<DevQAScreen> {
     setState(() => _busy = true);
     try {
       await _ensureSignedIn();
-      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final uid = AuthService.instance.currentUser!.uid;
       final bookId = 'qa_book_${DateTime.now().millisecondsSinceEpoch}';
       final ub = UserBook(
         id: '${uid}_$bookId',
@@ -61,7 +61,7 @@ class _DevQAScreenState extends State<DevQAScreen> {
     setState(() => _busy = true);
     try {
       await _ensureSignedIn();
-      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final uid = AuthService.instance.currentUser!.uid;
       final list = await UserLibraryService().getUserLibraryStream().first;
       _log('Library (${list.length}) for $uid:');
       for (final b in list) {

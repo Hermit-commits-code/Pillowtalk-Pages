@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -38,7 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = true;
     });
     try {
-      final credential = await FirebaseAuth.instance
+      final credential = await AuthService.instance
           .createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
             password: _passwordController.text,

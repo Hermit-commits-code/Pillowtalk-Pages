@@ -7,6 +7,7 @@ import 'config/app_theme.dart';
 import 'config/router.dart';
 import 'firebase_options.dart';
 import 'services/theme_provider.dart';
+import 'services/auth_service.dart';
 
 import 'dart:io' show Platform;
 
@@ -59,7 +60,7 @@ class AppRoot extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
       child: FutureBuilder<User?>(
-        future: FirebaseAuth.instance.authStateChanges().first,
+        future: AuthService.instance.authStateChanges().first,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const MaterialApp(

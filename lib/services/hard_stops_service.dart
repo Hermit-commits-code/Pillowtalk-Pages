@@ -1,12 +1,13 @@
 // lib/services/hard_stops_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 
 class HardStopsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _authService = AuthService.instance;
 
-  String get _userId => _auth.currentUser?.uid ?? '';
+  String get _userId => _authService.currentUser?.uid ?? '';
 
   DocumentReference<Map<String, dynamic>> get _userDoc =>
       _firestore.collection('users').doc(_userId);

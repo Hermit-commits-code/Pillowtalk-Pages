@@ -1,9 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// Optional authService allows tests to inject a fake implementation to
+  /// avoid touching `FirebaseAuth.instance` during widget tests.
+  final dynamic authService;
+
+  const LoginScreen({super.key, this.authService});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -33,12 +38,24 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+      final svc = widget.authService;
+
+      if (svc != null) {
+        await svc.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+      } else {
+        // Fallback to direct FirebaseAuth for production.
+        await AuthService.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+      }
       if (!mounted) return;
-      final user = FirebaseAuth.instance.currentUser;
+      final user = svc != null
+          ? svc.currentUser
+          : AuthService.instance.currentUser;
       final displayName = user?.displayName ?? user?.email ?? 'Reader';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -48,7 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       await Future.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
-      context.go('/home');
+      // Route to the app root (home dashboard). Use '/' which is the
+      // named home route in the GoRouter configuration.
+      context.go('/');
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

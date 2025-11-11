@@ -4,21 +4,33 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  /// Optional provider for the current Firebase [User].
-  ///
-  /// Tests should pass a closure returning null or a fake [User] to avoid
-  /// initializing real Firebase services.
+  /// Optional provider for the current Firebase [User]. Tests should pass a
+  /// closure returning null or a fake [User] to avoid initializing real
+  /// Firebase services. Alternatively, tests can inject an `authService`
+  /// which exposes `currentUser`, `signOut`, etc.
   final User? Function()? currentUserGetter;
+  final dynamic authService;
 
-  const ProfileScreen({super.key, this.currentUserGetter});
+  /// Optional theme provider injection for tests. If not provided the
+  /// real `Provider.of<ThemeProvider>` is used.
+  final dynamic themeProvider;
+
+  const ProfileScreen({
+    super.key,
+    this.currentUserGetter,
+    this.authService,
+    this.themeProvider,
+  });
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -80,9 +92,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _logout(BuildContext context) async {
-    // Capture navigator before any async gaps so we don't use BuildContext
-    // across awaits (satisfies use_build_context_synchronously).
-    final navigator = Navigator.of(context);
+    // Capture router and messenger before any async gaps so we don't use
+    // BuildContext across awaits (satisfies use_build_context_synchronously).
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -101,9 +114,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (confirm == true) {
-      await FirebaseAuth.instance.signOut();
+      try {
+        final svc = widget.authService;
+        if (svc != null) {
+          await svc.signOut();
+        } else {
+          await AuthService.instance.signOut();
+        }
+      } catch (e) {
+        // Sign-out should rarely fail; surface a user-friendly message and
+        // keep the user on the profile screen so they can retry.
+        if (!mounted) return;
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Logout failed. Please try again.')),
+        );
+        // Optionally log the error to analytics/logging here.
+        return;
+      }
       if (!mounted) return;
-      navigator.pushReplacementNamed('/login');
+      router.go('/login');
     }
   }
 
@@ -118,12 +147,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = widget.currentUserGetter != null
         ? widget.currentUserGetter!.call()
-        : FirebaseAuth.instance.currentUser;
+        : widget.authService != null
+        ? widget.authService.currentUser
+        : AuthService.instance.currentUser;
     final theme = Theme.of(context);
     final displayName = user?.displayName ?? user?.email ?? 'Reader';
     final userId = user?.uid ?? '';
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isDark = themeProvider.themeMode == ThemeMode.dark;
+    final localThemeProvider =
+        widget.themeProvider ?? Provider.of<ThemeProvider>(context);
+    final isDark = localThemeProvider.themeMode == ThemeMode.dark;
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile', style: theme.appBarTheme.titleTextStyle),
@@ -175,7 +207,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: const Text('Dark Mode'),
             value: isDark,
             onChanged: (val) {
-              themeProvider.setTheme(val ? ThemeMode.dark : ThemeMode.light);
+              localThemeProvider.setTheme(
+                val ? ThemeMode.dark : ThemeMode.light,
+              );
             },
             secondary: const Icon(Icons.brightness_6),
           ),
