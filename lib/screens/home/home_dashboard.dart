@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/user_book.dart';
 import '../library/finished_books_screen.dart';
+import '../library/status_books_screen.dart';
 import '../../services/user_library_service.dart';
 
 class HomeDashboard extends StatefulWidget {
@@ -48,15 +49,35 @@ class _HomeDashboardState extends State<HomeDashboard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _StatCard(
-                    label: 'Want to Read',
-                    count: wantToRead.length,
-                    color: Colors.blue,
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.wantToRead,
+                          title: 'Want to Read',
+                        ),
+                      ),
+                    ),
+                    child: _StatCard(
+                      label: 'Want to Read',
+                      count: wantToRead.length,
+                      color: Colors.blue,
+                    ),
                   ),
-                  _StatCard(
-                    label: 'Reading',
-                    count: currentlyReading.length,
-                    color: Colors.purple,
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.reading,
+                          title: 'Currently Reading',
+                        ),
+                      ),
+                    ),
+                    child: _StatCard(
+                      label: 'Reading',
+                      count: currentlyReading.length,
+                      color: Colors.purple,
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).push(
