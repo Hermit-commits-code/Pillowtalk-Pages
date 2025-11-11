@@ -169,3 +169,33 @@ Current version: 0.4.1+2 (version code 2 for build consistency)
 ## Upcoming
 
 See [ROADMAP.md](ROADMAP.md) for planned features and improvements.
+
+---
+
+## [Unreleased] - 2025-11-11
+
+### ✨ Added
+
+- Lists UI: Selected-list chips shown in Add/Edit flows and a compact `ListsDropdown` control that opens the full selection screen.
+- Lists management screens: `ListsScreen` (create/edit/delete lists) and `ListDetailScreen` (shows books in a list with cover, title, author and remove action).
+- Reading status selector in `EditBookModal` (Want to Read / Reading / Finished) and a reusable `StatusBooksScreen` to view books filtered by status.
+
+### 🔧 Changed
+
+- Automatic status date handling: when a book's status transitions to `reading` or `finished`, `dateStarted` and `dateFinished` are set respectively and persisted.
+- Home dashboard: stat cards (Want to Read / Reading / Finished) are now navigable and open the corresponding status screens.
+- Roadmap (`ROADMAP.md`) updated to mark lists, tests, CI, and status work complete (Nov 11, 2025).
+
+### 🧪 Tests & CI
+
+- Shared test fakes refactored into `test/test_helpers/fakes.dart` and widget tests stabilized: `test/edit_book_modal_test.dart`, `test/list_creation_chip_test.dart`, `test/list_selection_e2e_test.dart` (Nov 11, 2025).
+- CI: Added `.github/workflows/flutter_ci.yml` to run `flutter analyze` and `flutter test` on PRs.
+
+### 📦 Release housekeeping
+
+- Bumped package version on feature branch to `0.5.3+1` (committed to `feat/list-chips-and-test-fakes`).
+
+### ✅ Notes
+
+- All new widget tests were run locally during development; full test suite passes locally with the introduced changes.
+
