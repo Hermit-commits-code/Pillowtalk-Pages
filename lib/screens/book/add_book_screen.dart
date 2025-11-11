@@ -121,8 +121,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final kinkEnabled = kinkData['enabled'] as bool? ?? true;
       final hardStopsEnabled = hardStopsData['enabled'] as bool? ?? true;
 
-      final kinkFilters = (kinkData['kinkFilter'] as List<String>?) ?? <String>[];
-      final hardStops = (hardStopsData['hardStops'] as List<String>?) ?? <String>[];
+      final kinkFilters =
+          (kinkData['kinkFilter'] as List<String>?) ?? <String>[];
+      final hardStops =
+          (hardStopsData['hardStops'] as List<String>?) ?? <String>[];
 
       final conflicts = <String>[];
 
@@ -178,7 +180,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   children: conflictingTropes.map((trope) {
                     return Chip(
                       label: Text(trope),
-                      backgroundColor: Theme.of(context).colorScheme.error.withAlpha(51),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.error.withAlpha(51),
                     );
                   }).toList(),
                 ),
@@ -223,15 +227,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final conflictCheck = await _checkForTropeConflicts();
       if (conflictCheck['hasConflicts'] as bool) {
         setState(() => _isLoading = false);
-        
+
         final confirmed = await _showConflictConfirmation(
           List<String>.from(conflictCheck['conflictingTropes'] as List),
         );
-        
+
         if (!confirmed) {
           return; // User cancelled
         }
-        
+
         setState(() => _isLoading = true);
       }
 

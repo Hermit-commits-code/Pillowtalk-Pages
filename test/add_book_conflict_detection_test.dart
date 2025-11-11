@@ -85,7 +85,10 @@ void main() {
 
       expect(result['hasConflicts'], true);
       expect(result['conflictingTropes'].length, 2);
-      expect(result['conflictingTropes'], containsAll(['BDSM', 'Non-Consensual']));
+      expect(
+        result['conflictingTropes'],
+        containsAll(['BDSM', 'Non-Consensual']),
+      );
     });
 
     test('No conflicts when kink filter disabled', () {
@@ -165,7 +168,10 @@ void main() {
 
       expect(result['hasConflicts'], true);
       expect(result['conflictingTropes'].length, 2);
-      expect(result['conflictingTropes'], containsAll(['Non-Consensual', 'Infidelity']));
+      expect(
+        result['conflictingTropes'],
+        containsAll(['Non-Consensual', 'Infidelity']),
+      );
     });
 
     test('No conflicts when filters empty but enabled', () {
