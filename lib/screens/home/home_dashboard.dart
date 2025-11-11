@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import '../../models/user_book.dart';
-import '../library/finished_books_screen.dart';
 import '../library/status_books_screen.dart';
 import '../../services/user_library_service.dart';
 
@@ -82,7 +81,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   GestureDetector(
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const FinishedBooksScreen(),
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.finished,
+                          title: 'Finished',
+                        ),
                       ),
                     ),
                     child: _StatCard(

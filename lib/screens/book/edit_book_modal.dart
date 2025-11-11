@@ -92,6 +92,19 @@ class _EditBookModalState extends State<EditBookModal> {
     setState(() => _isSaving = true);
     try {
       final lib = widget.userLibraryService ?? UserLibraryService();
+      // Compute possible automatic date changes when status transitions
+      DateTime? newDateStarted = widget.userBook.dateStarted;
+      DateTime? newDateFinished = widget.userBook.dateFinished;
+
+      // If moving to reading and no start date recorded, set it.
+      if (_status == ReadingStatus.reading && newDateStarted == null) {
+        newDateStarted = DateTime.now();
+      }
+
+      // If moving to finished and no finished date recorded, set it.
+      if (_status == ReadingStatus.finished && newDateFinished == null) {
+        newDateFinished = DateTime.now();
+      }
 
       final updated = widget.userBook.copyWith(
         genres: _selectedGenres,
@@ -101,6 +114,8 @@ class _EditBookModalState extends State<EditBookModal> {
             : null,
         ownership: _ownership,
         status: _status,
+        dateStarted: newDateStarted,
+        dateFinished: newDateFinished,
       );
       await lib.updateBook(updated);
 
