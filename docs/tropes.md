@@ -161,12 +161,10 @@
 
 ## Bonus Extras
 
-- Amnesia
 - Bet
 - Blind date
 - Fairytale retelling (Cinderella, Beauty and the Beast, etc.)
 - Fish out of water
-- Road trip
 - Time travel
 
 ---

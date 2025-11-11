@@ -5,6 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/user_library_service.dart';
+import 'edit_book_modal.dart';
 import '../../services/lists_service.dart';
 import 'widgets/lists_dropdown.dart';
 import '../../widgets/icon_rating_bar.dart';
@@ -108,6 +109,50 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             // ignore; non-fatal if load fails
             debugPrint('Failed to load userBook in detail screen: $e');
           });
+    }
+  }
+
+  Future<void> _openEditModal() async {
+    if (widget.userBookId == null || widget.userBookId!.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user book to edit')));
+      return;
+    }
+
+    try {
+      final ub = await UserLibraryService().getUserBook(widget.userBookId!);
+      if (ub == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to load book for editing')),
+        );
+        return;
+      }
+
+      final result = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
+      );
+
+      if (result == true) {
+        // Refresh local UI state from the updated userBook
+        final updated = await UserLibraryService().getUserBook(
+          widget.userBookId!,
+        );
+        if (updated != null && mounted) {
+          setState(() {
+            _ownership = updated.ownership;
+            _personalStars = updated.personalStars;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error opening edit modal: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
     }
   }
 
@@ -223,7 +268,16 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            tooltip: 'Edit',
+            icon: const Icon(Icons.edit),
+            onPressed: _openEditModal,
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _saveChanges,
         label: const Text('Save'),
@@ -531,10 +585,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 child: StreamBuilder<List<UserList>>(
                   stream: ListsService().getUserListsStream(),
                   builder: (context, snap) {
-                    if (!snap.hasData) {
+                    if (snap.hasError) {
+                      final errorMsg = snap.error.toString();
+                      return Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              errorMsg.contains('permission')
+                                  ? 'Unable to load your lists. Check Firestore permissions.'
+                                  : 'Error loading lists',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    final lists = snap.data ?? [];
+                    if (snap.connectionState == ConnectionState.waiting &&
+                        lists.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    final lists = snap.data!;
                     final current = lists
                         .where(
                           (l) =>

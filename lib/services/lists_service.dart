@@ -124,4 +124,20 @@ class ListsService {
     }
     await batch.commit();
   }
+
+  /// Return the lists that currently contain [userBookId]. Useful for
+  /// computing diffs when updating list membership.
+  Future<List<UserList>> getListsContainingBook(String userBookId) async {
+    try {
+      final snap = await _listsRef
+          .where('bookIds', arrayContains: userBookId)
+          .get();
+      return snap.docs
+          .map((d) => UserList.fromJson({...d.data(), 'id': d.id}))
+          .toList();
+    } catch (e) {
+      if (kDebugMode) debugPrint('getListsContainingBook failed: $e');
+      return <UserList>[];
+    }
+  }
 }
