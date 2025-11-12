@@ -48,10 +48,10 @@ class _HomeDashboardState extends State<HomeDashboard> {
         final avgSpice = booksWithSpice.isEmpty
             ? 0.0
             : booksWithSpice.fold<double>(
-                  0,
-                  (sum, b) => sum + (b.spiceOverall ?? 0),
-                ) /
-                booksWithSpice.length;
+                    0,
+                    (sum, b) => sum + (b.spiceOverall ?? 0),
+                  ) /
+                  booksWithSpice.length;
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),

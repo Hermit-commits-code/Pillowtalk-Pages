@@ -380,13 +380,13 @@ class UserLibraryService {
         filtered = filtered.where((ub) {
           // Skip filtering if book has ignoreFilters flag set
           if (ub.ignoreFilters) return true;
-          
+
           // Check if any warning matches hard stops
           final bookWarnings = {
             ...ub.cachedTopWarnings,
             ...ub.userContentWarnings,
           }.map((w) => w.trim()).toSet();
-          
+
           final hasHardStop = bookWarnings.any((w) => hardStops.contains(w));
           return !hasHardStop; // Return true if NO hard stop match
         }).toList();
@@ -397,13 +397,13 @@ class UserLibraryService {
         filtered = filtered.where((ub) {
           // Skip filtering if book has ignoreFilters flag set
           if (ub.ignoreFilters) return true;
-          
+
           // Check if any trope matches kink filters
           final bookTropes = {
             ...ub.cachedTropes,
             ...ub.userSelectedTropes,
           }.map((t) => t.trim()).toSet();
-          
+
           final hasKinkFilter = bookTropes.any((t) => kinkFilters.contains(t));
           return !hasKinkFilter; // Return true if NO kink filter match
         }).toList();
