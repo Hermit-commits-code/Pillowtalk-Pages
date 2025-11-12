@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/user_book.dart';
 import '../../services/user_library_service.dart';
+import '../../services/hard_stops_service.dart';
+import '../../services/kink_filter_service.dart';
 import '../book/genre_selection_screen.dart';
 import '../book/trope_selection_screen.dart';
 
@@ -40,11 +42,25 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
     });
 
     try {
+      // Load user's Hard Stops and Kink Filters
+      final hardStopsData = await HardStopsService().getHardStopsOnce();
+      final hardStops = (hardStopsData['hardStopsEnabled'] as bool)
+          ? List<String>.from(hardStopsData['hardStops'] as List<String>)
+          : null;
+
+      final kinkFilterData = await KinkFilterService().getKinkFilterOnce();
+      final kinkFilters = (kinkFilterData['enabled'] as bool)
+          ? List<String>.from(kinkFilterData['kinkFilter'] as List<String>)
+          : null;
+
       final results = await UserLibraryService().searchLibraryByFilters(
         genres: _selectedGenres,
         tropes: _selectedTropes,
         status: _selectedStatus,
         ownership: _selectedOwnership,
+        hardStops: hardStops,
+        kinkFilters: kinkFilters,
+        applyUserFilters: true,
       );
       setState(() {
         _searchResults = results;

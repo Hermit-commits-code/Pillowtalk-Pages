@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -49,4 +47,49 @@ void main() {
     expect(fake.received, isNotNull);
     expect(fake.received!.id, sample.id);
   });
+
+  testWidgets(
+    'EditBookModal sets dateFinished when status changed to finished',
+    (WidgetTester tester) async {
+      final fake = FakeUserLibraryService();
+
+      final sample = UserBook(
+        id: 'ub_2',
+        userId: 'user_1',
+        bookId: 'b_2',
+        title: 'Finish Me',
+        authors: const ['B'],
+        status: ReadingStatus.wantToRead,
+      );
+
+      final fakeLists = FakeListsService();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: EditBookModal(
+            userBook: sample,
+            userLibraryService: fake,
+            listsService: fakeLists,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap the 'Finished' chip to change status
+      final finishedFinder = find.text('Finished');
+      expect(finishedFinder, findsOneWidget);
+      await tester.tap(finishedFinder);
+      await tester.pumpAndSettle();
+
+      final stateObj = tester.state(find.byType(EditBookModal)) as dynamic;
+      await stateObj.save();
+      await tester.pumpAndSettle();
+
+      fakeLists.dispose();
+
+      expect(fake.called, isTrue);
+      expect(fake.received, isNotNull);
+      expect(fake.received!.status, ReadingStatus.finished);
+      expect(fake.received!.dateFinished, isNotNull);
+    },
+  );
 }

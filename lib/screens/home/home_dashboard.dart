@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/user_book.dart';
-import '../library/finished_books_screen.dart';
+import '../library/status_books_screen.dart';
 import '../../services/user_library_service.dart';
 
 class HomeDashboard extends StatefulWidget {
@@ -40,28 +40,82 @@ class _HomeDashboardState extends State<HomeDashboard> {
             .where((b) => b.status == ReadingStatus.finished)
             .toList();
 
+        // Calculate aggregate stats
+        final totalBooks = books.length;
+        final booksWithSpice = books
+            .where((b) => b.spiceOverall != null && b.spiceOverall! > 0)
+            .toList();
+        final avgSpice = booksWithSpice.isEmpty
+            ? 0.0
+            : booksWithSpice.fold<double>(
+                    0,
+                    (sum, b) => sum + (b.spiceOverall ?? 0),
+                  ) /
+                  booksWithSpice.length;
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Top aggregate stats
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _StatCard(
-                    label: 'Want to Read',
-                    count: wantToRead.length,
-                    color: Colors.blue,
+                    label: 'Total Books',
+                    count: totalBooks,
+                    color: Colors.amber,
                   ),
                   _StatCard(
-                    label: 'Reading',
-                    count: currentlyReading.length,
-                    color: Colors.purple,
+                    label: 'Avg Spice',
+                    count: avgSpice.toStringAsFixed(1) as dynamic,
+                    color: Colors.orange,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Reading status stats
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.wantToRead,
+                          title: 'Want to Read',
+                        ),
+                      ),
+                    ),
+                    child: _StatCard(
+                      label: 'Want to Read',
+                      count: wantToRead.length,
+                      color: Colors.blue,
+                    ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const FinishedBooksScreen(),
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.reading,
+                          title: 'Currently Reading',
+                        ),
+                      ),
+                    ),
+                    child: _StatCard(
+                      label: 'Reading',
+                      count: currentlyReading.length,
+                      color: Colors.purple,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StatusBooksScreen(
+                          status: ReadingStatus.finished,
+                          title: 'Finished',
+                        ),
                       ),
                     ),
                     child: _StatCard(
@@ -102,7 +156,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
 class _StatCard extends StatelessWidget {
   final String label;
-  final int count;
+  final dynamic count; // int or String
   final Color color;
   const _StatCard({
     required this.label,
@@ -119,7 +173,7 @@ class _StatCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '$count',
+              count is int ? '$count' : count.toString(),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: color,
                 fontWeight: FontWeight.bold,

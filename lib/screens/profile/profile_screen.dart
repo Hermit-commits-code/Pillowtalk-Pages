@@ -219,14 +219,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('Privacy Policy'),
             onTap: () => _launchUrl(
-              'https://hermit-commits-code.github.io/Pillowtalk-Pages/docs/PRIVACY_POLICY.md',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/PRIVACY_POLICY.md',
             ),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),
             title: const Text('Terms of Service'),
             onTap: () => _launchUrl(
-              'https://hermit-commits-code.github.io/Pillowtalk-Pages/docs/TERMS_OF_SERVICE.md',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/TERMS_OF_SERVICE.md',
             ),
           ),
           const SizedBox(height: 16),

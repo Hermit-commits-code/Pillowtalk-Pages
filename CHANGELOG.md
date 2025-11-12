@@ -10,19 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Added
 
 #### User Interface & Experience
+
 - **New CompactSpiceRating Widget**: Displays book ratings in compact form for library and home screens (12px sizing)
-- **Completely Redesigned Spice Meter**: 
+- **Completely Redesigned Spice Meter**:
   - Removed slider-based input in favor of tappable flames
   - Added smooth scale animations (300ms transitions)
   - Added realistic flame color gradient (grey → red → orange → yellow → white → blue)
   - Added haptic feedback (HapticFeedback.selectionClick()) on flame tap
   - Improved touch targets (80px effective tap area)
-- **Ratings Now Visible in Book Cards**: 
+- **Ratings Now Visible in Book Cards**:
   - Library screen displays average spice rating and rating count
   - Home screen displays average spice rating for currently reading books
   - Ratings use new realistic flame colors for visual consistency
 
 #### Features
+
 - **Profile Screen Enhancements**:
   - Added `_isBackfilling` state management for backfill operations
   - Disabled backfill button during active backfill to prevent double-submission
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added visual state indicators for backfill progress
 
 #### Content & Documentation
+
 - **Comprehensive Legal Documents**:
   - Created detailed Privacy Policy with GDPR/CCPA compliance information
   - Created complete Terms of Service with usage guidelines
@@ -44,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔧 Fixed
 
 #### Code Quality
+
 - **Resolved use_build_context_synchronously Warnings**:
   - Fixed context usage after async gap in profile_screen.dart
   - Implemented proper inline ignore comments with validation
@@ -59,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved widget test reliability
 
 #### User Experience
+
 - **Animation Performance**: No jank, smooth transitions on all devices
 - **Touch Target Improvements**: Flames now have proper 80px touch targets (48px visual + 16px padding)
 
@@ -77,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📁 Changed
 
 #### Modified Files
+
 - `lib/screens/book/widgets/spice_meter_widgets.dart`: Complete redesign with tappable flames and animations
 - `lib/screens/library/library_screen.dart`: Added CompactSpiceRating to book cards
 - `lib/screens/home/home_screen.dart`: Added CompactSpiceRating with FutureBuilder for async data loading
@@ -84,6 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ROADMAP.md`: Updated with 7/10 checklist items marked complete
 
 #### New Files
+
 - `lib/widgets/compact_spice_rating.dart`: New compact rating display widget
 - `test/spice_rating_widgets_test.dart`: Comprehensive widget tests (16 tests)
 - `docs/PRIVACY_POLICY.md`: Complete privacy policy with GDPR/CCPA compliance
@@ -96,7 +103,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎨 Design
 
 #### Flame Color Palette
+
 The new realistic flame color gradient represents actual flame temperatures:
+
 - **0.0 rating**: #707070 Grey (no flame)
 - **1.0 rating**: #D32F2F Red (low heat - ~400°C)
 - **2.0 rating**: #F57C00 Orange (medium heat - ~800°C)
@@ -157,6 +166,7 @@ No new dependencies added in v0.4.1. All existing dependencies remain compatible
 ## Version Numbering
 
 This project uses [Semantic Versioning](https://semver.org/):
+
 - **MAJOR**: Breaking changes
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, backwards compatible
@@ -169,3 +179,32 @@ Current version: 0.4.1+2 (version code 2 for build consistency)
 ## Upcoming
 
 See [ROADMAP.md](ROADMAP.md) for planned features and improvements.
+
+---
+
+## [Unreleased] - 2025-11-11
+
+### ✨ Added
+
+- Lists UI: Selected-list chips shown in Add/Edit flows and a compact `ListsDropdown` control that opens the full selection screen.
+- Lists management screens: `ListsScreen` (create/edit/delete lists) and `ListDetailScreen` (shows books in a list with cover, title, author and remove action).
+- Reading status selector in `EditBookModal` (Want to Read / Reading / Finished) and a reusable `StatusBooksScreen` to view books filtered by status.
+
+### 🔧 Changed
+
+- Automatic status date handling: when a book's status transitions to `reading` or `finished`, `dateStarted` and `dateFinished` are set respectively and persisted.
+- Home dashboard: stat cards (Want to Read / Reading / Finished) are now navigable and open the corresponding status screens.
+- Roadmap (`ROADMAP.md`) updated to mark lists, tests, CI, and status work complete (Nov 11, 2025).
+
+### 🧪 Tests & CI
+
+- Shared test fakes refactored into `test/test_helpers/fakes.dart` and widget tests stabilized: `test/edit_book_modal_test.dart`, `test/list_creation_chip_test.dart`, `test/list_selection_e2e_test.dart` (Nov 11, 2025).
+- CI: Added `.github/workflows/flutter_ci.yml` to run `flutter analyze` and `flutter test` on PRs.
+
+### 📦 Release housekeeping
+
+- Bumped package version on feature branch to `0.5.3+1` (committed to `feat/list-chips-and-test-fakes`).
+
+### ✅ Notes
+
+- All new widget tests were run locally during development; full test suite passes locally with the introduced changes.

@@ -36,6 +36,7 @@ class _EditBookModalState extends State<EditBookModal> {
   late List<String> _selectedGenres;
   late List<String> _selectedTropes;
   late List<String> _selectedListIds;
+  late ReadingStatus _status;
   late TextEditingController _notesController;
   BookOwnership _ownership = BookOwnership.none;
 
@@ -50,6 +51,7 @@ class _EditBookModalState extends State<EditBookModal> {
     _selectedGenres = List.from(widget.userBook.genres);
     _selectedTropes = List.from(widget.userBook.userSelectedTropes);
     _selectedListIds = [];
+    _status = widget.userBook.status;
     _notesController = TextEditingController(
       text: widget.userBook.userNotes ?? '',
     );
@@ -90,6 +92,19 @@ class _EditBookModalState extends State<EditBookModal> {
     setState(() => _isSaving = true);
     try {
       final lib = widget.userLibraryService ?? UserLibraryService();
+      // Compute possible automatic date changes when status transitions
+      DateTime? newDateStarted = widget.userBook.dateStarted;
+      DateTime? newDateFinished = widget.userBook.dateFinished;
+
+      // If moving to reading and no start date recorded, set it.
+      if (_status == ReadingStatus.reading && newDateStarted == null) {
+        newDateStarted = DateTime.now();
+      }
+
+      // If moving to finished and no finished date recorded, set it.
+      if (_status == ReadingStatus.finished && newDateFinished == null) {
+        newDateFinished = DateTime.now();
+      }
 
       final updated = widget.userBook.copyWith(
         genres: _selectedGenres,
@@ -98,6 +113,9 @@ class _EditBookModalState extends State<EditBookModal> {
             ? _notesController.text.trim()
             : null,
         ownership: _ownership,
+        status: _status,
+        dateStarted: newDateStarted,
+        dateFinished: newDateFinished,
       );
       await lib.updateBook(updated);
 
@@ -220,6 +238,22 @@ class _EditBookModalState extends State<EditBookModal> {
                 listsService: widget.listsService,
               ),
               const SizedBox(height: 12),
+              Text('Reading status', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: ReadingStatus.values.map((s) {
+                  final label = _readingStatusLabel(s);
+                  final isSelected = _status == s;
+                  return ChoiceChip(
+                    label: Text(label),
+                    selected: isSelected,
+                    onSelected: (sel) =>
+                        setState(() => _status = sel ? s : _status),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 12),
               Text('Ownership', style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               Wrap(
@@ -270,6 +304,17 @@ class _EditBookModalState extends State<EditBookModal> {
         return 'Both';
       case BookOwnership.kindleUnlimited:
         return 'Borrowed on Kindle';
+    }
+  }
+
+  String _readingStatusLabel(ReadingStatus status) {
+    switch (status) {
+      case ReadingStatus.wantToRead:
+        return 'Want to Read';
+      case ReadingStatus.reading:
+        return 'Reading';
+      case ReadingStatus.finished:
+        return 'Finished';
     }
   }
 }
