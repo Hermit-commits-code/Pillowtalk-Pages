@@ -24,11 +24,23 @@ permalink: /:categories/:year/:month/:day/:title:output_ext
 include: ['.htaccess']
 
 # Exclude files
-exclude: ['*.gem', '*.gemspec', '*.md', 'Gemfile', 'Gemfile.lock', 'node_modules', 'vendor/bundle/', 'vendor/cache/', 'vendor/gems/', 'vendor/ruby/']
+# Note: do NOT exclude Markdown so Jekyll/GitHub Pages will render docs/*.md
+exclude:
+  [
+    '*.gem',
+    '*.gemspec',
+    'Gemfile',
+    'Gemfile.lock',
+    'node_modules',
+    'vendor/bundle/',
+    'vendor/cache/',
+    'vendor/gems/',
+    'vendor/ruby/',
+  ]
 
 # Site URL (update if using custom domain)
 url: 'https://hermit-commits-code.github.io'
-baseurl: '/Pillowtalk-Pages'
+baseurl: '/Spicy-Reads'
 
 # Show source
 show_source: true
