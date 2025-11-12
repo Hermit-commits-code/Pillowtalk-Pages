@@ -60,12 +60,18 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            ElevatedButton(
-              onPressed: onNext,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
+            Semantics(
+              button: true,
+              enabled: true,
+              onTap: onNext,
+              label: 'Get started with onboarding',
+              child: ElevatedButton(
+                onPressed: onNext,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                ),
+                child: const Text('Get Started'),
               ),
-              child: const Text('Get Started'),
             ),
           ],
         ),
@@ -89,7 +95,11 @@ class _FeatureItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 32, color: Colors.pink),
+        Semantics(
+          label: 'Feature: $title',
+          image: true,
+          child: Icon(icon, size: 32, color: Colors.pink),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(

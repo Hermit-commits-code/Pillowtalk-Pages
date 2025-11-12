@@ -90,18 +90,25 @@ class _HardStopsScreenState extends State<HardStopsScreen> {
             ),
             Row(
               children: [
-                OutlinedButton(
-                  onPressed: widget.onPrevious,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(100, 56),
+                Semantics(
+                  button: true,
+                  enabled: true,
+                  onTap: widget.onPrevious,
+                  label: 'Go back to previous step',
+                  child: OutlinedButton(
+                    onPressed: widget.onPrevious,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(100, 56),
+                    ),
+                    child: const Text('Back'),
                   ),
-                  child: const Text('Back'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Save hard stops to Firebase
+                  child: Semantics(
+                    button: true,
+                    enabled: true,
+                    onTap: () async {
                       final hardStopsService = Provider.of<HardStopsService>(
                         context,
                         listen: false,
@@ -111,10 +118,24 @@ class _HardStopsScreenState extends State<HardStopsScreen> {
                       );
                       widget.onNext();
                     },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
+                    label: 'Continue to next step with hard stops saved',
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Save hard stops to Firebase
+                        final hardStopsService = Provider.of<HardStopsService>(
+                          context,
+                          listen: false,
+                        );
+                        await hardStopsService.setHardStops(
+                          _selectedStops.toList(),
+                        );
+                        widget.onNext();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      child: const Text('Next'),
                     ),
-                    child: const Text('Next'),
                   ),
                 ),
               ],

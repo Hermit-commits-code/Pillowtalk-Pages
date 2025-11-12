@@ -55,7 +55,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.library_books, size: 64, color: Colors.pink),
+                      Semantics(
+                        image: true,
+                        label: 'Library ready icon',
+                        child: Icon(Icons.library_books, size: 64, color: Colors.pink),
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         'You\'re all set!',
@@ -75,21 +79,33 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             Row(
               children: [
-                OutlinedButton(
-                  onPressed: widget.onPrevious,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(100, 56),
+                Semantics(
+                  button: true,
+                  enabled: true,
+                  onTap: widget.onPrevious,
+                  label: 'Go back to previous step',
+                  child: OutlinedButton(
+                    onPressed: widget.onPrevious,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(100, 56),
+                    ),
+                    child: const Text('Back'),
                   ),
-                  child: const Text('Back'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: widget.onNext,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
+                  child: Semantics(
+                    button: true,
+                    enabled: true,
+                    onTap: widget.onNext,
+                    label: 'Finish onboarding and enter the app',
+                    child: ElevatedButton(
+                      onPressed: widget.onNext,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      child: const Text('Finish'),
                     ),
-                    child: const Text('Finish'),
                   ),
                 ),
               ],

@@ -104,18 +104,25 @@ class _KinkFiltersScreenState extends State<KinkFiltersScreen> {
             ),
             Row(
               children: [
-                OutlinedButton(
-                  onPressed: widget.onPrevious,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(100, 56),
+                Semantics(
+                  button: true,
+                  enabled: true,
+                  onTap: widget.onPrevious,
+                  label: 'Go back to previous step',
+                  child: OutlinedButton(
+                    onPressed: widget.onPrevious,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(100, 56),
+                    ),
+                    child: const Text('Back'),
                   ),
-                  child: const Text('Back'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Save kink filters to Firebase
+                  child: Semantics(
+                    button: true,
+                    enabled: true,
+                    onTap: () async {
                       final kinkFilterService = Provider.of<KinkFilterService>(
                         context,
                         listen: false,
@@ -125,10 +132,25 @@ class _KinkFiltersScreenState extends State<KinkFiltersScreen> {
                       );
                       widget.onNext();
                     },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
+                    label: 'Continue to next step with kink filters saved',
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Save kink filters to Firebase
+                        final kinkFilterService =
+                            Provider.of<KinkFilterService>(
+                              context,
+                              listen: false,
+                            );
+                        await kinkFilterService.setKinkFilter(
+                          _selectedKinks.toList(),
+                        );
+                        widget.onNext();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                      ),
+                      child: const Text('Next'),
                     ),
-                    child: const Text('Next'),
                   ),
                 ),
               ],

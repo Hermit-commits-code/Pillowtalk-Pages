@@ -69,7 +69,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return;
-      context.go('/login');
+      // After creating the account, route the user into the onboarding flow
+      // so they can set hard stops, filters, and preferences.
+      context.go('/onboarding/${credential.user!.uid}');
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/hard_stops_screen.dart';
 import 'screens/kink_filters_screen.dart';
+import 'screens/summary_screen.dart';
 import 'screens/favorites_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -50,10 +51,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     try {
-      // Navigate to home - onboarding is now complete
-      if (mounted) {
-        context.go('/');
-      }
+      if (mounted) context.go('/');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,37 +64,93 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false, // Prevent back navigation
+      onWillPop: () async => false, // Prevent back navigation during onboarding
       child: Scaffold(
-        body: PageView(
-          controller: _pageController,
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (page) {
-            setState(() => _currentPage = page);
-          },
-          children: [
-            WelcomeScreen(onNext: _nextPage),
-            HardStopsScreen(
-              userId: widget.userId,
-              onNext: _nextPage,
-              onPrevious: _previousPage,
-            ),
-            KinkFiltersScreen(
-              userId: widget.userId,
-              onNext: _nextPage,
-              onPrevious: _previousPage,
-            ),
-            FavoritesScreen(
-              userId: widget.userId,
-              onNext: _nextPage,
-              onPrevious: _previousPage,
-            ),
-            FavoritesScreen(
-              userId: widget.userId,
-              onNext: _completeOnboarding,
-              onPrevious: _previousPage,
-            ),
-          ],
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Top bar: progress indicator and skip
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
+                child: Row(
+                  children: [
+                    // Invisible spacer to keep center alignment
+                    const SizedBox(width: 48),
+                    Expanded(
+                      child: Center(
+                        child: Semantics(
+                          label: 'Onboarding progress',
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(5, (index) {
+                              final isActive = index == _currentPage;
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                width: isActive ? 18 : 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? Colors.pink
+                                      : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        // Allow skipping onboarding; mark complete and go home
+                        await _completeOnboarding();
+                      },
+                      child: const Text('Skip'),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // Page content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (page) {
+                    setState(() => _currentPage = page);
+                  },
+                  children: [
+                    WelcomeScreen(onNext: _nextPage),
+                    HardStopsScreen(
+                      userId: widget.userId,
+                      onNext: _nextPage,
+                      onPrevious: _previousPage,
+                    ),
+                    KinkFiltersScreen(
+                      userId: widget.userId,
+                      onNext: _nextPage,
+                      onPrevious: _previousPage,
+                    ),
+                    SummaryScreen(
+                      onNext: _nextPage,
+                      onPrevious: _previousPage,
+                    ),
+                    FavoritesScreen(
+                      userId: widget.userId,
+                      onNext: _completeOnboarding,
+                      onPrevious: _previousPage,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
