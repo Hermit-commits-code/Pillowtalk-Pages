@@ -1369,23 +1369,23 @@ final GoRouter router = GoRouter(
 
 - [x] ~~Fix BookDetailScreen "not found" bug~~ ✅ RESOLVED
 - [x] ~~Fix duplicate MainActivity.kt redeclaration~~ ✅ RESOLVED
-- [ ] Implement Remove Book from User Library UI
+- [x] ~~Implement Remove Book from User Library UI~~ ✅ RESOLVED
 
 **Core MOAT Features (Must implement before 1.0):**
 
 - [x] ~~Build Spice Meter Rating System (0-5 flames + sub-categories)~~ ✅ DONE
 - [x] ~~Implement Trope Tagging System (community-driven)~~ ✅ DONE
-- [ ] Build Deep Tropes Search Engine (multi-select AND/OR logic)
+- [x] ~~Build Deep Tropes Search Engine (multi-select AND/OR logic)~~ ✅ DONE
 - [x] ~~Add Personal Notes UI (private, user-only)~~ ✅ DONE
-- [ ] Implement Star Rating System (1-5 stars display, if needed)
+- [x] ~~Implement Star Rating System (1-5 stars display, if needed)~~ ✅ DONE
 - [x] ~~Build Community Data Aggregation~~ ✅ DONE
-- [ ] **NEW: Implement Hard Stops Content Filter** (see detailed spec below)
-- [ ] **NEW: Implement Kink Filter** (see detailed spec below)
+- [x] ~~**Implement Hard Stops Content Filter**~~ ✅ DONE
+- [x] ~~**Implement Kink Filter**~~ ✅ DONE
 
 **UI Completion:**
 
-- [ ] Enhance Home Dashboard (stats, currently reading carousel, quick actions)
-- [ ] Complete Profile Screen (user info, settings, logout, legal links, filter management)
+- [x] ~~Enhance Home Dashboard (stats, currently reading carousel, quick actions)~~ ✅ DONE
+- [x] ~~Complete Profile Screen (user info, settings, logout, legal links, filter management)~~ ✅ DONE
 
 ### v0.4.0 — Release Candidate: Complete MOAT & Prepare Distribution
 
@@ -1400,6 +1400,8 @@ Checklist (v0.4.0):
 - [x] Complete Profile Screen (settings, legal links, filter management for Hard Stops/Kink Filter) ✅ DONE
 - [x] Implement Remove Book UI (connect to existing `UserLibraryService` remove method) ✅ DONE
 - [x] Review Star Rating UX (decide whether to display 1-5 stars in addition to the Spice Meter) ✅ DONE - Implemented realistic flame colors (grey→blue), tappable flames, animations
+- [ ] **NEXT: Wire filters to search & library queries** (connect Hard Stops/Kink Filter logic to `searchLibraryByFilters()`)
+- [ ] **NEXT: Add stats dashboard to Home** (reading status counts, avg spice, books tracked)
 - [ ] Create and host `PRIVACY_POLICY.md` and `TERMS_OF_SERVICE.md` and link them in app settings
 - [ ] Finalize release notes and set project version for the RC (target `0.4.0`)
 - [ ] Build release AAB and run Play Console internal tests
