@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import '../webview/docs_webview_screen.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
@@ -137,47 +138,86 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _launchUrl(String url) async {
-    // Delegate to the candidate-based launcher which will try multiple URL
-    // variations (HTML, MD, bare path) and provide a clipboard fallback.
-    _launchUrlCandidates([url]);
-  }
+  // Kept for backward compatibility; prefer calling _launchUrlCandidates
+  // directly where multiple candidates are available.
+  void _launchUrl(String url) async => _launchUrlCandidates([url]);
 
   /// Try a list of candidate URLs in order until one successfully launches.
   /// Keeps the same user-facing fallbacks (SnackBar + Copy) if none can be
   /// opened by the platform.
   void _launchUrlCandidates(List<String> candidates) async {
+    debugPrint(
+      'Attempting to open legal link candidates: ${candidates.join(', ')}',
+    );
     for (final url in candidates) {
       final uri = Uri.tryParse(url);
       if (uri == null) continue;
       try {
+        debugPrint('Checking canLaunch for $url');
         final can = await canLaunchUrl(uri);
+        debugPrint('canLaunch($url) => $can');
         if (!can) continue;
         final launched = await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
+        debugPrint('launchUrl($url) => $launched');
         if (launched) return;
       } catch (_) {
         // Try the next candidate.
       }
     }
 
-    // If we get here, none of the candidates could be opened. Show fallback.
+    // If we get here, none of the candidates could be opened. Offer the
+    // user a choice to open the page inside the app (WebView) or copy the
+    // link to clipboard.
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('No app available to open the link'),
-        action: SnackBarAction(
-          label: 'Copy',
-          onPressed: () async {
-            // Default to first candidate when copying
-            if (candidates.isNotEmpty)
-              await Clipboard.setData(ClipboardData(text: candidates.first));
-          },
+    final choice = await showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Open link'),
+        content: const Text(
+          'No external app could open this link. Would you like to open it inside the app or copy the URL?',
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('copy'),
+            child: const Text('Copy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('inapp'),
+            child: const Text('Open in app'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
+
+    if (choice == 'copy') {
+      if (candidates.isNotEmpty)
+        await Clipboard.setData(ClipboardData(text: candidates.first));
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
+      return;
+    }
+
+    if (choice == 'inapp') {
+      final target = candidates.isNotEmpty
+          ? candidates.first
+          : 'https://hermit-commits-code.github.io/Spicy-Reads/';
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => DocsWebViewScreen(initialUrl: target),
+        ),
+      );
+      return;
+    }
   }
 
   @override
