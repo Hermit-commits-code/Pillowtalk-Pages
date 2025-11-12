@@ -30,9 +30,9 @@ class SummaryScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   "Review what you've selected",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 32),
                 Container(
@@ -55,11 +55,16 @@ class SummaryScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Hard Stops',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
                               'Content you never want to see',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -79,7 +84,11 @@ class SummaryScreen extends StatelessWidget {
                       Semantics(
                         image: true,
                         label: 'Kink filters configured',
-                        child: Icon(Icons.filter_alt, size: 32, color: Colors.purple),
+                        child: Icon(
+                          Icons.filter_alt,
+                          size: 32,
+                          color: Colors.purple,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -88,11 +97,16 @@ class SummaryScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Kink Filters',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
                               'Tropes and themes you want',
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -103,9 +117,9 @@ class SummaryScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 Text(
                   'You can always adjust these in Settings.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
                   textAlign: TextAlign.center,
                 ),
               ],

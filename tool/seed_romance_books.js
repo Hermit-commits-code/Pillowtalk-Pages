@@ -22,7 +22,9 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY || '';
+// Set your Google Books API key here or via environment variable GOOGLE_BOOKS_API_KEY
+const GOOGLE_BOOKS_API_KEY =
+  process.env.GOOGLE_BOOKS_API_KEY || 'AIzaSyDRvL7b4MKYf3JORJSxitoeOOHtcBbJCfo';
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 const DRY_RUN = process.argv.includes('--dry-run');
 const LIMIT = parseInt(
@@ -31,7 +33,7 @@ const LIMIT = parseInt(
   10,
 );
 
-// Romance keywords to search
+// Romance keywords to search - expanded for diversity
 const ROMANCE_QUERIES = [
   'contemporary romance',
   'paranormal romance',
@@ -43,6 +45,26 @@ const ROMANCE_QUERIES = [
   'romance enemies to lovers',
   'romance forced proximity',
   'romance grumpy sunshine',
+  'dark romance',
+  'reverse harem romance',
+  'fated mates paranormal',
+  'age gap romance',
+  'workplace romance',
+  'small town romance',
+  'second chance romance',
+  'college romance',
+  'mafia romance',
+  'motorcycle club romance',
+  'sports romance',
+  'hockey romance',
+  'football romance',
+  'billionaire romance',
+  'royal romance',
+  'viking romance',
+  'pirate romance',
+  'cowboy romance',
+  'biker romance',
+  'wolf shifter romance',
 ];
 
 // Initialize Firebase Admin SDK
@@ -78,13 +100,14 @@ if (!DRY_RUN) {
 }
 
 /**
- * Fetch books from Google Books API for a given query
+ * Fetch books from Google Books API for a given query with pagination
  */
-async function fetchBooksFromGoogle(query, maxResults = 40) {
+async function fetchBooksFromGoogle(query, maxResults = 40, startIndex = 0) {
   try {
     const params = {
       q: query,
       maxResults,
+      startIndex,
       printType: 'books',
       orderBy: 'newest',
     };
@@ -100,6 +123,12 @@ async function fetchBooksFromGoogle(query, maxResults = 40) {
       .map((item) => parseGoogleBook(item))
       .filter((book) => book !== null);
   } catch (error) {
+    if (error.response?.status === 403) {
+      console.log(
+        `  ⏸️  Rate limited on "${query}" - skipping remaining pages`,
+      );
+      return [];
+    }
     console.error(
       `❌ Error fetching books for query "${query}":`,
       error.message,
@@ -235,9 +264,28 @@ async function seedBooks() {
     if (totalBooks >= LIMIT) break;
 
     console.log(`📚 Querying: "${query}"`);
-    const books = await fetchBooksFromGoogle(query, 40);
 
-    for (const book of books) {
+    // Try multiple pages for each query
+    let allBooksForQuery = [];
+    let pageIndex = 0;
+    let foundNewBooks = true;
+
+    while (foundNewBooks && totalBooks < LIMIT && pageIndex < 3) {
+      const startIndex = pageIndex * 40;
+      const books = await fetchBooksFromGoogle(query, 40, startIndex);
+
+      if (books.length === 0) {
+        foundNewBooks = false;
+      } else {
+        allBooksForQuery = allBooksForQuery.concat(books);
+        pageIndex++;
+      }
+
+      // Respect rate limits: 1 API call per 100ms
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    for (const book of allBooksForQuery) {
       if (totalBooks >= LIMIT) break;
 
       // Skip duplicates
@@ -265,12 +313,9 @@ async function seedBooks() {
       } else {
         skippedBooks++;
       }
-
-      // Respect rate limits: 1 API call per 100ms
-      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    console.log(`   Found ${books.length} books from this query\n`);
+    console.log(`   Found ${allBooksForQuery.length} books from this query\n`);
   }
 
   console.log('\n✨ Seeding Complete!\n');
