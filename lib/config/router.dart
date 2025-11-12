@@ -14,6 +14,7 @@ import '../screens/profile/profile_screen.dart';
 import '../screens/search/deep_trope_search_screen.dart';
 import '../screens/pro/pro_club_screen.dart';
 import '../screens/dev/dev_qa_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
@@ -35,6 +36,13 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/:userId',
+      builder: (context, state) {
+        final userId = state.pathParameters['userId'] ?? '';
+        return OnboardingScreen(userId: userId);
+      },
     ),
     ShellRoute(
       builder: (context, state, child) => HomeScreen(child: child),

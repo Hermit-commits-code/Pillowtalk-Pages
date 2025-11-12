@@ -47,27 +47,34 @@ const ROMANCE_QUERIES = [
 
 // Initialize Firebase Admin SDK
 let db;
-try {
-  const serviceAccountPath = path.join(__dirname, '../service-account.json');
-  if (!fs.existsSync(serviceAccountPath)) {
-    console.error('❌ service-account.json not found at:', serviceAccountPath);
-    console.error(
-      'Please ensure your Firebase service account key is in the project root.',
-    );
+if (!DRY_RUN) {
+  try {
+    const serviceAccountPath = path.join(__dirname, '../service-account.json');
+    if (!fs.existsSync(serviceAccountPath)) {
+      console.error(
+        '❌ service-account.json not found at:',
+        serviceAccountPath,
+      );
+      console.error(
+        'Please ensure your Firebase service account key is in the project root.',
+      );
+      process.exit(1);
+    }
+
+    const serviceAccount = require(serviceAccountPath);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId: serviceAccount.project_id,
+    });
+
+    db = admin.firestore();
+    console.log('✅ Firebase initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize Firebase:', error.message);
     process.exit(1);
   }
-
-  const serviceAccount = require(serviceAccountPath);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    projectId: serviceAccount.project_id,
-  });
-
-  db = admin.firestore();
-  console.log('✅ Firebase initialized');
-} catch (error) {
-  console.error('❌ Failed to initialize Firebase:', error.message);
-  process.exit(1);
+} else {
+  console.log('🔄 DRY RUN MODE: Firebase initialization skipped');
 }
 
 /**
