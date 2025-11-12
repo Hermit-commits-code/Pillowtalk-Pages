@@ -58,7 +58,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Semantics(
                         image: true,
                         label: 'Library ready icon',
-                        child: Icon(Icons.library_books, size: 64, color: Colors.pink),
+                        child: Icon(
+                          Icons.library_books,
+                          size: 64,
+                          color: Colors.pink,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(

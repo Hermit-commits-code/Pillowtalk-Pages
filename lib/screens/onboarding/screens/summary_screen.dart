@@ -29,7 +29,7 @@ class SummaryScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Review what you've selected',
+                  "Review what you've selected",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),

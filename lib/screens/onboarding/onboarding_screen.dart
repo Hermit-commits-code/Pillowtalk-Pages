@@ -137,10 +137,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onNext: _nextPage,
                       onPrevious: _previousPage,
                     ),
-                    SummaryScreen(
-                      onNext: _nextPage,
-                      onPrevious: _previousPage,
-                    ),
+                    SummaryScreen(onNext: _nextPage, onPrevious: _previousPage),
                     FavoritesScreen(
                       userId: widget.userId,
                       onNext: _completeOnboarding,
