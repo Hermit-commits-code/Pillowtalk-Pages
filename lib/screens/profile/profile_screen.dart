@@ -140,22 +140,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        ).catchError((e) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((
+          e,
+        ) {
           // Handle launch errors gracefully
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not open link: $url')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Could not open link: $url')));
           return false;
         });
       } else {
         // URL cannot be launched
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open link: $url')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not open link: $url')));
       }
     } catch (e) {
       // Handle any parsing or other errors
