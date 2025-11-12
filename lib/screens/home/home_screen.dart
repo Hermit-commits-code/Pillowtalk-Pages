@@ -39,19 +39,19 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (int index) {
           switch (index) {
             case 0:
-              context.goNamed('home');
+              context.go('/');
               break;
             case 1:
-              context.goNamed('curated');
+              context.go('/curated');
               break;
             case 2:
-              context.goNamed('search');
+              context.go('/search');
               break;
             case 3:
-              context.goNamed('library');
+              context.go('/library');
               break;
             case 4:
-              context.goNamed('profile');
+              context.go('/profile');
               break;
           }
         },

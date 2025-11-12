@@ -203,9 +203,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
       if (!bookDoc.exists) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Book not found.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Book not found.')));
         return;
       }
 
@@ -236,9 +236,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error saving book to library: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save book: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save book: $e')));
     }
   }
 

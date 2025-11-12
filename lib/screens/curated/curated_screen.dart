@@ -27,15 +27,15 @@ class _CuratedScreenState extends State<CuratedScreen> {
                 Text(
                   'Curated Collections',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Discover handpicked romance across all your favorite subgenres',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -72,9 +72,9 @@ class _CuratedScreenState extends State<CuratedScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               'Browse by Category',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 12),
@@ -97,9 +97,9 @@ class _CuratedScreenState extends State<CuratedScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         const SizedBox(height: 12),
@@ -218,9 +218,7 @@ class _BookCard extends StatelessWidget {
                       : null,
                 ),
                 child: imageUrl == null
-                    ? const Center(
-                        child: Icon(Icons.book),
-                      )
+                    ? const Center(child: Icon(Icons.book))
                     : null,
               ),
               const SizedBox(height: 8),
@@ -262,10 +260,7 @@ class _CollectionCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push(
         '/curated-collection/$collectionId',
-        extra: {
-          'title': title,
-          'bookIds': bookIds,
-        },
+        extra: {'title': title, 'bookIds': bookIds},
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -298,10 +293,7 @@ class _CollectionCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
+                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
                 ),
               ),
             ),
@@ -325,10 +317,7 @@ class _CollectionCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '$bookCount books',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),

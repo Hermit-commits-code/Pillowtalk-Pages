@@ -17,10 +17,7 @@ class CuratedCollectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(title), elevation: 0),
       body: GridView.builder(
         padding: const EdgeInsets.all(12),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -62,7 +59,8 @@ class _BookGridItem extends StatelessWidget {
 
         final book = snapshot.data!.data() as Map<String, dynamic>;
         final title = book['title'] ?? 'Unknown';
-        final authors = (book['authors'] as List<dynamic>?)?.cast<String>() ?? [];
+        final authors =
+            (book['authors'] as List<dynamic>?)?.cast<String>() ?? [];
         final imageUrl = book['imageUrl'];
 
         return GestureDetector(
@@ -83,9 +81,7 @@ class _BookGridItem extends StatelessWidget {
                         : null,
                   ),
                   child: imageUrl == null
-                      ? const Center(
-                          child: Icon(Icons.book, size: 40),
-                        )
+                      ? const Center(child: Icon(Icons.book, size: 40))
                       : null,
                 ),
               ),
@@ -94,18 +90,18 @@ class _BookGridItem extends StatelessWidget {
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
               Text(
                 authors.isNotEmpty ? authors[0] : 'Unknown Author',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ),

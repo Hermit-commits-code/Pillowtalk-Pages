@@ -91,7 +91,8 @@ final GoRouter router = GoRouter(
         final collectionId = state.pathParameters['collectionId'] ?? '';
         final extra = state.extra as Map<String, dynamic>? ?? {};
         final title = extra['title'] as String? ?? '';
-        final bookIds = (extra['bookIds'] as List<dynamic>?)?.cast<String>() ?? [];
+        final bookIds =
+            (extra['bookIds'] as List<dynamic>?)?.cast<String>() ?? [];
 
         return CuratedCollectionScreen(
           collectionId: collectionId,

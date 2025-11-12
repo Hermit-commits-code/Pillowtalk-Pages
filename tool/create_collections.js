@@ -22,10 +22,7 @@ let db;
 try {
   const serviceAccountPath = path.join(__dirname, '../service-account.json');
   if (!fs.existsSync(serviceAccountPath)) {
-    console.error(
-      '❌ service-account.json not found at:',
-      serviceAccountPath,
-    );
+    console.error('❌ service-account.json not found at:', serviceAccountPath);
     process.exit(1);
   }
 
@@ -130,9 +127,7 @@ async function createCollections() {
       .get();
 
     if (booksSnapshot.empty) {
-      console.error(
-        '❌ No pre-seeded books found. Run seed script first.',
-      );
+      console.error('❌ No pre-seeded books found. Run seed script first.');
       process.exit(1);
     }
 
@@ -233,9 +228,7 @@ async function createCollections() {
       );
     }
 
-    console.log(
-      '\n📱 You can now use these collections in your Flutter app!',
-    );
+    console.log('\n📱 You can now use these collections in your Flutter app!');
     process.exit(0);
   } catch (error) {
     console.error('❌ Error creating collections:', error.message);

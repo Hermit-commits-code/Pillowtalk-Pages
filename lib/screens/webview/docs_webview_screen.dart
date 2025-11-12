@@ -22,28 +22,30 @@ class _DocsWebViewScreenState extends State<DocsWebViewScreen> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (url) {
-          debugPrint('WebView: started $url');
-          setState(() {
-            _loading = true;
-            _errorMessage = null;
-          });
-        },
-        onPageFinished: (url) {
-          debugPrint('WebView: finished $url');
-          setState(() {
-            _loading = false;
-          });
-        },
-        onWebResourceError: (err) {
-          debugPrint('WebView error: ${err.description}');
-          setState(() {
-            _loading = false;
-            _errorMessage = err.description;
-          });
-        },
-      ))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (url) {
+            debugPrint('WebView: started $url');
+            setState(() {
+              _loading = true;
+              _errorMessage = null;
+            });
+          },
+          onPageFinished: (url) {
+            debugPrint('WebView: finished $url');
+            setState(() {
+              _loading = false;
+            });
+          },
+          onWebResourceError: (err) {
+            debugPrint('WebView error: ${err.description}');
+            setState(() {
+              _loading = false;
+              _errorMessage = err.description;
+            });
+          },
+        ),
+      )
       ..loadRequest(Uri.parse(widget.initialUrl));
   }
 
@@ -61,17 +63,13 @@ class _DocsWebViewScreenState extends State<DocsWebViewScreen> {
       appBar: AppBar(
         title: const Text('Documentation'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _reload,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _reload),
         ],
       ),
       body: Stack(
         children: [
           WebViewWidget(controller: _controller),
-          if (_loading)
-            const Center(child: CircularProgressIndicator()),
+          if (_loading) const Center(child: CircularProgressIndicator()),
           if (_errorMessage != null)
             Center(
               child: Padding(
@@ -79,7 +77,11 @@ class _DocsWebViewScreenState extends State<DocsWebViewScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.redAccent,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Could not load page',
