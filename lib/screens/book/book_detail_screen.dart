@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../services/user_library_service.dart';
 import 'edit_book_modal.dart';
@@ -182,6 +184,64 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
+  Future<void> _saveToLibrary() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please sign in to save books.')),
+        );
+        return;
+      }
+
+      // Get the pre-seeded book data from Firestore
+      final bookDoc = await FirebaseFirestore.instance
+          .collection('books')
+          .doc(widget.bookId)
+          .get();
+
+      if (!bookDoc.exists) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Book not found.')),
+        );
+        return;
+      }
+
+      final bookData = bookDoc.data() as Map<String, dynamic>;
+
+      // Create a user book entry in the user's library
+      final userLibrary = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('library')
+          .doc(widget.bookId);
+
+      await userLibrary.set({
+        'title': bookData['title'] ?? widget.title,
+        'authors': bookData['authors'] ?? [widget.author],
+        'isbn': bookData['isbn'] ?? '',
+        'imageUrl': bookData['imageUrl'] ?? widget.coverUrl,
+        'description': bookData['description'] ?? widget.description,
+        'genres': bookData['genres'] ?? [],
+        'isPreSeeded': true,
+        'dateAdded': DateTime.now().toIso8601String(),
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Book saved to your library!')),
+      );
+    } catch (e) {
+      debugPrint('Error saving book to library: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save book: $e')),
+      );
+    }
+  }
+
   Color _ownershipColor(BookOwnership ownership) {
     switch (ownership) {
       case BookOwnership.physical:
@@ -204,6 +264,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          IconButton(
+            tooltip: 'Save to Library',
+            icon: const Icon(Icons.bookmark_add_outlined),
+            onPressed: _saveToLibrary,
+          ),
           IconButton(
             tooltip: 'Edit',
             icon: const Icon(Icons.edit),

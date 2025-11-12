@@ -2,6 +2,18 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Pre-seeded books collection - read-only for authenticated users
+    match /books/{bookId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if false; // Prevent client-side modifications
+    }
+
+    // Curated collections - read-only for authenticated users
+    match /collections/{collectionId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if false; // Admin-only (via backend)
+    }
+
     // Per-user documents (profile) and nested collections
     match /users/{userId} {
       // Allow only the user to create/read/update/delete their own top-level user doc

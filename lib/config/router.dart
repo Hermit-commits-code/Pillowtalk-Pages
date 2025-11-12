@@ -7,6 +7,8 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/book/add_book_screen.dart';
 import '../screens/book/book_detail_screen.dart';
+import '../screens/curated/curated_screen.dart';
+import '../screens/curated/curated_collection_screen.dart';
 import '../screens/home/home_dashboard.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/library/library_screen.dart';
@@ -76,7 +78,27 @@ final GoRouter router = GoRouter(
           name: 'profile',
           builder: (context, state) => const ProfileScreen(),
         ),
+        GoRoute(
+          path: '/curated',
+          name: 'curated',
+          builder: (context, state) => const CuratedScreen(),
+        ),
       ],
+    ),
+    GoRoute(
+      path: '/curated-collection/:collectionId',
+      builder: (context, state) {
+        final collectionId = state.pathParameters['collectionId'] ?? '';
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final title = extra['title'] as String? ?? '';
+        final bookIds = (extra['bookIds'] as List<dynamic>?)?.cast<String>() ?? [];
+
+        return CuratedCollectionScreen(
+          collectionId: collectionId,
+          title: title,
+          bookIds: bookIds,
+        );
+      },
     ),
     GoRoute(
       path: '/book/:id',

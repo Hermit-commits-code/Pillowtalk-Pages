@@ -42,12 +42,15 @@ class _HomeScreenState extends State<HomeScreen> {
               context.goNamed('home');
               break;
             case 1:
-              context.goNamed('search');
+              context.goNamed('curated');
               break;
             case 2:
-              context.goNamed('library');
+              context.goNamed('search');
               break;
             case 3:
+              context.goNamed('library');
+              break;
+            case 4:
               context.goNamed('profile');
               break;
           }
@@ -57,6 +60,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_outline),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Curated',
           ),
           NavigationDestination(
             icon: Icon(Icons.search_outlined),
@@ -82,9 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _getCurrentNavIndex(BuildContext context) {
     final uri = GoRouter.of(context).routeInformationProvider.value.uri;
     final location = uri.path;
-    if (location.startsWith('/search')) return 1;
-    if (location.startsWith('/library')) return 2;
-    if (location.startsWith('/profile')) return 3;
+    if (location.startsWith('/curated')) return 1;
+    if (location.startsWith('/search')) return 2;
+    if (location.startsWith('/library')) return 3;
+    if (location.startsWith('/profile')) return 4;
     return 0; // home
   }
 }
