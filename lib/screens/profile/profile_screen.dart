@@ -138,63 +138,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _launchUrl(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid URL')),
-      );
-      return;
+    // Delegate to the candidate-based launcher which will try multiple URL
+    // variations (HTML, MD, bare path) and provide a clipboard fallback.
+    _launchUrlCandidates([url]);
+  }
+
+  /// Try a list of candidate URLs in order until one successfully launches.
+  /// Keeps the same user-facing fallbacks (SnackBar + Copy) if none can be
+  /// opened by the platform.
+  void _launchUrlCandidates(List<String> candidates) async {
+    for (final url in candidates) {
+      final uri = Uri.tryParse(url);
+      if (uri == null) continue;
+      try {
+        final can = await canLaunchUrl(uri);
+        if (!can) continue;
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        if (launched) return;
+      } catch (_) {
+        // Try the next candidate.
+      }
     }
 
-    try {
-      final can = await canLaunchUrl(uri);
-      if (!can) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('No app available to open this link'),
-            action: SnackBarAction(
-              label: 'Copy',
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: url));
-              },
-            ),
-          ),
-        );
-        return;
-      }
-
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Could not open link'),
-            action: SnackBarAction(
-              label: 'Copy',
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: url));
-              },
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error launching URL: $e');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error opening link: ${e.toString()}'),
-          action: SnackBarAction(
-            label: 'Copy',
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: url));
-            },
-          ),
+    // If we get here, none of the candidates could be opened. Show fallback.
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('No app available to open the link'),
+        action: SnackBarAction(
+          label: 'Copy',
+          onPressed: () async {
+            // Default to first candidate when copying
+            if (candidates.isNotEmpty)
+              await Clipboard.setData(ClipboardData(text: candidates.first));
+          },
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override
@@ -272,16 +255,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('Privacy Policy'),
-            onTap: () => _launchUrl(
+            onTap: () => _launchUrlCandidates([
+              // Try the published site path (no /docs/) first — our Jekyll
+              // config publishes docs at the repo root path (e.g.
+              // /PRIVACY_POLICY). Then try the docs subpath and common file
+              // forms as fallbacks.
+              'https://hermit-commits-code.github.io/Spicy-Reads/PRIVACY_POLICY',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/PRIVACY_POLICY',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/PRIVACY_POLICY.html',
               'https://hermit-commits-code.github.io/Spicy-Reads/docs/PRIVACY_POLICY.md',
-            ),
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/',
+            ]),
           ),
           ListTile(
             leading: const Icon(Icons.description_outlined),
             title: const Text('Terms of Service'),
-            onTap: () => _launchUrl(
+            onTap: () => _launchUrlCandidates([
+              'https://hermit-commits-code.github.io/Spicy-Reads/TERMS_OF_SERVICE',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/TERMS_OF_SERVICE',
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/TERMS_OF_SERVICE.html',
               'https://hermit-commits-code.github.io/Spicy-Reads/docs/TERMS_OF_SERVICE.md',
-            ),
+              'https://hermit-commits-code.github.io/Spicy-Reads/docs/',
+            ]),
           ),
           const SizedBox(height: 16),
           Text('Kink Filters', style: theme.textTheme.titleMedium),
