@@ -1,4 +1,4 @@
-# Ì≤ñ Spicy Reads: Personal-Only Sanctuary Roadmap (v0.6.0+)
+# ÔøΩÔøΩÔøΩ Spicy Reads: Personal-Only Sanctuary Roadmap (v0.6.0+)
 
 **Strategic Direction**: Personal-only book tracker with mental health protections, premium subscription model, and affiliate revenue stream.
 
@@ -18,7 +18,7 @@
 
 ---
 
-## ÌæØ Strategic Philosophy
+## ÔøΩÔøΩÔøΩ Strategic Philosophy
 
 **Vein of Truth**: "Romance is not a genre; it's a culture. We are the first book tracker built INSIDE that culture, protecting reader mental health through personal data ownership."
 
@@ -33,7 +33,7 @@
 
 ---
 
-## Ì∂ö Product Positioning: Spicy Reads vs. Competitors
+## ÔøΩÔøΩÔøΩ Product Positioning: Spicy Reads vs. Competitors
 
 | Aspect | Goodreads | Bookly | Spicy Reads |
 |--------|-----------|--------|-------------|
@@ -49,7 +49,7 @@
 
 ---
 
-## Ì¥ê Personal-Only MOAT: Our Competitive Advantage
+## ÔøΩÔøΩÔøΩ Personal-Only MOAT: Our Competitive Advantage
 
 ### What Makes Us Defensible (Without Community)
 
@@ -76,7 +76,7 @@
 
 ---
 
-## Ì≤∞ Monetization Strategy (Personal-Only Edition)
+## ÔøΩÔøΩÔøΩ Monetization Strategy (Personal-Only Edition)
 
 ### Revenue Streams
 
@@ -101,41 +101,47 @@
 
 **Goal**: Launch beta with critical friction-reducing features. Move from "feature-complete" to "user-ready."
 
-### Week 1-2: Content Seeding (1000 Books)
+### Week 1-2: Content Seeding (500-1000 Books via Google Books API)
 
-**Why**: New users land in blank library ‚Üí abandon app. Pre-seeding gives them 1000 books to browse on day 1.
+**Why**: New users land in blank library ‚Üí abandon app. Pre-seeding gives them 500-1000 books to browse on day 1.
 
 **Implementation**:
-1. **Scrape Goodreads romance bestsellers** (legal: no auth required, public data)
-   - Top 1000 romance books by rating/popularity
+1. **Build bulk import script** (Node.js + Google Books API)
+   - Query popular romance keywords: "contemporary romance", "paranormal romance", "historical romance", "spicy romance", etc.
+   - Use Google Books API to fetch books (max 40/query, respect rate limits)
    - Extract: title, author, cover art (image URL), description, page count, genres
-   - Store in `/books` Firestore collection
+   - Store in `/books` Firestore collection with `isPreSeeded: true` flag
+   - Script: `tools/seed_romance_books.js`
    
-2. **Manual curation** (100 highly-spicy books)
-   - Manually add top tropes + content warnings for these 100 using librarian knowledge
+2. **Manual curation** (50-100 highly-spicy books)
+   - Hand-pick 50-100 known-spicy romance books (e.g., "The Hating Game", "Red Rising", etc.)
+   - Look up each via Google Books API
+   - Manually add metadata: `cachedTopWarnings`, `cachedTropes`
    - These become "exemplars" for the filtering system
    
 3. **Firestore schema for pre-seeded books**:
    ```json
    {
-     "id": "book_isbn",
+     "id": "google_books_volume_id",
+     "isbn": "9781234567890",
      "title": "The Hating Game",
      "authors": ["Sally Thorne"],
-     "imageUrl": "https://...",
+     "imageUrl": "https://books.google.com/books/content?id=...",
      "description": "...",
+     "publishedDate": "2016-10-04",
      "pageCount": 384,
      "genres": ["Contemporary Romance", "Enemies to Lovers"],
-     "cachedTopWarnings": ["sexual content"],
-     "cachedTropes": ["Enemies to Lovers", "Banter"],
+     "cachedTopWarnings": ["sexual content", "workplace romance"],
+     "cachedTropes": ["Enemies to Lovers", "Banter", "Forced Proximity"],
      "averageSpice": null,
      "ratingCount": 0,
      "isPreSeeded": true
    }
    ```
 
-**Deliverable**: 1000 books in Firestore with metadata; users can search/filter immediately.
+**Deliverable**: 500-1000 books in Firestore with metadata; users can search/filter immediately.
 
-**Time Estimate**: 3-4 days (Goodreads scrape + manual curation).
+**Time Estimate**: 3-4 days (API bulk import + manual curation).
 
 ---
 
@@ -215,7 +221,7 @@
 
 ---
 
-## Ì∫Ä Phase 1-4: Full Implementation Roadmap
+## ÔøΩÔøΩÔøΩ Phase 1-4: Full Implementation Roadmap
 
 ### Phase 1: Foundation (v0.1.0 - v0.1.x) ‚úÖ COMPLETED
 
@@ -249,7 +255,7 @@
 
 ---
 
-### Phase 3: Personal-Only Refinements (v0.6.0 - v0.7.x) Ì¥Ñ IN PROGRESS
+### Phase 3: Personal-Only Refinements (v0.6.0 - v0.7.x) ÔøΩÔøΩÔøΩ IN PROGRESS
 
 **Goal**: Remove all community-facing features; optimize for personal tracking + privacy.
 
@@ -339,7 +345,7 @@
 
 ---
 
-## Ì≥ä Success Metrics & KPIs
+## ÔøΩÔøΩÔøΩ Success Metrics & KPIs
 
 ### Phase 0 Metrics (30 Days)
 
@@ -377,7 +383,7 @@
 
 ---
 
-## ÌæØ Strategic Recommendations: Next Steps
+## ÔøΩÔøΩÔøΩ Strategic Recommendations: Next Steps
 
 ### Recommended 30-Day Action Plan
 
@@ -405,9 +411,9 @@
 ### Key Decisions to Make NOW
 
 1. **Content Seeding Source**: 
-   - Goodreads scrape (legal, free) or
-   - Google Books API bulk (slower, more accurate metadata)
-   - Recommendation: Hybrid (Goodreads for scale + Google Books for metadata)
+   - Google Books API bulk import (legal, free, respects rate limits)
+   - Manual curation for top 50-100 spicy books
+   - Recommendation: Google Books API gives us 500-1000 books to start; sufficient for day 1 UX
 
 2. **Affiliate Program**:
    - Amazon only, or
@@ -426,7 +432,7 @@
 
 ---
 
-## Ì≥ù Summary: Personal-Only Philosophy
+## ÔøΩÔøΩÔøΩ Summary: Personal-Only Philosophy
 
 **What We Are**: A personal book tracker obsessed with privacy + mental health protection.
 
