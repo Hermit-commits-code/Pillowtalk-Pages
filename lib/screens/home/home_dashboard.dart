@@ -40,11 +40,42 @@ class _HomeDashboardState extends State<HomeDashboard> {
             .where((b) => b.status == ReadingStatus.finished)
             .toList();
 
+        // Calculate aggregate stats
+        final totalBooks = books.length;
+        final booksWithSpice = books
+            .where((b) => b.spiceOverall != null && b.spiceOverall! > 0)
+            .toList();
+        final avgSpice = booksWithSpice.isEmpty
+            ? 0.0
+            : booksWithSpice.fold<double>(
+                  0,
+                  (sum, b) => sum + (b.spiceOverall ?? 0),
+                ) /
+                booksWithSpice.length;
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Top aggregate stats
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _StatCard(
+                    label: 'Total Books',
+                    count: totalBooks,
+                    color: Colors.amber,
+                  ),
+                  _StatCard(
+                    label: 'Avg Spice',
+                    count: avgSpice.toStringAsFixed(1) as dynamic,
+                    color: Colors.orange,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Reading status stats
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -125,7 +156,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
 class _StatCard extends StatelessWidget {
   final String label;
-  final int count;
+  final dynamic count; // int or String
   final Color color;
   const _StatCard({
     required this.label,
@@ -142,7 +173,7 @@ class _StatCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '$count',
+              count is int ? '$count' : count.toString(),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: color,
                 fontWeight: FontWeight.bold,
