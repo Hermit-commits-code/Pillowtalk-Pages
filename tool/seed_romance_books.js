@@ -2,14 +2,14 @@
 
 /**
  * Seed Spicy Reads with romance books from Google Books API
- * 
+ *
  * Usage:
  *   node tool/seed_romance_books.js [--dry-run] [--limit=100]
- * 
+ *
  * Environment Variables:
  *   GOOGLE_BOOKS_API_KEY: Your Google Books API key (optional, has rate limits without it)
  *   FIREBASE_PROJECT_ID: Your Firebase project ID
- * 
+ *
  * This script:
  * 1. Queries Google Books API for popular romance books
  * 2. Stores them in Firestore under /books collection
@@ -26,8 +26,9 @@ const GOOGLE_BOOKS_API_KEY = process.env.GOOGLE_BOOKS_API_KEY || '';
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 const DRY_RUN = process.argv.includes('--dry-run');
 const LIMIT = parseInt(
-  process.argv.find(arg => arg.startsWith('--limit='))?.split('=')[1] || '500',
-  10
+  process.argv.find((arg) => arg.startsWith('--limit='))?.split('=')[1] ||
+    '500',
+  10,
 );
 
 // Romance keywords to search
@@ -50,7 +51,9 @@ try {
   const serviceAccountPath = path.join(__dirname, '../service-account.json');
   if (!fs.existsSync(serviceAccountPath)) {
     console.error('❌ service-account.json not found at:', serviceAccountPath);
-    console.error('Please ensure your Firebase service account key is in the project root.');
+    console.error(
+      'Please ensure your Firebase service account key is in the project root.',
+    );
     process.exit(1);
   }
 
@@ -86,9 +89,14 @@ async function fetchBooksFromGoogle(query, maxResults = 40) {
     const response = await axios.get(GOOGLE_BOOKS_API_URL, { params });
     const items = response.data.items || [];
 
-    return items.map(item => parseGoogleBook(item)).filter(book => book !== null);
+    return items
+      .map((item) => parseGoogleBook(item))
+      .filter((book) => book !== null);
   } catch (error) {
-    console.error(`❌ Error fetching books for query "${query}":`, error.message);
+    console.error(
+      `❌ Error fetching books for query "${query}":`,
+      error.message,
+    );
     return [];
   }
 }
@@ -128,10 +136,13 @@ function parseGoogleBook(item) {
 
     // Extract genres
     const categories = volumeInfo.categories || [];
-    const genres = categories.filter(cat => 
-      cat.toLowerCase().includes('romance') ||
-      cat.toLowerCase().includes('fiction')
-    ).slice(0, 3);
+    const genres = categories
+      .filter(
+        (cat) =>
+          cat.toLowerCase().includes('romance') ||
+          cat.toLowerCase().includes('fiction'),
+      )
+      .slice(0, 3);
 
     return {
       id: item.id,
@@ -180,7 +191,9 @@ async function saveBook(book) {
   try {
     const docRef = db.collection('books').doc(book.id);
     if (DRY_RUN) {
-      console.log(`[DRY RUN] Would save: ${book.title} by ${book.authors.join(', ')}`);
+      console.log(
+        `[DRY RUN] Would save: ${book.title} by ${book.authors.join(', ')}`,
+      );
       return true;
     }
 
@@ -201,7 +214,9 @@ async function seedBooks() {
   - Dry run: ${DRY_RUN}
   - Target books: ${LIMIT}
   - Queries: ${ROMANCE_QUERIES.length}
-  - API Key: ${GOOGLE_BOOKS_API_KEY ? 'Provided' : 'Not provided (rate limits apply)'}
+  - API Key: ${
+    GOOGLE_BOOKS_API_KEY ? 'Provided' : 'Not provided (rate limits apply)'
+  }
   \n`);
 
   let totalBooks = 0;
@@ -245,7 +260,7 @@ async function seedBooks() {
       }
 
       // Respect rate limits: 1 API call per 100ms
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     console.log(`   Found ${books.length} books from this query\n`);
@@ -260,14 +275,16 @@ async function seedBooks() {
   \n`);
 
   if (DRY_RUN) {
-    console.log('🔍 Dry run completed. Run without --dry-run to actually save books.\n');
+    console.log(
+      '🔍 Dry run completed. Run without --dry-run to actually save books.\n',
+    );
   }
 
   process.exit(0);
 }
 
 // Run seeding
-seedBooks().catch(error => {
+seedBooks().catch((error) => {
   console.error('❌ Fatal error:', error);
   process.exit(1);
 });

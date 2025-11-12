@@ -36,7 +36,9 @@ flutter build apk --release
 **Why**: The seed script needs Firebase admin credentials to write to Firestore.
 
 **Steps**:
+
 1. Download service account JSON from Firebase Console:
+
    - Go to: https://console.firebase.google.com → Your Project → Settings ⚙️ → Service Accounts → Generate New Private Key
    - Save as: `service-account.json` (in project root)
    - Add to `.gitignore` (never commit credentials)
@@ -56,7 +58,9 @@ flutter build apk --release
 **Why**: The seed script uses `axios` and `firebase-admin` npm packages.
 
 **Steps**:
+
 1. Create `package.json` in project root (if not exists):
+
    ```json
    {
      "name": "spicy-reads-tools",
@@ -73,6 +77,7 @@ flutter build apk --release
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -91,11 +96,13 @@ flutter build apk --release
 **Why**: Verify the script works before committing 500 books to Firestore.
 
 **Steps**:
+
 ```bash
 node tool/seed_romance_books.js --dry-run --limit=50
 ```
 
 **Expected Output**:
+
 ```
 ✅ Firebase initialized
 
@@ -132,11 +139,13 @@ Summary:
 **Why**: Populate Firestore with pre-seeded books for day 1 UX.
 
 **Steps**:
+
 ```bash
 node tool/seed_romance_books.js --limit=500
 ```
 
 **What Happens**:
+
 - Queries Google Books API 11 times (1 per romance keyword)
 - Fetches ~40 books per query (440 total, minus duplicates)
 - Writes to `/books` Firestore collection
@@ -145,6 +154,7 @@ node tool/seed_romance_books.js --limit=500
 **Time**: ~5-10 minutes (respects Google Books rate limits)
 
 **Verify in Firebase Console**:
+
 1. Go to: https://console.firebase.google.com → Your Project → Firestore Database
 2. Navigate to: `books` collection
 3. Should see ~400-500 documents with `isPreSeeded: true`
@@ -158,7 +168,9 @@ node tool/seed_romance_books.js --limit=500
 **Why**: Pre-seeded books have no metadata (warnings/tropes). Manually curate 50-100 to be "exemplars."
 
 **Steps**:
+
 1. Create `tool/curated_spicy_books.json`:
+
    ```json
    [
      {
@@ -166,7 +178,12 @@ node tool/seed_romance_books.js --limit=500
        "authors": ["Sally Thorne"],
        "isbn": "9780062418739",
        "warnings": ["sexual content", "workplace dynamics"],
-       "tropes": ["Enemies to Lovers", "Banter", "Forced Proximity", "Mutual Pining"],
+       "tropes": [
+         "Enemies to Lovers",
+         "Banter",
+         "Forced Proximity",
+         "Mutual Pining"
+       ],
        "spiceLevel": 3
      },
      {
@@ -176,12 +193,13 @@ node tool/seed_romance_books.js --limit=500
        "warnings": ["violence", "dystopian themes"],
        "tropes": ["Coming of Age", "Forbidden Romance", "Survival"],
        "spiceLevel": 2
-     },
+     }
      // ... add 50-100 more
    ]
    ```
 
 2. Create a script `tool/apply_curation.js` to update Firestore:
+
    ```javascript
    const admin = require('firebase-admin');
    const fs = require('fs');
@@ -190,11 +208,12 @@ node tool/seed_romance_books.js --limit=500
    async function applyCuration() {
      const db = admin.firestore();
      for (const book of curatedBooks) {
-       const query = await db.collection('books')
+       const query = await db
+         .collection('books')
          .where('isbn', '==', book.isbn)
          .limit(1)
          .get();
-       
+
        if (!query.empty) {
          const docRef = query.docs[0].ref;
          await docRef.update({
@@ -557,7 +576,7 @@ Widget _buildFavoriteTropesStep() {
                 await HardStopsService().setHardStops(_selectedHardStops);
                 await KinkFilterService().setKinkFilter(_selectedKinkFilters);
                 // TODO: Save favorite tropes somewhere (user profile?)
-                
+
                 setState(() => _currentStep = 4);
               },
               child: const Text('Save & Discover'),
@@ -657,6 +676,7 @@ if (FirebaseAuth.instance.currentUser != null) {
 ### Task 3.1: Get Amazon Associates Account
 
 **Steps**:
+
 1. Go to: https://affiliate-program.amazon.com
 2. Sign up with your email
 3. Provide site/app details: "Spicy Reads mobile app for romance readers"
@@ -724,6 +744,7 @@ const Padding(
 ### Task 4.1: Test Onboarding End-to-End
 
 **Steps**:
+
 1. Create 3 test accounts (different preferences)
 2. Go through full onboarding for each
 3. Verify hard stops are saved
@@ -736,6 +757,7 @@ const Padding(
 ### Task 4.2: Test Affiliate Links
 
 **Steps**:
+
 1. Open a book in BookDetailScreen
 2. Click "Buy on Amazon" button
 3. Verify browser opens Amazon affiliate link
@@ -758,26 +780,31 @@ flutter analyze
 ### Task 4.4: Update Version & Create Release Notes
 
 **Update** `pubspec.yaml`:
+
 ```yaml
-version: 0.6.0+2  # or higher
+version: 0.6.0+2 # or higher
 ```
 
 **Create** `docs/RELEASE_NOTES_v0.6.0.md`:
+
 ```markdown
 # Spicy Reads v0.6.0 - Phase 0 Beta
 
 ## New Features
 
 ### 🎯 Smart Onboarding
+
 - Users set Hard Stops before landing in library
 - Pre-curated books on day 1 based on preferences
 - Kink Filter + Favorite Tropes selection
 
 ### 📚 500+ Pre-Seeded Books
+
 - Google Books API integration
 - All major romance sub-genres included
 
 ### 🛒 Amazon Affiliate
+
 - Buy on Amazon button on every book
 - Spicy Reads earns 3% commission
 
@@ -799,7 +826,9 @@ None (beta testing phase)
 ### Task 4.5: Deploy to Play Store (Closed Testing)
 
 **Steps**:
+
 1. Build APK:
+
    ```bash
    flutter build apk --release
    ```
@@ -813,6 +842,7 @@ None (beta testing phase)
 5. Share beta link with 50-100 testers
 
 **Testers Source**:
+
 - Reddit: /r/RomanceAuthors, /r/RomanceReaders
 - Discord: Romance reader communities
 - Twitter: #BookTwitter, #AmWriting
@@ -824,15 +854,15 @@ None (beta testing phase)
 
 ## Success Criteria
 
-| Metric | Target | Why |
-|--------|--------|-----|
-| Day 1 retention (onboarding complete) | >50% | Smooth UX |
-| Day 7 retention | >25% | Users come back |
-| Books added per user | 5-10 | Active usage |
-| Hard Stops set per user | 1-3 average | Mental health engagement |
-| Affiliate clicks | 5-10/user/month | Revenue indicator |
-| Crash-free | >98% | Stability |
-| App rating | >4.0 stars | Quality |
+| Metric                                | Target          | Why                      |
+| ------------------------------------- | --------------- | ------------------------ |
+| Day 1 retention (onboarding complete) | >50%            | Smooth UX                |
+| Day 7 retention                       | >25%            | Users come back          |
+| Books added per user                  | 5-10            | Active usage             |
+| Hard Stops set per user               | 1-3 average     | Mental health engagement |
+| Affiliate clicks                      | 5-10/user/month | Revenue indicator        |
+| Crash-free                            | >98%            | Stability                |
+| App rating                            | >4.0 stars      | Quality                  |
 
 ---
 
@@ -848,6 +878,7 @@ None (beta testing phase)
 ## Next Steps (After Week 4)
 
 Based on beta feedback:
+
 1. Iterate on onboarding (A/B test hard stops order)
 2. Add hard stop warning prompts (v0.6.1)
 3. Build reading analytics dashboard (v0.7.0)
