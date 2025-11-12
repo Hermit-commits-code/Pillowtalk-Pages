@@ -218,6 +218,9 @@ class UserLibraryService {
     List<String>? tropes,
     ReadingStatus? status,
     BookOwnership? ownership,
+    List<String>? hardStops,
+    List<String>? kinkFilters,
+    bool applyUserFilters = true,
     int limit = 200,
   }) async {
     try {
@@ -360,7 +363,7 @@ class UserLibraryService {
       }
 
       // Client-side filter to ensure book matches at least one genre AND at least one trope
-      final filtered = results.where((ub) {
+      var filtered = results.where((ub) {
         final matchesGenre =
             selGenres.isEmpty || ub.genres.any((g) => selGenres.contains(g));
         final tropesUnion = {
@@ -371,6 +374,40 @@ class UserLibraryService {
             selTropes.isEmpty || tropesUnion.any((t) => selTropes.contains(t));
         return matchesGenre && matchesTrope;
       }).toList();
+
+      // Apply Hard Stops filter if provided and applyUserFilters is true
+      if (applyUserFilters && hardStops != null && hardStops.isNotEmpty) {
+        filtered = filtered.where((ub) {
+          // Skip filtering if book has ignoreFilters flag set
+          if (ub.ignoreFilters) return true;
+          
+          // Check if any warning matches hard stops
+          final bookWarnings = {
+            ...ub.cachedTopWarnings,
+            ...ub.userContentWarnings,
+          }.map((w) => w.trim()).toSet();
+          
+          final hasHardStop = bookWarnings.any((w) => hardStops.contains(w));
+          return !hasHardStop; // Return true if NO hard stop match
+        }).toList();
+      }
+
+      // Apply Kink Filter if provided and applyUserFilters is true
+      if (applyUserFilters && kinkFilters != null && kinkFilters.isNotEmpty) {
+        filtered = filtered.where((ub) {
+          // Skip filtering if book has ignoreFilters flag set
+          if (ub.ignoreFilters) return true;
+          
+          // Check if any trope matches kink filters
+          final bookTropes = {
+            ...ub.cachedTropes,
+            ...ub.userSelectedTropes,
+          }.map((t) => t.trim()).toSet();
+          
+          final hasKinkFilter = bookTropes.any((t) => kinkFilters.contains(t));
+          return !hasKinkFilter; // Return true if NO kink filter match
+        }).toList();
+      }
 
       return filtered;
     } catch (e) {
