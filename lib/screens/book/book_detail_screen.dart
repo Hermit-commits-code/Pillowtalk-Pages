@@ -86,7 +86,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _displayNotes = widget.userNotes ?? '';
 
     _displaySpiceOverall = widget.spiceOverall ?? 0.0;
-    _displaySpiceIntensity = widget.spiceIntensity ?? _intensityOptions.keys.first;
+    _displaySpiceIntensity =
+        widget.spiceIntensity ?? _intensityOptions.keys.first;
     _displayEmotionalArc = widget.emotionalArc ?? 0.0;
 
     // Load existing userBook to obtain ownership and personalStars if available
@@ -110,9 +111,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   Future<void> _openEditModal() async {
     if (widget.userBookId == null || widget.userBookId!.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No user book to edit')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No user book to edit')));
       return;
     }
 
@@ -143,7 +144,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             _displayWarnings = List.from(updated.userContentWarnings);
             _displayNotes = updated.userNotes ?? '';
             _displaySpiceOverall = updated.spiceOverall ?? _displaySpiceOverall;
-            _displaySpiceIntensity = updated.spiceIntensity ?? _displaySpiceIntensity;
+            _displaySpiceIntensity =
+                updated.spiceIntensity ?? _displaySpiceIntensity;
             _displayEmotionalArc = updated.emotionalArc ?? _displayEmotionalArc;
             _displayOwnership = updated.ownership;
             _displayPersonalStars = updated.personalStars;
@@ -153,9 +155,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error opening edit modal: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to open editor: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
     }
   }
 
@@ -174,9 +176,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open Amazon.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open Amazon.')));
     }
   }
 
@@ -231,7 +233,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ? 'Digital'
                               : _displayOwnership == BookOwnership.both
                               ? 'Owned Both'
-                              : _displayOwnership == BookOwnership.kindleUnlimited
+                              : _displayOwnership ==
+                                    BookOwnership.kindleUnlimited
                               ? 'Borrowed on Kindle'
                               : '',
                         ),
@@ -379,58 +382,77 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  vertical: 28.0,
-                  horizontal: 20.0,
+                  vertical: 16.0,
+                  horizontal: 16.0,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CenteredSection(
-                      title: 'Overall Spice',
-                      iconBar: IconRatingBar(
-                        title: '',
-                        rating: _displaySpiceOverall,
-                        onRatingUpdate: (_) {}, // Read-only
-                        filledIcon: Icons.local_fire_department,
-                        emptyIcon: Icons.local_fire_department_outlined,
-                        color: Colors.orange,
+                    Text(
+                      'Overall Spice',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      helperText: 'How much explicit, on-page spice is there?',
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'How much explicit, on-page spice is there?',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    IconRatingBar(
+                      title: '',
+                      rating: _displaySpiceOverall,
+                      onRatingUpdate: (_) {}, // Read-only
+                      filledIcon: Icons.local_fire_department,
+                      emptyIcon: Icons.local_fire_department_outlined,
+                      color: Colors.orange,
                     ),
                     const SizedBox(height: 32),
-                    CenteredSection(
-                      title: 'Emotional Arc',
-                      iconBar: IconRatingBar(
-                        title: '',
-                        rating: _displayEmotionalArc,
-                        onRatingUpdate: (_) {}, // Read-only
-                        filledIcon: Icons.favorite,
-                        emptyIcon: Icons.favorite_border,
-                        color: Colors.pink,
+                    Text(
+                      'Emotional Arc',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      helperText:
-                          'How central is the romantic relationship to the plot?',
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'How central is the romantic relationship to the plot?',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    IconRatingBar(
+                      title: '',
+                      rating: _displayEmotionalArc,
+                      onRatingUpdate: (_) {}, // Read-only
+                      filledIcon: Icons.favorite,
+                      emptyIcon: Icons.favorite_border,
+                      color: Colors.pink,
                     ),
                     const SizedBox(height: 32),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Primary Intensity Driver',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _displaySpiceIntensity,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Primary Intensity Driver',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'What is the main driver of the book\'s intensity?',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _displaySpiceIntensity,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -517,13 +539,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
-                  _displayNotes.isNotEmpty
-                      ? _displayNotes
-                      : 'No notes added',
+                  _displayNotes.isNotEmpty ? _displayNotes : 'No notes added',
                   style: _displayNotes.isEmpty
-                      ? theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
-                        )
+                      ? theme.textTheme.bodyMedium?.copyWith(color: Colors.grey)
                       : null,
                 ),
               ),
@@ -532,42 +550,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class CenteredSection extends StatelessWidget {
-  final String title;
-  final Widget iconBar;
-  final String helperText;
-  const CenteredSection({
-    super.key,
-    required this.title,
-    required this.iconBar,
-    required this.helperText,
-  });
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        iconBar,
-        const SizedBox(height: 4),
-        Text(
-          helperText,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-        ),
-      ],
     );
   }
 }
