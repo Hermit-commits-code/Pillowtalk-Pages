@@ -147,17 +147,20 @@ class _StatusBooksScreenState extends State<StatusBooksScreen> {
                 children: [
                   const Text('Minimum personal stars'),
                   const SizedBox(height: 8),
-                  Row(
-                    children: List.generate(6, (i) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(i == 0 ? 'Any' : '$i★'),
-                          selected: selected == i,
-                          onSelected: (_) => setLocal(() => selected = i),
-                        ),
-                      );
-                    }),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(6, (i) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ChoiceChip(
+                            label: Text(i == 0 ? 'Any' : '$i★'),
+                            selected: selected == i,
+                            onSelected: (_) => setLocal(() => selected = i),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(

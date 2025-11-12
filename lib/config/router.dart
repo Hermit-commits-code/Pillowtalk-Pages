@@ -2,11 +2,13 @@ import '../services/auth_service.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
 
-import '../models/book_model.dart';
+import '../models/user_book.dart';
+import '../screens/book/book_detail_loader.dart';
+import '../screens/book/book_detail_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/book/add_book_screen.dart';
-import '../screens/book/book_detail_screen.dart';
+
 import '../screens/curated/curated_screen.dart';
 import '../screens/curated/curated_collection_screen.dart';
 import '../screens/home/home_dashboard.dart';
@@ -105,21 +107,32 @@ final GoRouter router = GoRouter(
       path: '/book/:id',
       builder: (context, state) {
         final bookId = state.pathParameters['id'] ?? '';
-        // This is a placeholder, in a real app you'd fetch this from a service
-        final book = RomanceBook(
-          id: bookId,
-          isbn: '',
-          title: 'Book Title',
-          authors: ['Author Name'],
-          description: 'Description for $bookId',
-        );
-        return BookDetailScreen(
-          title: book.title,
-          author: book.authors.join(', '),
-          coverUrl: book.imageUrl,
-          description: book.description,
-          bookId: bookId,
-        );
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+
+        // If extra data is provided (from search or library), pass it directly
+        if (extra.containsKey('userBook')) {
+          final userBook = extra['userBook'] as UserBook;
+          return BookDetailScreen(
+            title: userBook.title,
+            author: userBook.authors.join(', '),
+            coverUrl: userBook.imageUrl,
+            description: userBook.description,
+            genres: userBook.genres,
+            seriesName: userBook.seriesName,
+            seriesIndex: userBook.seriesIndex,
+            userSelectedTropes: userBook.userSelectedTropes,
+            userContentWarnings: userBook.userContentWarnings,
+            bookId: userBook.bookId,
+            userBookId: userBook.id,
+            userNotes: userBook.userNotes,
+            spiceOverall: userBook.spiceOverall,
+            spiceIntensity: userBook.spiceIntensity,
+            emotionalArc: userBook.emotionalArc,
+          );
+        }
+
+        // Otherwise, load from canonical books collection
+        return BookDetailLoader(bookId: bookId);
       },
     ),
     GoRoute(

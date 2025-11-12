@@ -10,6 +10,7 @@ import '../../services/lists_service.dart';
 import 'genre_selection_screen.dart';
 import 'widgets/lists_dropdown.dart';
 import '../../widgets/trope_dropdown_tile.dart';
+import '../../widgets/content_warnings_dropdown_tile.dart';
 
 /// A compact modal for editing an existing UserBook's editable fields.
 ///
@@ -35,6 +36,7 @@ class EditBookModal extends StatefulWidget {
 class _EditBookModalState extends State<EditBookModal> {
   late List<String> _selectedGenres;
   late List<String> _selectedTropes;
+  late List<String> _selectedContentWarnings;
   late List<String> _selectedListIds;
   late ReadingStatus _status;
   late TextEditingController _notesController;
@@ -50,6 +52,7 @@ class _EditBookModalState extends State<EditBookModal> {
     super.initState();
     _selectedGenres = List.from(widget.userBook.genres);
     _selectedTropes = List.from(widget.userBook.userSelectedTropes);
+    _selectedContentWarnings = List.from(widget.userBook.userContentWarnings);
     _selectedListIds = [];
     _status = widget.userBook.status;
     _notesController = TextEditingController(
@@ -109,6 +112,7 @@ class _EditBookModalState extends State<EditBookModal> {
       final updated = widget.userBook.copyWith(
         genres: _selectedGenres,
         userSelectedTropes: _selectedTropes,
+        userContentWarnings: _selectedContentWarnings,
         userNotes: _notesController.text.trim().isNotEmpty
             ? _notesController.text.trim()
             : null,
@@ -197,7 +201,14 @@ class _EditBookModalState extends State<EditBookModal> {
                 placeholder: 'Tap to edit tropes',
               ),
               const SizedBox(height: 12),
-              // Show selected lists as chips above the dropdown so the user
+              ContentWarningsDropdownTile(
+                selectedWarnings: _selectedContentWarnings,
+                onChanged: (res) =>
+                    setState(() => _selectedContentWarnings = res),
+                title: 'Content Warnings',
+                placeholder: 'Tap to edit content warnings',
+              ),
+              const SizedBox(height: 12),
               // can see what's currently selected and remove items quickly.
               if (_selectedListIds.isNotEmpty) ...[
                 SizedBox(

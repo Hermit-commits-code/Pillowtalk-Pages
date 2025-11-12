@@ -37,18 +37,21 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 children: [
                   const Text('Filter by minimum personal stars'),
                   const SizedBox(height: 8),
-                  Row(
-                    children: List.generate(6, (i) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ChoiceChip(
-                          label: Text(i == 0 ? 'Any' : '$i★'),
-                          selected: selectedStars == i,
-                          onSelected: (_) =>
-                              setLocalState(() => selectedStars = i),
-                        ),
-                      );
-                    }),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(6, (i) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ChoiceChip(
+                            label: Text(i == 0 ? 'Any' : '$i★'),
+                            selected: selectedStars == i,
+                            onSelected: (_) =>
+                                setLocalState(() => selectedStars = i),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   const Text('Trope contains (case-insensitive)'),
@@ -190,10 +193,13 @@ class _BookCarousel extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Text(
-                title,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 8),

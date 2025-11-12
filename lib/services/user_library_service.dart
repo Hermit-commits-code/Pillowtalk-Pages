@@ -117,8 +117,18 @@ class UserLibraryService {
 
   Stream<List<UserBook>> getUserLibraryStream() {
     return _libraryRef.snapshots().map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => UserBook.fromJson(doc.data())).toList(),
+      (snapshot) => snapshot.docs
+          .map((doc) {
+            try {
+              return UserBook.fromJson(doc.data());
+            } catch (e) {
+              debugPrint('Failed to parse user library doc ${doc.id}: $e');
+              return null;
+            }
+          })
+          .where((b) => b != null)
+          .cast<UserBook>()
+          .toList(),
     );
   }
 
@@ -173,11 +183,15 @@ class UserLibraryService {
       final seen = <String>{};
       void addFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
         final data = doc.data();
-        final ub = UserBook.fromJson(data);
-        final bookId = ub.bookId;
-        if (seen.contains(bookId)) return;
-        seen.add(bookId);
-        results.add(ub);
+        try {
+          final ub = UserBook.fromJson(data);
+          final bookId = ub.bookId;
+          if (seen.contains(bookId)) return;
+          seen.add(bookId);
+          results.add(ub);
+        } catch (e) {
+          debugPrint('Skipping invalid library doc ${doc.id}: $e');
+        }
       }
 
       for (final d in q1.docs) {
@@ -197,7 +211,12 @@ class UserLibraryService {
   Future<UserBook?> getUserBook(String userBookId) async {
     final doc = await _libraryRef.doc(userBookId).get();
     if (doc.exists) {
-      return UserBook.fromJson(doc.data()!);
+      try {
+        return UserBook.fromJson(doc.data()!);
+      } catch (e) {
+        debugPrint('Failed to parse userBook ${doc.id}: $e');
+        return null;
+      }
     }
     return null;
   }
@@ -247,10 +266,14 @@ class UserLibraryService {
 
       // Helper to add doc results
       void addFromDoc(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-        final ub = UserBook.fromJson(doc.data());
-        if (seen.contains(ub.bookId)) return;
-        seen.add(ub.bookId);
-        results.add(ub);
+        try {
+          final ub = UserBook.fromJson(doc.data());
+          if (seen.contains(ub.bookId)) return;
+          seen.add(ub.bookId);
+          results.add(ub);
+        } catch (e) {
+          debugPrint('Skipping invalid library doc ${doc.id}: $e');
+        }
       }
 
       // Build base query with optional status/ownership

@@ -111,14 +111,82 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Future<void> _openEditModal() async {
+    // If there's no userBookId, offer to save this book to the user's library
+    // and then open the editor for that newly created userBook.
     if (widget.userBookId == null || widget.userBookId!.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No user book to edit')));
+      final shouldSave = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Save to Library?'),
+          content: const Text(
+            'You don\'t have a personal copy of this book. Save it to your library so you can edit it?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Save & Edit'),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldSave != true) return;
+
+      // Attempt to save to library; on success, load the new userBook and open editor.
+      final saved = await _saveToLibrary();
+      if (!saved) return;
+
+      try {
+        final ub = await UserLibraryService().getUserBook(widget.bookId!);
+        if (ub == null) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unable to load book for editing')),
+          );
+          return;
+        }
+
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
+        );
+
+        if (result == true) {
+          final updated = await UserLibraryService().getUserBook(
+            widget.bookId!,
+          );
+          if (updated != null && mounted) {
+            setState(() {
+              _displayGenres = List.from(updated.genres);
+              _displayTropes = List.from(updated.userSelectedTropes);
+              _displayWarnings = List.from(updated.userContentWarnings);
+              _displayNotes = updated.userNotes ?? '';
+              _displaySpiceOverall =
+                  updated.spiceOverall ?? _displaySpiceOverall;
+              _displaySpiceIntensity =
+                  updated.spiceIntensity ?? _displaySpiceIntensity;
+              _displayEmotionalArc =
+                  updated.emotionalArc ?? _displayEmotionalArc;
+              _displayOwnership = updated.ownership;
+              _displayPersonalStars = updated.personalStars;
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint('Error opening edit modal after save: $e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
+      }
+
       return;
     }
 
+    // Existing flow when userBookId is present
     try {
       final ub = await UserLibraryService().getUserBook(widget.userBookId!);
       if (ub == null) {
@@ -184,15 +252,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
-  Future<void> _saveToLibrary() async {
+  Future<bool> _saveToLibrary() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        if (!mounted) return;
+        if (!mounted) return false;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please sign in to save books.')),
         );
-        return;
+        return false;
       }
 
       // Get the pre-seeded book data from Firestore
@@ -202,11 +270,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           .get();
 
       if (!bookDoc.exists) {
-        if (!mounted) return;
+        if (!mounted) return false;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Book not found.')));
-        return;
+        return false;
       }
 
       final bookData = bookDoc.data() as Map<String, dynamic>;
@@ -229,16 +297,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         'dateAdded': DateTime.now().toIso8601String(),
       }, SetOptions(merge: true));
 
-      if (!mounted) return;
+      if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Book saved to your library!')),
       );
+      return true;
     } catch (e) {
       debugPrint('Error saving book to library: $e');
-      if (!mounted) return;
+      if (!mounted) return false;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to save book: $e')));
+      return false;
     }
   }
 

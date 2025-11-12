@@ -44,13 +44,15 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
     try {
       // Load user's Hard Stops and Kink Filters
       final hardStopsData = await HardStopsService().getHardStopsOnce();
-      final hardStops = (hardStopsData['hardStopsEnabled'] as bool)
-          ? List<String>.from(hardStopsData['hardStops'] as List<String>)
+      final hardStops = (hardStopsData['enabled'] as bool? ?? false)
+          ? List<String>.from(hardStopsData['hardStops'] as List<String>? ?? [])
           : null;
 
       final kinkFilterData = await KinkFilterService().getKinkFilterOnce();
-      final kinkFilters = (kinkFilterData['enabled'] as bool)
-          ? List<String>.from(kinkFilterData['kinkFilter'] as List<String>)
+      final kinkFilters = (kinkFilterData['enabled'] as bool? ?? false)
+          ? List<String>.from(
+              kinkFilterData['kinkFilter'] as List<String>? ?? [],
+            )
           : null;
 
       final results = await UserLibraryService().searchLibraryByFilters(
@@ -245,7 +247,10 @@ class _DeepTropeSearchScreenState extends State<DeepTropeSearchScreen> {
                         ? const Icon(Icons.note, size: 18)
                         : null,
                     onTap: () {
-                      context.push('/book/${book.bookId}');
+                      context.push(
+                        '/book/${book.id}',
+                        extra: {'userBook': book},
+                      );
                     },
                   );
                 },

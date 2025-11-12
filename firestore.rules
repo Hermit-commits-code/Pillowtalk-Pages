@@ -2,15 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Pre-seeded books collection - read-only for authenticated users
+    // Pre-seeded books collection - make metadata publicly readable.
+    // Books are considered catalog metadata and can be read by any client.
     match /books/{bookId} {
-      allow read: if request.auth != null;
+      // Public read for book metadata. If you want to restrict access to
+      // book documents, change this condition accordingly.
+      allow read: if true;
       allow create, update, delete: if false; // Prevent client-side modifications
     }
 
-    // Curated collections - read-only for authenticated users
+    // Curated collections - visibility-based read rules.
+    // Each collection document may include a `visibility` field with values
+    // like 'public' or 'pro'. Public collections are readable by everyone.
+    // Pro collections require the calling user to have a custom `pro` claim.
     match /collections/{collectionId} {
-      allow read: if request.auth != null;
+      allow read: if resource.data.visibility == 'public' ||
+                  (request.auth != null && request.auth.token.pro == true);
       allow create, update, delete: if false; // Admin-only (via backend)
     }
 

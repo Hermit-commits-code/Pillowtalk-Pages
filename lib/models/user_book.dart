@@ -68,9 +68,9 @@ class UserBook {
     }
 
     return UserBook(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      bookId: json['bookId'] as String,
+      id: json['id'] as String? ?? 'unknown_id',
+      userId: json['userId'] as String? ?? 'unknown_user',
+      bookId: json['bookId'] as String? ?? 'unknown_book',
       title: json['title'] as String? ?? 'Unknown Title',
       authors: List<String>.from(json['authors'] ?? []),
       imageUrl: json['imageUrl'] as String?,

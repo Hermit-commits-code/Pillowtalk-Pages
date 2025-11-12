@@ -1,2 +1,0 @@
---------- beginning of system
-11-03 04:13:36.566 21152 21285 I DisplayManager: Choreographer implicitly registered for the refresh rate.
