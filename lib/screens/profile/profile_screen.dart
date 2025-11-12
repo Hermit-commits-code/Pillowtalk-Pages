@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 
 import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
@@ -137,30 +138,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _launchUrl(String url) async {
-    try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((
-          e,
-        ) {
-          // Handle launch errors gracefully
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Could not open link: $url')));
-          return false;
-        });
-      } else {
-        // URL cannot be launched
-        if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Could not open link: $url')));
-      }
-    } catch (e) {
-      // Handle any parsing or other errors
+    final uri = Uri.tryParse(url);
+    if (uri == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening link: ${e.toString()}')),
+        const SnackBar(content: Text('Invalid URL')),
+      );
+      return;
+    }
+
+    try {
+      final can = await canLaunchUrl(uri);
+      if (!can) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No app available to open this link'),
+            action: SnackBarAction(
+              label: 'Copy',
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: url));
+              },
+            ),
+          ),
+        );
+        return;
+      }
+
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open link'),
+            action: SnackBarAction(
+              label: 'Copy',
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: url));
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error opening link: ${e.toString()}'),
+          action: SnackBarAction(
+            label: 'Copy',
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: url));
+            },
+          ),
+        ),
       );
     }
   }
