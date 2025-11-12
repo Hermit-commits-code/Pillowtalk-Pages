@@ -103,38 +103,61 @@ if (!DRY_RUN) {
  * Fetch books from Google Books API for a given query with pagination
  */
 async function fetchBooksFromGoogle(query, maxResults = 40, startIndex = 0) {
-  try {
-    const params = {
-      q: query,
-      maxResults,
-      startIndex,
-      printType: 'books',
-      orderBy: 'newest',
-    };
+  // Implements simple retry/backoff for 429 (too many requests) and
+  // gracefully skips the query on repeated failures.
+  const params = {
+    q: query,
+    maxResults,
+    startIndex,
+    printType: 'books',
+    orderBy: 'newest',
+  };
 
-    if (GOOGLE_BOOKS_API_KEY) {
-      params.key = GOOGLE_BOOKS_API_KEY;
-    }
+  if (GOOGLE_BOOKS_API_KEY) {
+    params.key = GOOGLE_BOOKS_API_KEY;
+  }
 
-    const response = await axios.get(GOOGLE_BOOKS_API_URL, { params });
-    const items = response.data.items || [];
+  let attempts = 0;
+  const maxAttempts = 3;
+  const baseDelayMs = 1000; // 1s, will exponential backoff
 
-    return items
-      .map((item) => parseGoogleBook(item))
-      .filter((book) => book !== null);
-  } catch (error) {
-    if (error.response?.status === 403) {
-      console.log(
-        `  ⏸️  Rate limited on "${query}" - skipping remaining pages`,
+  while (attempts < maxAttempts) {
+    try {
+      const response = await axios.get(GOOGLE_BOOKS_API_URL, { params });
+      const items = response.data.items || [];
+
+      return items
+        .map((item) => parseGoogleBook(item))
+        .filter((book) => book !== null);
+    } catch (error) {
+      const status = error.response?.status;
+
+      // For 403/429 treat as rate limit-ish and back off a few times before giving up.
+      if (status === 429 || status === 403) {
+        attempts++;
+        if (attempts >= maxAttempts) {
+          console.log(
+            `  ⏸️  Rate limited on "${query}" (status ${status}) - giving up after ${attempts} attempts`,
+          );
+          return [];
+        }
+        const delay = baseDelayMs * Math.pow(2, attempts - 1);
+        console.log(
+          `  ⏳  Rate limited on "${query}" (status ${status}), retrying in ${delay}ms (attempt ${attempts}/${maxAttempts})`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+
+      console.error(
+        `❌ Error fetching books for query "${query}":`,
+        error.message,
       );
       return [];
     }
-    console.error(
-      `❌ Error fetching books for query "${query}":`,
-      error.message,
-    );
-    return [];
   }
+
+  return [];
 }
 
 /**
@@ -270,7 +293,11 @@ async function seedBooks() {
     let pageIndex = 0;
     let foundNewBooks = true;
 
-    while (foundNewBooks && totalBooks < LIMIT && pageIndex < 3) {
+    // Increase pages per query to try to collect more unique results. Each
+    // page is up to 40 results. We use a conservative cap of 6 pages (240
+    // results) per query but will stop earlier if Google returns no items or
+    // rate limits occur (handled inside fetchBooksFromGoogle).
+    while (foundNewBooks && totalBooks < LIMIT && pageIndex < 6) {
       const startIndex = pageIndex * 40;
       const books = await fetchBooksFromGoogle(query, 40, startIndex);
 
