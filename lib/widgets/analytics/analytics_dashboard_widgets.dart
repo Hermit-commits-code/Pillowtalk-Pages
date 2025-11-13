@@ -1,13 +1,22 @@
 // lib/widgets/analytics/analytics_dashboard_widgets.dart
 import 'package:flutter/material.dart';
 import '../../services/reading_analytics_service.dart';
+import '../../services/feature_gating_service.dart';
 import '../../models/user_book.dart';
+import '../../screens/library/status_books_screen.dart';
 
 /// Main analytics dashboard widget for home screen
 class AnalyticsDashboard extends StatelessWidget {
   final ReadingStats stats;
+  final List<UserBook> userBooks; // Add this to enable navigation
+  final bool isPro; // Add Pro status
 
-  const AnalyticsDashboard({super.key, required this.stats});
+  const AnalyticsDashboard({
+    super.key,
+    required this.stats,
+    required this.userBooks,
+    this.isPro = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,51 +34,10 @@ class AnalyticsDashboard extends StatelessWidget {
           ),
         ),
 
-        // Top stats row
-        SizedBox(
-          height: 120,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            children: [
-              StatsCard(
-                title: 'Books Read',
-                value: stats.totalBooksRead.toString(),
-                icon: Icons.library_books,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(width: 12),
-              StatsCard(
-                title: 'Pages Read',
-                value: stats.formattedTotalPages,
-                icon: Icons.menu_book,
-                color: Colors.green,
-              ),
-              const SizedBox(width: 12),
-              StatsCard(
-                title: 'Avg Spice',
-                value: stats.averageSpiceRating.toStringAsFixed(1),
-                icon: Icons.local_fire_department,
-                color: Colors.red,
-              ),
-              const SizedBox(width: 12),
-              StatsCard(
-                title: 'Reading Streak',
-                value: '${stats.currentStreak} days',
-                icon: Icons.whatshot,
-                color: Colors.orange,
-              ),
-              if (stats.totalAudiobookMinutes > 0) ...[
-                const SizedBox(width: 12),
-                StatsCard(
-                  title: 'Audiobook Time',
-                  value: stats.formattedAudiobookTime,
-                  icon: Icons.headphones,
-                  color: Colors.purple,
-                ),
-              ],
-            ],
-          ),
+        // Stats grid (2x2 or 2x3 depending on audiobook data)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: _buildStatsGrid(context),
         ),
 
         const SizedBox(height: 24),
@@ -91,21 +59,248 @@ class AnalyticsDashboard extends StatelessWidget {
           const SizedBox(height: 24),
         ],
 
-        // Top tropes
+        // Top tropes (Pro feature)
         if (stats.topTropes.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: TopTropesWidget(tropes: stats.topTropes),
+            child: isPro
+                ? TopTropesWidget(tropes: stats.topTropes)
+                : _buildProFeatureCard(
+                    context,
+                    title: 'Top Tropes Analysis',
+                    description: 'See your most loved tropes and patterns',
+                    icon: Icons.favorite,
+                  ),
           ),
           const SizedBox(height: 24),
         ],
 
-        // Format breakdown chart
+        // Format breakdown chart (Pro feature)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: FormatBreakdownWidget(breakdown: stats.formatBreakdown),
+          child: isPro
+              ? FormatBreakdownWidget(breakdown: stats.formatBreakdown)
+              : _buildProFeatureCard(
+                  context,
+                  title: 'Format Breakdown',
+                  description: 'Visual breakdown of your reading formats',
+                  icon: Icons.pie_chart,
+                ),
         ),
       ],
+    );
+  }
+
+  /// Build responsive grid of stats cards with navigation
+  Widget _buildStatsGrid(BuildContext context) {
+    final wantToReadBooks = userBooks
+        .where((book) => book.status == ReadingStatus.wantToRead)
+        .length;
+    final currentlyReading = userBooks
+        .where((book) => book.status == ReadingStatus.reading)
+        .length;
+
+    return Column(
+      children: [
+        // First row - Clickable navigation cards
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () =>
+                    _navigateToBooks(context, ReadingStatus.wantToRead),
+                child: StatsCard(
+                  title: 'Want to Read',
+                  value: wantToReadBooks.toString(),
+                  icon: Icons.bookmark_outline,
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _navigateToBooks(context, ReadingStatus.reading),
+                child: StatsCard(
+                  title: 'Currently Reading',
+                  value: currentlyReading.toString(),
+                  icon: Icons.auto_stories,
+                  color: Colors.purple,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Second row - Analytics cards
+        Row(
+          children: [
+            Expanded(
+              child: StatsCard(
+                title: 'Avg Spice',
+                value: stats.averageSpiceRating.toStringAsFixed(1),
+                icon: Icons.local_fire_department,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatsCard(
+                title: isPro ? 'Reading Streak' : 'Books (7 days)',
+                value: isPro
+                    ? '${stats.currentStreak} days'
+                    : '${stats.currentStreak} books',
+                subtitle: isPro
+                    ? 'Consecutive reading days'
+                    : 'Upgrade for streak tracking',
+                icon: Icons.whatshot,
+                color: Colors.orange,
+                isProFeature: !isPro,
+              ),
+            ),
+          ],
+        ),
+        // Third row - Additional stats (if audiobook data exists)
+        if (stats.totalAudiobookMinutes > 0 || stats.totalBooksRead > 0) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () =>
+                      _navigateToBooks(context, ReadingStatus.finished),
+                  child: StatsCard(
+                    title: 'Books Read',
+                    value: stats.totalBooksRead.toString(),
+                    icon: Icons.library_books,
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: stats.totalAudiobookMinutes > 0
+                    ? StatsCard(
+                        title: 'Audiobook Time',
+                        value: stats.formattedAudiobookTime,
+                        icon: Icons.headphones,
+                        color: Colors.indigo,
+                      )
+                    : StatsCard(
+                        title: 'Total Pages',
+                        value: stats.formattedTotalPages,
+                        icon: Icons.menu_book,
+                        color: Colors.teal,
+                      ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Build a card promoting Pro upgrade for advanced features
+  Widget _buildProFeatureCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required IconData icon,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.secondary.withOpacity(0.1),
+            theme.colorScheme.secondary.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.secondary.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: theme.colorScheme.secondary, size: 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.secondary,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.lock,
+                color: theme.colorScheme.secondary.withOpacity(0.7),
+                size: 20,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.8),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                FeatureGatingService().showAdvancedAnalyticsUpgradePrompt(
+                  context,
+                );
+              },
+              icon: Icon(
+                Icons.star,
+                size: 18,
+                color: theme.colorScheme.onSecondary,
+              ),
+              label: Text(
+                'Upgrade to Pro',
+                style: TextStyle(color: theme.colorScheme.onSecondary),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.secondary,
+                foregroundColor: theme.colorScheme.onSecondary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Navigate to status-specific book screen
+  void _navigateToBooks(BuildContext context, ReadingStatus status) {
+    final statusTitles = {
+      ReadingStatus.wantToRead: 'Want to Read',
+      ReadingStatus.reading: 'Currently Reading',
+      ReadingStatus.finished: 'Finished Books',
+    };
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StatusBooksScreen(
+          status: status,
+          title: statusTitles[status] ?? 'Books',
+        ),
+      ),
     );
   }
 }
@@ -114,8 +309,10 @@ class AnalyticsDashboard extends StatelessWidget {
 class StatsCard extends StatelessWidget {
   final String title;
   final String value;
+  final String? subtitle;
   final IconData icon;
   final Color color;
+  final bool isProFeature;
 
   const StatsCard({
     super.key,
@@ -123,6 +320,8 @@ class StatsCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.subtitle,
+    this.isProFeature = false,
   });
 
   @override
@@ -198,6 +397,13 @@ class YearlyGoalWidget extends StatelessWidget {
             Text(
               '${progress.completed} of ${progress.goal} books',
               style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              progress.goalDescription,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
             const SizedBox(height: 12),
             LinearProgressIndicator(

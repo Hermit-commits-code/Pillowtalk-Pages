@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
+import '../../services/feature_gating_service.dart';
 
 class CuratedScreen extends StatefulWidget {
   const CuratedScreen({Key? key}) : super(key: key);
@@ -22,14 +23,9 @@ class _CuratedScreenState extends State<CuratedScreen> {
 
   Future<void> _loadProStatus() async {
     try {
-      final user = AuthService.instance.currentUser;
-      if (user == null) {
-        setState(() => _isPro = false);
-        return;
-      }
-      final token = await user.getIdTokenResult();
-      final claims = token.claims ?? {};
-      setState(() => _isPro = (claims['pro'] == true));
+      final featureGatingService = FeatureGatingService();
+      final isPro = await featureGatingService.isPro();
+      setState(() => _isPro = isPro);
     } catch (e) {
       // If anything fails, treat as not pro.
       setState(() => _isPro = false);

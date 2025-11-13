@@ -9,7 +9,11 @@ class ReadingAnalyticsService {
   const ReadingAnalyticsService._internal();
 
   /// Calculate comprehensive reading statistics from user's library
-  ReadingStats calculateReadingStats(List<UserBook> userBooks) {
+  /// Pro users get access to advanced analytics features
+  ReadingStats calculateReadingStats(
+    List<UserBook> userBooks, {
+    bool isPro = false,
+  }) {
     final finishedBooks = userBooks
         .where((book) => book.status == ReadingStatus.finished)
         .toList();
@@ -27,13 +31,19 @@ class ReadingAnalyticsService {
       averagePersonalRating: _calculateAveragePersonalRating(finishedBooks),
       totalPagesRead: _calculateTotalPages(finishedBooks),
       totalAudiobookMinutes: _calculateTotalAudiobookTime(finishedBooks),
-      currentStreak: _calculateReadingStreak(finishedBooks),
-      favoriteGenres: _calculateTopGenres(finishedBooks, limit: 3),
-      topTropes: _calculateTopTropes(finishedBooks, limit: 5),
-      monthlyReadingData: _calculateMonthlyData(finishedBooks),
-      formatBreakdown: _calculateFormatBreakdown(finishedBooks),
-      spiceDistribution: _calculateSpiceDistribution(finishedBooks),
-      yearlyGoalProgress: _calculateYearlyProgress(finishedBooks),
+      // Basic streak for free users, advanced streak for Pro
+      currentStreak: isPro
+          ? _calculateAdvancedReadingStreak(finishedBooks)
+          : _calculateBasicReadingStreak(finishedBooks),
+      // Pro-only advanced features
+      favoriteGenres: isPro ? _calculateTopGenres(finishedBooks, limit: 3) : [],
+      topTropes: isPro ? _calculateTopTropes(finishedBooks, limit: 5) : [],
+      monthlyReadingData: isPro ? _calculateMonthlyData(finishedBooks) : [],
+      formatBreakdown: isPro ? _calculateFormatBreakdown(finishedBooks) : {},
+      spiceDistribution: isPro
+          ? _calculateSpiceDistribution(finishedBooks)
+          : {},
+      yearlyGoalProgress: _calculateYearlyProgress(finishedBooks, isPro: isPro),
     );
   }
 
@@ -83,8 +93,24 @@ class ReadingAnalyticsService {
         .fold<int>(0, (sum, book) => sum + book.runtimeMinutes!);
   }
 
-  /// Calculate current reading streak (consecutive days with finished books)
-  int _calculateReadingStreak(List<UserBook> finishedBooks) {
+  /// Calculate basic reading streak for free users (books finished in last 7 days)
+  int _calculateBasicReadingStreak(List<UserBook> finishedBooks) {
+    if (finishedBooks.isEmpty) return 0;
+
+    final now = DateTime.now();
+    final sevenDaysAgo = now.subtract(const Duration(days: 7));
+
+    return finishedBooks
+        .where(
+          (book) =>
+              book.dateFinished != null &&
+              book.dateFinished!.isAfter(sevenDaysAgo),
+        )
+        .length;
+  }
+
+  /// Calculate advanced reading streak for Pro users (consecutive days)
+  int _calculateAdvancedReadingStreak(List<UserBook> finishedBooks) {
     if (finishedBooks.isEmpty) return 0;
 
     // Sort books by date finished (most recent first)
@@ -310,21 +336,26 @@ class ReadingAnalyticsService {
   }
 
   /// Calculate yearly reading goal progress
-  YearlyGoalProgress _calculateYearlyProgress(List<UserBook> finishedBooks) {
+  /// All users get basic goal tracking, Pro users get enhanced features
+  YearlyGoalProgress _calculateYearlyProgress(
+    List<UserBook> finishedBooks, {
+    bool isPro = false,
+  }) {
     final currentYear = DateTime.now().year;
     final yearlyFinished = finishedBooks
         .where((book) => book.dateFinished?.year == currentYear)
         .length;
 
-    // Default goal of 52 books per year (1 per week)
-    const defaultYearlyGoal = 52;
-    final progress = yearlyFinished / defaultYearlyGoal;
+    // All users get goal tracking, Pro users can customize goals
+    final yearlyGoal = 24; // 2 books per month is reasonable for all users
+    final progress = yearlyFinished / yearlyGoal;
 
     return YearlyGoalProgress(
-      goal: defaultYearlyGoal,
+      goal: yearlyGoal,
       completed: yearlyFinished,
       progress: progress.clamp(0.0, 1.0),
-      isOnTrack: _isOnTrackForYearlyGoal(yearlyFinished, defaultYearlyGoal),
+      isOnTrack: _isOnTrackForYearlyGoal(yearlyFinished, yearlyGoal),
+      isPro: isPro,
     );
   }
 
@@ -448,14 +479,18 @@ class YearlyGoalProgress {
   final int completed;
   final double progress;
   final bool isOnTrack;
+  final bool isPro;
 
   const YearlyGoalProgress({
     required this.goal,
     required this.completed,
     required this.progress,
     required this.isOnTrack,
+    this.isPro = false,
   });
 
   int get remaining => goal - completed;
   double get progressPercentage => progress * 100;
+  String get goalDescription =>
+      isPro ? 'Customizable goal (Pro feature)' : '24 books (2 per month)';
 }

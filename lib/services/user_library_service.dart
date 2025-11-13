@@ -13,7 +13,7 @@ class UserLibraryService {
   final String? _overrideUserId;
 
   UserLibraryService([this._overrideUserId]);
-  static const int freeUserBookLimit = 2;
+  static const int freeUserBookLimit = 100;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String get _userId {
@@ -113,6 +113,17 @@ class UserLibraryService {
 
   Future<void> removeBook(String userBookId) async {
     await _libraryRef.doc(userBookId).delete();
+  }
+
+  /// Get the total number of books in the user's library
+  Future<int> getUserBookCount() async {
+    try {
+      final snapshot = await _libraryRef.get();
+      return snapshot.docs.length;
+    } catch (e) {
+      debugPrint('Error getting user book count: $e');
+      return 0;
+    }
   }
 
   Stream<List<UserBook>> getUserLibraryStream() {

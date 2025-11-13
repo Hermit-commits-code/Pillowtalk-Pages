@@ -1,7 +1,6 @@
 // lib/screens/book/trope_selection_screen.dart
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/feature_gating_service.dart';
 
 import '../../constants/tropes_categorized.dart';
 
@@ -60,26 +59,22 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
         }
         return;
       }
-    }
-
-    try {
-      final user = AuthService.instance.currentUser;
-      if (user != null) {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+    } else {
+      // Use feature gating service for Pro status check
+      try {
+        final featureGatingService = FeatureGatingService();
+        final isPro = await featureGatingService.isPro();
         if (mounted) {
           setState(() {
-            _isPro = userDoc.data()?['isPro'] ?? false;
+            _isPro = isPro;
             _isLoading = false;
           });
         }
-      } else {
-        if (mounted) setState(() => _isLoading = false);
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -89,30 +84,14 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
         _selectedTropes.remove(trope);
       } else {
         // Check pro tier limit
-        if (!_isPro && _selectedTropes.length >= 2) {
-          _showProUpgradeMessage();
+        if (!_isPro &&
+            _selectedTropes.length >= FeatureGatingService.freeTropeLimit) {
+          FeatureGatingService().showTropeLimitUpgradePrompt(context);
           return;
         }
         _selectedTropes.add(trope);
       }
     });
-  }
-
-  void _showProUpgradeMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Free users can select up to 2 tropes. Upgrade to Pro for unlimited selections!',
-        ),
-        action: SnackBarAction(
-          label: 'Upgrade',
-          onPressed: () {
-            Navigator.of(context).pushNamed('/pro-club');
-          },
-        ),
-        duration: const Duration(seconds: 4),
-      ),
-    );
   }
 
   Future<void> _showAddCustomTropeDialog() async {
@@ -151,8 +130,9 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
           _customTropes.add(newTrope);
         }
         // Check pro tier limit before adding
-        if (!_isPro && _selectedTropes.length >= 2) {
-          _showProUpgradeMessage();
+        if (!_isPro &&
+            _selectedTropes.length >= FeatureGatingService.freeTropeLimit) {
+          FeatureGatingService().showTropeLimitUpgradePrompt(context);
         } else {
           _selectedTropes.add(newTrope);
         }
@@ -173,7 +153,9 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Tropes ${_isPro ? '' : '(2 max)'}'),
+        title: Text(
+          'Select Tropes ${_isPro ? '' : '(${FeatureGatingService.freeTropeLimit} max)'}',
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.done),

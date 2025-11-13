@@ -40,6 +40,8 @@ class _EditBookModalState extends State<EditBookModal> {
   late List<String> _selectedListIds;
   late ReadingStatus _status;
   late TextEditingController _notesController;
+  late TextEditingController _narratorController;
+  late TextEditingController _runtimeMinutesController;
   BookOwnership _ownership = BookOwnership.none;
   BookFormat _format = BookFormat.paperback;
 
@@ -58,6 +60,12 @@ class _EditBookModalState extends State<EditBookModal> {
     _status = widget.userBook.status;
     _notesController = TextEditingController(
       text: widget.userBook.userNotes ?? '',
+    );
+    _narratorController = TextEditingController(
+      text: widget.userBook.narrator ?? '',
+    );
+    _runtimeMinutesController = TextEditingController(
+      text: widget.userBook.runtimeMinutes?.toString() ?? '',
     );
     _ownership = widget.userBook.ownership;
     _format = widget.userBook.format;
@@ -80,6 +88,8 @@ class _EditBookModalState extends State<EditBookModal> {
   void dispose() {
     _listsSub?.cancel();
     _notesController.dispose();
+    _narratorController.dispose();
+    _runtimeMinutesController.dispose();
     super.dispose();
   }
 
@@ -300,6 +310,32 @@ class _EditBookModalState extends State<EditBookModal> {
                 }).toList(),
               ),
               const SizedBox(height: 12),
+
+              // Audiobook-specific fields
+              if (_format == BookFormat.audiobook) ...[
+                Text('Audiobook Details', style: theme.textTheme.titleMedium),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _narratorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Narrator (optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g., Morgan Freeman',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _runtimeMinutesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Runtime (minutes)',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g., 480 for 8 hours',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 12),
+              ],
+
               TextField(
                 controller: _notesController,
                 maxLines: 5,

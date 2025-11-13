@@ -15,6 +15,7 @@ import '../../services/lists_service.dart';
 import '../../services/analytics_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/hard_stops_service.dart';
+import '../../services/feature_gating_service.dart';
 import 'widgets/lists_dropdown.dart';
 import '../../widgets/trope_dropdown_tile.dart';
 import '../../models/user_list.dart';
@@ -47,6 +48,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _seriesNameController = TextEditingController();
   final TextEditingController _seriesIndexController = TextEditingController();
+  final TextEditingController _narratorController = TextEditingController();
+  final TextEditingController _runtimeMinutesController = TextEditingController();
 
   final GoogleBooksService _googleBooksService = GoogleBooksService();
   // Defer creating UserLibraryService until actually needed so tests that
@@ -63,6 +66,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   StreamSubscription<List<UserList>>? _listsSub;
   BookOwnership _selectedOwnership =
       BookOwnership.digital; // Default to digital
+  BookFormat _selectedFormat = BookFormat.paperback; // Default format
 
   List<RomanceBook> _searchResults = [];
   bool _searchPerformed = false;
@@ -73,6 +77,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _searchController.dispose();
     _seriesNameController.dispose();
     _seriesIndexController.dispose();
+    _narratorController.dispose();
+    _runtimeMinutesController.dispose();
     super.dispose();
   }
 
@@ -216,6 +222,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       return;
     }
 
+    // Check Pro feature gating for book limit
+    final featureGatingService = FeatureGatingService();
+    final canAdd = await featureGatingService.checkBookLimitAndPrompt(context);
+    if (!canAdd) return;
+
     setState(() => _isLoading = true);
 
     try {
@@ -252,6 +263,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
         genres: _selectedGenres,
         userSelectedTropes: _selectedTropes,
         ownership: _selectedOwnership,
+        format: _selectedFormat,
+        narrator: _selectedFormat == BookFormat.audiobook
+            ? _narratorController.text.trim().isNotEmpty
+                ? _narratorController.text.trim()
+                : null
+            : null,
+        runtimeMinutes: _selectedFormat == BookFormat.audiobook
+            ? int.tryParse(_runtimeMinutesController.text.trim())
+            : null,
         seriesName: _seriesNameController.text.trim().isNotEmpty
             ? _seriesNameController.text.trim()
             : null,
@@ -462,6 +482,64 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
+              
+              // Book Format Selection
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.outline),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Book Format', style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: BookFormat.values.map((format) {
+                        final isSelected = _selectedFormat == format;
+                        return FilterChip(
+                          label: Text(_formatLabel(format)),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              if (selected) {
+                                _selectedFormat = format;
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Audiobook-specific fields
+              if (_selectedFormat == BookFormat.audiobook) ...[
+                TextField(
+                  controller: _narratorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Narrator (optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g., Morgan Freeman',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _runtimeMinutesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Runtime (minutes)',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g., 480 for 8 hours',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+              ],
+              
               if (_isLoading) const LinearProgressIndicator(),
               if (_error != null)
                 Padding(
@@ -549,6 +627,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
         return 'Both';
       case BookOwnership.kindleUnlimited:
         return 'Borrowed on Kindle';
+    }
+  }
+
+  String _formatLabel(BookFormat format) {
+    switch (format) {
+      case BookFormat.paperback:
+        return 'Paperback';
+      case BookFormat.hardcover:
+        return 'Hardcover';
+      case BookFormat.ebook:
+        return 'Ebook';
+      case BookFormat.audiobook:
+        return 'Audiobook';
     }
   }
 

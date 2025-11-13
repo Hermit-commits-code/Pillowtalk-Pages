@@ -1,8 +1,6 @@
 // lib/screens/book/trope_dropdown_screen.dart
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../../services/feature_gating_service.dart';
 import '../../constants/tropes_categorized.dart';
 
 class TropeDropdownScreen extends StatefulWidget {
@@ -35,24 +33,13 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
   }
 
   Future<void> _checkProStatus() async {
-    final user = AuthService.instance.currentUser;
-    if (user != null) {
-      try {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        if (mounted) {
-          setState(() {
-            _isPro = doc.data()?['isPro'] ?? false;
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) setState(() => _isLoading = false);
-      }
-    } else {
-      if (mounted) setState(() => _isLoading = false);
+    final featureGatingService = FeatureGatingService();
+    final isPro = await featureGatingService.isPro();
+    if (mounted) {
+      setState(() {
+        _isPro = isPro;
+        _isLoading = false;
+      });
     }
   }
 
@@ -61,27 +48,14 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
       if (_selectedTropes.contains(trope)) {
         _selectedTropes.remove(trope);
       } else {
-        if (!_isPro && _selectedTropes.length >= 2) {
-          _showProUpgradeMessage();
+        if (!_isPro &&
+            _selectedTropes.length >= FeatureGatingService.freeTropeLimit) {
+          FeatureGatingService().showTropeLimitUpgradePrompt(context);
           return;
         }
         _selectedTropes.add(trope);
       }
     });
-  }
-
-  void _showProUpgradeMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Free users can select up to 2 tropes. Upgrade to Pro for unlimited selections!',
-        ),
-        action: SnackBarAction(
-          label: 'Upgrade',
-          onPressed: () => Navigator.of(context).pushNamed('/pro-club'),
-        ),
-      ),
-    );
   }
 
   Future<void> _showAddCustomDialog() async {
@@ -115,8 +89,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
     if (value != null) {
       setState(() {
         if (!_customTropes.contains(value)) _customTropes.add(value);
-        if (!_isPro && _selectedTropes.length >= 2) {
-          _showProUpgradeMessage();
+        if (!_isPro &&
+            _selectedTropes.length >= FeatureGatingService.freeTropeLimit) {
+          FeatureGatingService().showTropeLimitUpgradePrompt(context);
         } else {
           _selectedTropes.add(value);
         }
