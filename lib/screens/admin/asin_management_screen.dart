@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/user_book.dart';
-import '../../services/user_library_service.dart';
+// user_library_service not required here; removed unused field
 
 /// Admin screen for managing ASINs across all books in the developer's library
 /// Only accessible to the developer account (hotcupofjoe2013@gmail.com)
@@ -17,7 +17,6 @@ class AsinManagementScreen extends StatefulWidget {
 
 class _AsinManagementScreenState extends State<AsinManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final UserLibraryService _libraryService = UserLibraryService();
 
   List<UserBook> _allBooks = [];
   List<UserBook> _filteredBooks = [];

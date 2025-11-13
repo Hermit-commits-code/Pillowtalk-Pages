@@ -45,7 +45,9 @@ class _FriendsScreenState extends State<FriendsScreen>
     });
 
     try {
-      final callable = FirebaseFunctions.instance.httpsCallable('sendFriendRequestByEmail');
+      final callable = FirebaseFunctions.instance.httpsCallable(
+        'sendFriendRequestByEmail',
+      );
       final result = await callable.call(<String, dynamic>{'email': email});
       final data = result.data as Map<String, dynamic>?;
 
@@ -67,7 +69,9 @@ class _FriendsScreenState extends State<FriendsScreen>
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
       _emailController.clear();
       setState(() => _isAddingFriend = false);
     } catch (e) {
@@ -82,7 +86,7 @@ class _FriendsScreenState extends State<FriendsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // theme variable removed — not used
 
     return Scaffold(
       appBar: AppBar(

@@ -28,6 +28,7 @@ dependencies:
   # API/Network & Monetization
   dio: ^5.4.0
   in_app_purchase: ^3.2.3
+  http: ^1.6.0
 
   # UI Enhancements
   google_fonts: ^6.1.0

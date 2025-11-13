@@ -20,7 +20,7 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   Map<String, dynamic>? _selectedUser;
-  List<Map<String, dynamic>> _searchResults = [];
+  // _searchResults removed: search UI not used currently
   bool _isLoading = false;
   String _statusMessage = '';
 
@@ -43,31 +43,7 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
     }
   }
 
-  /// Search for users by email
-  Future<void> _searchUsers() async {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) return;
-
-    setState(() {
-      _isLoading = true;
-      _statusMessage = '';
-    });
-
-    try {
-      final results = await _userService.searchUsers(query);
-      setState(() {
-        _searchResults = results;
-        _statusMessage = 'Found ${results.length} users';
-      });
-    } catch (e) {
-      setState(() {
-        _statusMessage = 'Search failed: ${_formatError(e)}';
-        _searchResults = [];
-      });
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  // _searchUsers removed: not referenced by UI
 
   /// Get user by email
   Future<void> _getUserByEmail() async {
