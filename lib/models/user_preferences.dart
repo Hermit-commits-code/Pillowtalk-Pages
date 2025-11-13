@@ -20,7 +20,8 @@ class UserPreferences {
   final HardStopsBehavior hardStopsBehavior;
 
   // Review Form Customization (which fields to show when adding books)
-  final Map<String, bool> reviewFormFields; // e.g., {"spiceRating": true, "tropes": false}
+  final Map<String, bool>
+  reviewFormFields; // e.g., {"spiceRating": true, "tropes": false}
 
   // Primary Reading Format (for recommendations/analytics)
   final PrimaryReadFormat primaryReadFormat;
@@ -50,8 +51,8 @@ class UserPreferences {
     this.privacyShareTrendingData = false,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
     return UserPreferences(
@@ -59,18 +60,22 @@ class UserPreferences {
       contentWarningDisplay: ContentWarningDisplay.values.byName(
         json['contentWarningDisplay'] as String? ?? 'showFull',
       ),
-      preferredFormats:
-          List<String>.from(json['preferredFormats'] ?? ["physical", "ebook", "audiobook"]),
+      preferredFormats: List<String>.from(
+        json['preferredFormats'] ?? ["physical", "ebook", "audiobook"],
+      ),
       hardStopsBehavior: HardStopsBehavior.values.byName(
         json['hardStopsBehavior'] as String? ?? 'autoFilter',
       ),
-      reviewFormFields:
-          Map<String, bool>.from(json['reviewFormFields'] ?? _defaultReviewFormFields),
+      reviewFormFields: Map<String, bool>.from(
+        json['reviewFormFields'] ?? _defaultReviewFormFields,
+      ),
       primaryReadFormat: PrimaryReadFormat.values.byName(
         json['primaryReadFormat'] as String? ?? 'mixed',
       ),
-      privacyAllowLibrarianAccess: json['privacyAllowLibrarianAccess'] as bool? ?? true,
-      privacyShareTrendingData: json['privacyShareTrendingData'] as bool? ?? false,
+      privacyAllowLibrarianAccess:
+          json['privacyAllowLibrarianAccess'] as bool? ?? true,
+      privacyShareTrendingData:
+          json['privacyShareTrendingData'] as bool? ?? false,
       createdAt: _parseDate(json['createdAt']),
       updatedAt: _parseDate(json['updatedAt']),
     );
@@ -105,14 +110,16 @@ class UserPreferences {
   }) {
     return UserPreferences(
       userId: userId ?? this.userId,
-      contentWarningDisplay: contentWarningDisplay ?? this.contentWarningDisplay,
+      contentWarningDisplay:
+          contentWarningDisplay ?? this.contentWarningDisplay,
       preferredFormats: preferredFormats ?? this.preferredFormats,
       hardStopsBehavior: hardStopsBehavior ?? this.hardStopsBehavior,
       reviewFormFields: reviewFormFields ?? this.reviewFormFields,
       primaryReadFormat: primaryReadFormat ?? this.primaryReadFormat,
       privacyAllowLibrarianAccess:
           privacyAllowLibrarianAccess ?? this.privacyAllowLibrarianAccess,
-      privacyShareTrendingData: privacyShareTrendingData ?? this.privacyShareTrendingData,
+      privacyShareTrendingData:
+          privacyShareTrendingData ?? this.privacyShareTrendingData,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

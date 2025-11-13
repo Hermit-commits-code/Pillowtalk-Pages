@@ -80,7 +80,108 @@
 
 ---
 
-## ��� Monetization Strategy (Personal-Only Edition)
+## ⚡ Optional Private Social: Future Retention Driver (v1.0+)
+
+**Key Insight**: Goodreads & StoryGraph have optional sharing. We can offer **optional PRIVATE sharing** — that's the moat.
+
+### Why Optional Social Matters
+
+**Goodreads Problem**: Public activity by default → Privacy-conscious romance readers avoid it.
+
+**StoryGraph Solution**: Optional sharing, but still social-forward → Spice readers still feel exposed.
+
+**Spicy Reads Opportunity**: Private by default, share only with trusted friends → "I can track spice books without public exposure."
+
+### What Users Can Share (All Opt-In)
+
+1. **Friends** (Invite-Only)
+   - Request to follow (you approve)
+   - Share reading progress (you control visibility per friend)
+   - Share spice ratings (you choose which friends see)
+   - Share hard stops list (encrypted, only approved friends)
+   - Receive comments on reviews (from friends only, no public feed)
+
+2. **Reading Groups** (Private, 2-10 people)
+   - Buddy reads (read together, track progress per member)
+   - Group chat (spoiler-safe, respects each member's hard stops)
+   - Spice discussion (private, no algorithm)
+   - No public group listings
+
+3. **Shareable Links** (Token-Based, Expiring)
+   - Reading progress link: expires in 30 days, shows "12/30 books, Avg spice 4.2/5"
+   - Reading goals link: shows goal + progress bar + books completed
+   - Spicy TBR list: share your "To Be Read" pile with a private link
+   - Friend can access link, can't share it further, can't screenshot permanently
+   - User can revoke link anytime
+
+### Privacy Guarantees (Never)
+- ❌ No public profiles or activity feeds
+- ❌ Hard stops never shared without explicit approval
+- ❌ No algorithmic recommendations
+- ❌ No data sold to third parties
+- ❌ No permanent public records
+
+### Privacy Guarantees (Always)
+- ✅ All share links encrypted (token-based, not guessable)
+- ✅ Share links expire (default 30 days)
+- ✅ User can see who accessed their links
+- ✅ User can revoke links anytime
+- ✅ Hard stops respected in group chats (spoiler-protect triggering content)
+
+### Monetization Lever (v1.0+)
+
+**Pro Tier Could Include**:
+- Unlimited reading groups (vs. 1 group free)
+- 30-day share link expiration (vs. 7-day free)
+- Group analytics (who read what, avg rating, trends)
+- "Priority friend notifications" (alerts when friend finishes a book)
+
+**Data Model** (Firestore):
+```
+/users/{userId}/friends/{friendId}
+  status: "accepted" | "pending" | "blocked"
+  sharing: { readingProgress: true, spiceRatings: true, hardStops: false, reviews: true }
+
+/shares/{shareId}
+  ownerId: "user_123"
+  type: "reading-progress" | "reading-goal" | "spicy-tbr"
+  expiresDate: ISO timestamp
+  accessedCount: number
+  revoked: boolean
+
+/reading-groups/{groupId}
+  name: "My Spicy Crew"
+  ownerId: "user_123"
+  members: ["user_123", "user_456"]
+  privacy: "invite-only"
+  currentBuddyRead: "book_456"
+
+/reading-groups/{groupId}/messages/{messageId}
+  userId: "user_123"
+  text: "I'm 30% in, loving the enemies-to-lovers!"
+  spoilerWarning: false
+  progressLocked: 0.30  # msg hidden if friend <30% in
+```
+
+### Rollout Strategy (v1.0+)
+
+**Stage 1 (v1.0, Month 1)**: All social disabled by default; users toggle each feature individually.
+
+**Stage 2 (v1.0 Beta, Month 2-3)**: Invite 50 beta users to test friends + reading groups + share links.
+
+**Stage 3 (v1.1, Month 4+)**: Roll out to Pro users first; later to all users.
+
+### Positioning
+
+> **"Read with friends—on YOUR terms. Private groups. Expiring links. No public exposure."**
+
+This is genuinely different from Goodreads (public by default) and StoryGraph (social-forward). It's a retention driver that doesn't compromise privacy-first positioning.
+
+**See full strategy**: `docs/OPTIONAL_PRIVATE_SOCIAL_FRAMEWORK.md`
+
+---
+
+## ⚡ Monetization Strategy (Personal-Only Edition)
 
 ### Revenue Streams
 
@@ -378,18 +479,21 @@ This allows us to:
 ### What Librarians Do
 
 1. **Verify & Enhance Canonical Books** (Monthly curations)
+
    - Confirm spice ratings for popular books
    - Add missing metadata: narrators, audiobook runtime, edition-specific warnings
    - Flag books missing from Google Books API that should be added manually
    - Review user-submitted book corrections
 
 2. **Submit New Books to Canonical DB** (if missing from Google Books API)
+
    - Add indie-published spicy romance (often missing from Google Books)
    - Add international romance titles
    - Add niche sub-genres (paranormal, paranormal romance, PNR-specific tropes)
    - Include full metadata: page count, publication date, publisher, narrator
 
 3. **Create Seasonal Curations** (4x/year)
+
    - Q1: "Emotional Winters" (cozy, found family)
    - Q2: "Summer Flings" (contemporary, beach romance)
    - Q3: "Fall Dark Reads" (paranormal, dark romance)
@@ -478,6 +582,7 @@ This allows us to:
 ### Implementation Details
 
 1. **Settings Model** (Firestore)
+
    ```
    /users/{userId}/settings
    {
@@ -499,6 +604,7 @@ This allows us to:
    ```
 
 2. **Settings UI** (Flutter)
+
    - New Settings tab in main navigation (or in ProfileScreen)
    - Toggles for each setting with explanatory text
    - Save preferences to Firestore on every change

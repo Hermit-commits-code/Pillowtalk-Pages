@@ -3,6 +3,7 @@
 ## Strategic Overview
 
 **Your Hybrid Model** beats both competitors because:
+
 1. **Privacy**: No forced sharing (vs. StoryGraph/Goodreads)
 2. **Customization**: Users control what they see (vs. fixed UI)
 3. **Spice-First**: Built for romance readers, not general readers
@@ -15,6 +16,7 @@
 ### 1. DISCOVERY & BROWSING (StoryGraph Edge)
 
 **What StoryGraph Does Well:**
+
 - ✅ Mood-based filtering (Adventurous? Funny? Dark? Slow-paced?)
 - ✅ Nested filters (Genre + Mood + Pace + Fiction/Nonfiction)
 - ✅ Visual book cards with quick stats (⭐ 4.2, 287 pages, published 2020)
@@ -22,6 +24,7 @@
 - ✅ Quick-add buttons (+ Want to Read, + Currently Reading without leaving page)
 
 **Action for Spicy Reads:**
+
 ```
 v0.7.0 Planned: Advanced Filter Builder
 - Spice Level (0-5) slider
@@ -35,6 +38,7 @@ v0.7.0 Planned: Advanced Filter Builder
 ### 2. BOOK DETAIL & METADATA (Goodreads Strength)
 
 **What Goodreads Shows:**
+
 - ✅ Multiple edition tabs (paperback, hardcover, ebook, audiobook)
 - ✅ Audiobook narrator + runtime visible
 - ✅ Awards won (Goodreads Choice Awards, etc.)
@@ -44,6 +48,7 @@ v0.7.0 Planned: Advanced Filter Builder
 - ✅ Edition information (ISBN, publication date, publisher, pages)
 
 **Action for Spicy Reads:**
+
 ```
 v0.7.1 Planned: Book Detail Enhancements
 - Format tabs: Paperback | Hardcover | Ebook | Audiobook
@@ -57,6 +62,7 @@ v0.7.1 Planned: Book Detail Enhancements
 ### 3. READING PROGRESS & STATUS (StoryGraph Innovation)
 
 **What StoryGraph Does:**
+
 - ✅ Track reading progress % (vs. Goodreads "# pages read")
 - ✅ "Finished" date auto-calc based on pages + reading pace
 - ✅ Did Not Finish (DNF) tracking with reason
@@ -64,6 +70,7 @@ v0.7.1 Planned: Book Detail Enhancements
 - ✅ Audiobook listening progress (hours listened)
 
 **Action for Spicy Reads:**
+
 ```
 v0.7.2 Planned: Reading Progress Enhancement
 - Reading status: Want to Read | Reading (with %) | Did Not Finish | Finished
@@ -76,6 +83,7 @@ v0.7.2 Planned: Reading Progress Enhancement
 ### 4. STATS & ANALYTICS (StoryGraph Nails This)
 
 **What StoryGraph Shows:**
+
 - ✅ Pie charts: Books by mood, pace, genres
 - ✅ Line graphs: Books read over time (monthly)
 - ✅ Heatmap: Which days of week you read
@@ -84,6 +92,7 @@ v0.7.2 Planned: Reading Progress Enhancement
 - ✅ Half & quarter stars (more granular than Goodreads)
 
 **Action for Spicy Reads (Pro Feature):**
+
 ```
 v0.8.0 Planned: Advanced Analytics Dashboard
 - Spice rating trends (line graph: avg spice/month)
@@ -97,6 +106,7 @@ v0.8.0 Planned: Advanced Analytics Dashboard
 ### 5. LISTS & COLLECTIONS (Goodreads Feature)
 
 **What Goodreads Does:**
+
 - ✅ Create custom lists/shelves (unlimited)
 - ✅ Sort lists by rating, date added, author
 - ✅ Merge duplicate lists
@@ -105,6 +115,7 @@ v0.8.0 Planned: Advanced Analytics Dashboard
 - ✅ Official lists ("Best Sci-Fi of 2024", etc.)
 
 **Action for Spicy Reads:**
+
 ```
 v0.6.2: Enhanced Lists (Already Partially Built)
 - ✅ Create custom shelves (want to implement: unlimited)
@@ -116,12 +127,14 @@ v0.6.2: Enhanced Lists (Already Partially Built)
 ### 6. SEARCH & FILTERING (StoryGraph > Goodreads)
 
 **What StoryGraph Does Better:**
+
 - ✅ Multi-select filters (not checkbox sliders)
 - ✅ "AND" logic only (no "OR" noise)
 - ✅ Quick filters on sidebar (sticky while browsing)
 - ✅ "Clear filters" with one tap
 
 **Action for Spicy Reads:**
+
 ```
 ✅ Already built: Deep Trope Search (multi-select)
 - Genre + 2-10 tropes + reading status + ownership type
@@ -132,10 +145,12 @@ Planned: Surface this better in UI (make it more discoverable)
 ### 7. SOCIAL FEATURES (Privacy-Respecting Version)
 
 **What Goodreads Does (We'll Skip):**
+
 - ❌ Public profiles, followers, reading activity feed (privacy risk)
 - ❌ Community ratings, reviews, voting (moderation nightmare)
 
 **What Spicy Reads Can Do Privately:**
+
 ```
 v1.0+: Optional Social (Opt-In, Not Default)
 - Share reading goals via private link: "I want to read 30 spicy books in 2025"
@@ -147,12 +162,14 @@ v1.0+: Optional Social (Opt-In, Not Default)
 ### 8. ACCESSIBILITY & CUSTOMIZATION (Opportunity Gap)
 
 **What Neither Does Well:**
+
 - ❌ Customizable warning display (show all / show none / show only hard stops)
 - ❌ Preference for "reading blind" (vs. seeing all warnings upfront)
 - ❌ Format preferences (Kindle-only, audiobook-only readers)
 - ❌ Review form customization (show only fields I care about)
 
 **Action for Spicy Reads (MAJOR DIFFERENTIATOR):**
+
 ```
 ✅ v0.6.1: User Preferences Settings
 - Content warning display: Show Full | Hide All | Only Hard Stops
@@ -168,24 +185,28 @@ v1.0+: Optional Social (Opt-In, Not Default)
 ## Feature Priority Matrix (What to Build When)
 
 ### Phase 0 (Next 30 Days) - Must Have
+
 - ✅ Audiobook format tracking
 - ✅ Settings screen (User Preferences)
 - ✅ Content warning display toggle
 - ✅ Librarian program onboarding
 
 ### Phase 1 (Weeks 5-8) - High Impact
+
 - 🚧 Advanced filter builder (mood + pace + spice)
 - 🚧 Format tabs on book detail (paperback | ebook | audiobook)
 - 🚧 Series navigation
 - 🚧 DNF tracking with reasons
 
 ### Phase 2 (Weeks 9-12) - Growth
+
 - 🔲 Reading analytics dashboard (Pro feature)
 - 🔲 Progress % for reading status
 - 🔲 Heatmaps + trending stats
 - 🔲 PDF export for annual reading review
 
 ### Phase 3 (Month 4+) - Polish
+
 - 🔲 Related books suggestions
 - 🔲 Optional private sharing
 - 🔲 Author spotlights (librarian curated)
@@ -196,12 +217,14 @@ v1.0+: Optional Social (Opt-In, Not Default)
 ## What NOT to Copy
 
 ### Goodreads Mistakes
+
 - ❌ Public profiles by default (privacy nightmare)
 - ❌ Amazon integration overreach (platform dependency)
 - ❌ Slow app performance (no excuse in 2025)
 - ❌ Community voting (quality death spiral)
 
 ### StoryGraph Gaps
+
 - ❌ Doesn't support spice-specific filtering (YOUR MOAT)
 - ❌ Generic "mood" doesn't capture romance nuance
 - ❌ No hard stops / mental health features (YOUR EDGE)
@@ -214,15 +237,15 @@ v1.0+: Optional Social (Opt-In, Not Default)
 **What We Tell Beta Users:**
 
 > "Spicy Reads is different:
-> 
+>
 > ✅ **Privacy First**: Your library is yours alone. We never share your preferences.
-> 
+>
 > ✅ **Spice-Focused**: Built by romance readers, for romance readers. Hard stops + kink filters built in.
-> 
+>
 > ✅ **Customizable**: See what you want. Hide what you don't. Read blind or with warnings—your choice.
-> 
+>
 > ✅ **Librarian-Curated**: Books are verified by experts, not crowdsourced votes. Quality over quantity.
-> 
+>
 > ✅ **You're In Control**: Every field in the review form is optional. Your data, your rules."
 
 ---
@@ -289,33 +312,36 @@ v1.0+: Optional Social (Opt-In, Not Default)
 
 ## Competitive Positioning Revised
 
-| Feature | Goodreads | StoryGraph | Spicy Reads | Edge |
-|---------|-----------|-----------|-------------|------|
-| Spice-focused | ❌ | ❌ | ✅ | **Only one** |
-| Hard stops filter | ❌ | ❌ | ✅ | **Only one** |
-| Privacy by default | ❌ | Partial | ✅ | **Strongest** |
-| Customizable UI | ❌ | ❌ | ✅ | **Differentiator** |
-| Librarian curation | ❌ | ❌ | ✅ | **Unique** |
-| Audiobook support | Basic | ✅ | ✅ | Par |
-| Analytics | Basic | ✅ | ✅ | Parity (Pro) |
-| Discovery filters | Basic | ✅ | Planned | Parity (v0.7) |
+| Feature            | Goodreads | StoryGraph | Spicy Reads | Edge               |
+| ------------------ | --------- | ---------- | ----------- | ------------------ |
+| Spice-focused      | ❌        | ❌         | ✅          | **Only one**       |
+| Hard stops filter  | ❌        | ❌         | ✅          | **Only one**       |
+| Privacy by default | ❌        | Partial    | ✅          | **Strongest**      |
+| Customizable UI    | ❌        | ❌         | ✅          | **Differentiator** |
+| Librarian curation | ❌        | ❌         | ✅          | **Unique**         |
+| Audiobook support  | Basic     | ✅         | ✅          | Par                |
+| Analytics          | Basic     | ✅         | ✅          | Parity (Pro)       |
+| Discovery filters  | Basic     | ✅         | Planned     | Parity (v0.7)      |
 
 ---
 
 ## Next Steps
 
 1. **Immediate** (Next 2 weeks):
+
    - [ ] Implement UserPreferences model + settings UI
    - [ ] Add audiobook narrator + runtime fields
    - [ ] Create librarian onboarding form
    - [ ] Update book detail screen with format tabs
 
 2. **Short-term** (Weeks 3-4):
+
    - [ ] Advanced filter builder UI
    - [ ] Series navigation
    - [ ] DNF tracking
 
 3. **Medium-term** (Weeks 5-8):
+
    - [ ] Analytics dashboard (Pro-gated)
    - [ ] Reading progress %
    - [ ] Related books suggestions
