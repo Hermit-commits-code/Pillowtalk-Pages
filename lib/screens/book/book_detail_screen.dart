@@ -13,6 +13,9 @@ import '../../config/affiliate.dart';
 import '../../models/user_book.dart';
 import '../../models/user_list.dart';
 import '../../widgets/icon_rating_bar.dart';
+import '../../services/hard_stops_service.dart';
+import '../../services/content_warning_utils.dart';
+import '../../widgets/hard_stop_warning_modal.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String title;
@@ -113,6 +116,45 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           .catchError((e) {
             debugPrint('Failed to load userBook in detail screen: $e');
           });
+    }
+
+    // After first frame, check whether this book conflicts with user's hard stops
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowHardStopWarning();
+    });
+  }
+
+  Future<void> _maybeShowHardStopWarning() async {
+    try {
+      // If there are no warnings tagged on the book, nothing to do
+      if (_displayWarnings.isEmpty) return;
+
+      final svc = HardStopsService();
+      final data = await svc.getHardStopsOnce();
+      final userStops = (data['hardStops'] is List) ? List<String>.from(data['hardStops']) : <String>[];
+
+      final matches = findWarningOverlap(_displayWarnings, userStops);
+      if (matches.isEmpty) return;
+
+      final choice = await showHardStopWarningDialog(context, matches);
+      if (choice == null) return;
+
+      switch (choice) {
+        case HardStopChoice.cancel:
+          // User cancelled; do nothing (they remain on the page)
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Warning acknowledged')));
+          break;
+        case HardStopChoice.showAnyway:
+          // User chose to proceed; no action required
+          break;
+        case HardStopChoice.addToIgnore:
+          await svc.addIgnoredWarnings(matches);
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to ignore list')));
+          break;
+      }
+    } catch (e) {
+      debugPrint('Error checking hard stops: $e');
     }
   }
 
