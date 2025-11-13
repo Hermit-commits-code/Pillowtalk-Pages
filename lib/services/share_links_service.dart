@@ -22,8 +22,10 @@ class ShareLinksService {
     const characters =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789';
     final random = Random.secure();
-    return List.generate(32, (index) => characters[random.nextInt(characters.length)])
-        .join();
+    return List.generate(
+      32,
+      (index) => characters[random.nextInt(characters.length)],
+    ).join();
   }
 
   /// Create a new share link
@@ -48,7 +50,10 @@ class ShareLinksService {
         metadata: metadata,
       );
 
-      await _firestore.collection('shares').doc(token).set(shareLink.toFirestore());
+      await _firestore
+          .collection('shares')
+          .doc(token)
+          .set(shareLink.toFirestore());
 
       return shareLink;
     } catch (e) {
@@ -73,10 +78,9 @@ class ShareLinksService {
       }
 
       // Increment access count
-      await _firestore
-          .collection('shares')
-          .doc(token)
-          .update({'accessCount': FieldValue.increment(1)});
+      await _firestore.collection('shares').doc(token).update({
+        'accessCount': FieldValue.increment(1),
+      });
 
       return shareLink;
     } catch (e) {
@@ -102,10 +106,9 @@ class ShareLinksService {
         throw Exception('You can only revoke your own share links');
       }
 
-      await _firestore
-          .collection('shares')
-          .doc(token)
-          .update({'revoked': true});
+      await _firestore.collection('shares').doc(token).update({
+        'revoked': true,
+      });
     } catch (e) {
       throw Exception('Failed to revoke share link: $e');
     }
@@ -124,12 +127,12 @@ class ShareLinksService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      final now = DateTime.now();
-      return snapshot.docs
-          .map((doc) => ShareLink.fromFirestore(doc))
-          .where((link) => link.expiresAt.isAfter(now))
-          .toList();
-    });
+          final now = DateTime.now();
+          return snapshot.docs
+              .map((doc) => ShareLink.fromFirestore(doc))
+              .where((link) => link.expiresAt.isAfter(now))
+              .toList();
+        });
   }
 
   /// Delete an expired share link

@@ -7,7 +7,7 @@ class Friend {
   final String status; // 'pending', 'accepted', 'blocked'
   final DateTime createdAt;
   final DateTime? acceptedAt;
-  
+
   // Sharing preferences (what this friend can see)
   final bool sharingReadingProgress;
   final bool sharingSpiceRatings;
@@ -47,8 +47,7 @@ class Friend {
     return {
       'status': status,
       'createdAt': Timestamp.fromDate(createdAt),
-      'acceptedAt':
-          acceptedAt != null ? Timestamp.fromDate(acceptedAt!) : null,
+      'acceptedAt': acceptedAt != null ? Timestamp.fromDate(acceptedAt!) : null,
       'sharing': {
         'readingProgress': sharingReadingProgress,
         'spiceRatings': sharingSpiceRatings,

@@ -185,9 +185,10 @@ class FriendsService {
         .where('status', isEqualTo: 'accepted')
         .orderBy('acceptedAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Friend.fromFirestore(doc))
-            .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Get pending friend requests
@@ -203,9 +204,10 @@ class FriendsService {
         .where('status', isEqualTo: 'pending')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Friend.fromFirestore(doc))
-            .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Get a specific friend
