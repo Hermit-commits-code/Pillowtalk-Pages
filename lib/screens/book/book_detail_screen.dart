@@ -372,11 +372,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Future<void> _launchAmazon() async {
-    final uri = buildAmazonSearchUrl(
-      widget.title,
-      widget.author,
-      kAmazonAffiliateTag,
-    );
+    final Uri uri;
+    
+    // Use ASIN for direct product link if available, otherwise search
+    if (_currentUserBook.asin != null && _currentUserBook.asin!.isNotEmpty) {
+      uri = buildAmazonProductUrl(_currentUserBook.asin!, kAmazonAffiliateTag);
+    } else {
+      uri = buildAmazonSearchUrl(
+        widget.title,
+        widget.author,
+        kAmazonAffiliateTag,
+      );
+    }
+    
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -793,8 +801,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 const SizedBox(height: 12),
                 AudibleAffiliateSection(
                   book: _currentUserBook,
-                  // TODO: Add ASIN if available from book data
-                  asin: null,
+                  asin: _currentUserBook.asin,
                 ),
               ],
             ),
@@ -874,19 +881,54 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               ),
                             ),
                           if (widget.publisher != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.business_outlined,
+                                    size: 20,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      'Publisher: ${widget.publisher}',
+                                      style: theme.textTheme.bodyMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (_currentUserBook.asin != null &&
+                              _currentUserBook.asin!.isNotEmpty)
                             Row(
                               children: [
                                 const Icon(
-                                  Icons.business_outlined,
+                                  Icons.link_outlined,
                                   size: 20,
                                   color: Colors.grey,
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: Text(
-                                    'Publisher: ${widget.publisher}',
-                                    style: theme.textTheme.bodyMedium,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'ASIN: ${_currentUserBook.asin}',
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(fontFamily: 'monospace'),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '(Amazon ID)',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: Colors.grey[600],
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

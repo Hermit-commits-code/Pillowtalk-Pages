@@ -42,6 +42,7 @@ class _EditBookModalState extends State<EditBookModal> {
   late TextEditingController _notesController;
   late TextEditingController _narratorController;
   late TextEditingController _runtimeMinutesController;
+  late TextEditingController _asinController;
   BookOwnership _ownership = BookOwnership.none;
   BookFormat _format = BookFormat.paperback;
 
@@ -67,6 +68,7 @@ class _EditBookModalState extends State<EditBookModal> {
     _runtimeMinutesController = TextEditingController(
       text: widget.userBook.runtimeMinutes?.toString() ?? '',
     );
+    _asinController = TextEditingController(text: widget.userBook.asin ?? '');
     _ownership = widget.userBook.ownership;
     _format = widget.userBook.format;
     // Subscribe to lists so we can show human-friendly names for selected
@@ -90,6 +92,7 @@ class _EditBookModalState extends State<EditBookModal> {
     _notesController.dispose();
     _narratorController.dispose();
     _runtimeMinutesController.dispose();
+    _asinController.dispose();
     super.dispose();
   }
 
@@ -133,6 +136,17 @@ class _EditBookModalState extends State<EditBookModal> {
         status: _status,
         dateStarted: newDateStarted,
         dateFinished: newDateFinished,
+        narrator: _format == BookFormat.audiobook
+            ? _narratorController.text.trim().isNotEmpty
+                  ? _narratorController.text.trim()
+                  : null
+            : null,
+        runtimeMinutes: _format == BookFormat.audiobook
+            ? int.tryParse(_runtimeMinutesController.text.trim())
+            : null,
+        asin: _asinController.text.trim().isNotEmpty
+            ? _asinController.text.trim()
+            : null,
       );
       await lib.updateBook(updated);
 
@@ -335,6 +349,18 @@ class _EditBookModalState extends State<EditBookModal> {
                 ),
                 const SizedBox(height: 12),
               ],
+
+              // ASIN field for book verification (available for all formats)
+              TextField(
+                controller: _asinController,
+                decoration: const InputDecoration(
+                  labelText: 'ASIN (Amazon ID) - Optional',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g., B08R3P2K7L',
+                  helperText: 'For librarian verification against Amazon data',
+                ),
+              ),
+              const SizedBox(height: 12),
 
               TextField(
                 controller: _notesController,

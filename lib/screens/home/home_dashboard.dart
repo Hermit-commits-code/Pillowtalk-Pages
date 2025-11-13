@@ -1,5 +1,6 @@
 // lib/screens/home/home_dashboard.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/user_book.dart';
 import '../../services/user_library_service.dart';
@@ -61,6 +62,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     userBooks: books,
                     isPro: isPro,
                   ),
+
+                  const SizedBox(height: 24),
+
+                  // Discover New Books Section
+                  _DiscoverBooksSection(),
 
                   const SizedBox(height: 24),
 
@@ -196,6 +202,167 @@ class _BookCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Discover New Books section widget for home dashboard
+class _DiscoverBooksSection extends StatelessWidget {
+  const _DiscoverBooksSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Discover New Books',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Find your next favorite from our community library',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Discovery options
+          Row(
+            children: [
+              Expanded(
+                child: _DiscoveryCard(
+                  icon: Icons.search,
+                  title: 'Mood Search',
+                  subtitle: 'Find books by vibe',
+                  color: theme.colorScheme.primary,
+                  onTap: () => context.go('/discover'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DiscoveryCard(
+                  icon: Icons.trending_up,
+                  title: 'Trending',
+                  subtitle: 'Popular this week',
+                  color: theme.colorScheme.secondary,
+                  onTap: () => context.go('/discover?tab=trending'),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Quick mood tags
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildMoodTag(context, '🐺 Werewolf Romance'),
+                const SizedBox(width: 8),
+                _buildMoodTag(context, '😈 Enemies to Lovers'),
+                const SizedBox(width: 8),
+                _buildMoodTag(context, '🔥 Spicy Fantasy'),
+                const SizedBox(width: 8),
+                _buildMoodTag(context, '+ More'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoodTag(BuildContext context, String mood) {
+    final theme = Theme.of(context);
+
+    return ActionChip(
+      label: Text(mood, style: const TextStyle(fontSize: 11)),
+      onPressed: () {
+        if (mood == '+ More') {
+          context.go('/discover');
+        } else {
+          // Navigate to discovery with pre-filled search
+          final searchTerm = mood.replaceFirst(RegExp(r'^[🐺😈🔥]\s+'), '');
+          context.go('/discover?search=${Uri.encodeComponent(searchTerm)}');
+        }
+      },
+      backgroundColor: theme.colorScheme.surfaceContainerHighest,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+}
+
+/// Individual discovery card widget
+class _DiscoveryCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _DiscoveryCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          constraints: const BoxConstraints(minHeight: 90, maxHeight: 120),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 20, color: color),
+              const SizedBox(height: 4),
+              Flexible(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Flexible(
+                child: Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    fontSize: 10,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

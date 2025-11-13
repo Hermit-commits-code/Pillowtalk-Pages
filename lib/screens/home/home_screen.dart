@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context.go('/curated');
               break;
             case 2:
-              context.go('/search');
+              context.go('/discover');
               break;
             case 3:
               context.go('/library');
@@ -67,9 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Curated',
           ),
           NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Discover',
           ),
           NavigationDestination(
             icon: Icon(Icons.library_books_outlined),
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final uri = GoRouter.of(context).routeInformationProvider.value.uri;
     final location = uri.path;
     if (location.startsWith('/curated')) return 1;
-    if (location.startsWith('/search')) return 2;
+    if (location.startsWith('/discover')) return 2;
     if (location.startsWith('/library')) return 3;
     if (location.startsWith('/profile')) return 4;
     return 0; // home

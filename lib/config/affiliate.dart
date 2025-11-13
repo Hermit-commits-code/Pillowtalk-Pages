@@ -16,3 +16,10 @@ Uri buildAmazonSearchUrl(String title, String author, String? tag) {
   return Uri.https('www.amazon.com', '/s', params);
 }
 
+/// Build a direct product URL on Amazon using ASIN, optionally including the affiliate tag.
+Uri buildAmazonProductUrl(String asin, String? tag) {
+  final params = <String, String>{};
+  if (tag != null && tag.isNotEmpty) params['tag'] = tag;
+  return Uri.https('www.amazon.com', '/dp/$asin', params.isNotEmpty ? params : null);
+}
+

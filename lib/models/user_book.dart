@@ -40,6 +40,7 @@ class UserBook {
   final String? narrator; // For audiobooks
   final int? runtimeMinutes; // Total audiobook runtime in minutes
   final int? listeningProgressMinutes; // Minutes listened so far
+  final String? asin; // Amazon Standard Identification Number for verification
 
   const UserBook({
     required this.id,
@@ -74,6 +75,7 @@ class UserBook {
     this.narrator,
     this.runtimeMinutes,
     this.listeningProgressMinutes,
+    this.asin,
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -123,6 +125,7 @@ class UserBook {
       runtimeMinutes: (json['runtimeMinutes'] as num?)?.toInt(),
       listeningProgressMinutes: (json['listeningProgressMinutes'] as num?)
           ?.toInt(),
+      asin: json['asin'] as String?,
     );
   }
 
@@ -159,6 +162,7 @@ class UserBook {
       'narrator': narrator,
       'runtimeMinutes': runtimeMinutes,
       'listeningProgressMinutes': listeningProgressMinutes,
+      'asin': asin,
     };
   }
 
@@ -195,6 +199,7 @@ class UserBook {
     String? narrator,
     int? runtimeMinutes,
     int? listeningProgressMinutes,
+    String? asin,
   }) {
     return UserBook(
       id: id ?? this.id,
@@ -230,6 +235,7 @@ class UserBook {
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
       listeningProgressMinutes:
           listeningProgressMinutes ?? this.listeningProgressMinutes,
+      asin: asin ?? this.asin,
     );
   }
 }

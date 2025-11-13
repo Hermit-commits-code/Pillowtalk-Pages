@@ -16,6 +16,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/library/library_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/search/deep_trope_search_screen.dart';
+import '../screens/discovery/community_discovery_screen.dart';
 import '../screens/pro/pro_club_screen.dart';
 import '../screens/dev/dev_qa_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
@@ -60,6 +61,11 @@ final GoRouter router = GoRouter(
           path: '/search',
           name: 'search',
           builder: (context, state) => const DeepTropeSearchScreen(),
+        ),
+        GoRoute(
+          path: '/discover',
+          name: 'discover',
+          builder: (context, state) => const CommunityDiscoveryScreen(),
         ),
         // Backwards-compatible alias: some parts of the app (or older
         // installs) may navigate to `/home`. Keep a short redirect so

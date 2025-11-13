@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/user_book.dart';
 import '../../services/user_library_service.dart';
+import '../admin/asin_management_screen.dart';
 
 /// Developer QA screen to quickly exercise core personal-only flows.
 class DevQAScreen extends StatefulWidget {
@@ -103,6 +104,18 @@ class _DevQAScreenState extends State<DevQAScreen> {
     }
   }
 
+  Future<void> _openASINManagement() async {
+    try {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const AsinManagementScreen(),
+        ),
+      );
+    } catch (e) {
+      _log('Error opening ASIN management: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) {
@@ -138,6 +151,25 @@ class _DevQAScreenState extends State<DevQAScreen> {
                 ElevatedButton(
                   onPressed: _busy ? null : _searchTrope,
                   child: const Text('Search Trope "love"'),
+                ),
+                const SizedBox(height: 12),
+                const Divider(),
+                const SizedBox(height: 12),
+                Text(
+                  'Admin Tools',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: _openASINManagement,
+                  icon: const Icon(Icons.link),
+                  label: const Text('ASIN Management'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),

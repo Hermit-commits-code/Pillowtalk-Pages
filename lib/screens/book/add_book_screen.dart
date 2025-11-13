@@ -49,7 +49,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController _seriesNameController = TextEditingController();
   final TextEditingController _seriesIndexController = TextEditingController();
   final TextEditingController _narratorController = TextEditingController();
-  final TextEditingController _runtimeMinutesController = TextEditingController();
+  final TextEditingController _runtimeMinutesController =
+      TextEditingController();
+  final TextEditingController _asinController = TextEditingController();
 
   final GoogleBooksService _googleBooksService = GoogleBooksService();
   // Defer creating UserLibraryService until actually needed so tests that
@@ -79,6 +81,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _seriesIndexController.dispose();
     _narratorController.dispose();
     _runtimeMinutesController.dispose();
+    _asinController.dispose();
     super.dispose();
   }
 
@@ -266,8 +269,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         format: _selectedFormat,
         narrator: _selectedFormat == BookFormat.audiobook
             ? _narratorController.text.trim().isNotEmpty
-                ? _narratorController.text.trim()
-                : null
+                  ? _narratorController.text.trim()
+                  : null
             : null,
         runtimeMinutes: _selectedFormat == BookFormat.audiobook
             ? int.tryParse(_runtimeMinutesController.text.trim())
@@ -276,6 +279,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
             ? _seriesNameController.text.trim()
             : null,
         seriesIndex: int.tryParse(_seriesIndexController.text.trim()),
+        asin: _asinController.text.trim().isNotEmpty
+            ? _asinController.text.trim()
+            : null,
       );
 
       final userLib = widget.userLibraryService ?? UserLibraryService();
@@ -482,7 +488,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Book Format Selection
               Container(
                 padding: const EdgeInsets.all(16),
@@ -516,7 +522,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Audiobook-specific fields
               if (_selectedFormat == BookFormat.audiobook) ...[
                 TextField(
@@ -539,7 +545,19 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-              
+
+              // ASIN field for book verification (available for all formats)
+              TextField(
+                controller: _asinController,
+                decoration: const InputDecoration(
+                  labelText: 'ASIN (Amazon ID) - Optional',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g., B08R3P2K7L',
+                  helperText: 'For librarian verification against Amazon data',
+                ),
+              ),
+              const SizedBox(height: 16),
+
               if (_isLoading) const LinearProgressIndicator(),
               if (_error != null)
                 Padding(
