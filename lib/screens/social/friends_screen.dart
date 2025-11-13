@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/friend.dart';
 import '../../services/friends_service.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -44,15 +45,29 @@ class _FriendsScreenState extends State<FriendsScreen>
     });
 
     try {
-      // TODO: Implement user lookup by email via Cloud Function
-      // For now, show placeholder message
-      await Future.delayed(const Duration(milliseconds: 500));
-      
+      final callable = FirebaseFunctions.instance.httpsCallable('sendFriendRequestByEmail');
+      final result = await callable.call(<String, dynamic>{'email': email});
+      final data = result.data as Map<String, dynamic>?;
+
       if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Friend request sent!')),
-      );
+
+      if (data == null) {
+        setState(() {
+          _addFriendError = 'Unexpected response from server.';
+          _isAddingFriend = false;
+        });
+        return;
+      }
+
+      if (data['found'] == false) {
+        setState(() {
+          _addFriendError = 'No user found with that email.';
+          _isAddingFriend = false;
+        });
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
       _emailController.clear();
       setState(() => _isAddingFriend = false);
     } catch (e) {
@@ -117,11 +132,7 @@ class _FriendsScreenState extends State<FriendsScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   'No friends yet',
@@ -130,9 +141,9 @@ class _FriendsScreenState extends State<FriendsScreen>
                 const SizedBox(height: 8),
                 Text(
                   'Invite friends to share your reading journey',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -145,9 +156,12 @@ class _FriendsScreenState extends State<FriendsScreen>
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             final friend = friends[index];
-            return _FriendTile(friend: friend, onTap: () {
-              context.push('/social/friend-settings/${friend.friendId}');
-            });
+            return _FriendTile(
+              friend: friend,
+              onTap: () {
+                context.push('/social/friend-settings/${friend.friendId}');
+              },
+            );
           },
         );
       },
@@ -174,11 +188,7 @@ class _FriendsScreenState extends State<FriendsScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.mail_outline,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.mail_outline, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   'No pending requests',
@@ -210,14 +220,14 @@ class _FriendsScreenState extends State<FriendsScreen>
     try {
       await _friendsService.acceptFriendRequest(friendId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Friend request accepted!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Friend request accepted!')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -225,14 +235,14 @@ class _FriendsScreenState extends State<FriendsScreen>
     try {
       await _friendsService.declineFriendRequest(friendId);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Friend request declined')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Friend request declined')));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -288,10 +298,7 @@ class _FriendTile extends StatelessWidget {
   final Friend friend;
   final VoidCallback onTap;
 
-  const _FriendTile({
-    required this.friend,
-    required this.onTap,
-  });
+  const _FriendTile({required this.friend, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -174,6 +174,90 @@ exports.getUserByEmail = functions.https.onCall(async (data, context) => {
   }
 });
 
+// Allow authenticated users to request a friend by email.
+// This callable will look up the target user by email and create a
+// pending friend document under the target's `users/{targetUid}/friends/{senderUid}`.
+// It also writes a lightweight outgoing marker under the sender's friends collection.
+exports.sendFriendRequestByEmail = functions.https.onCall(
+  async (data, context) => {
+    const auth = context.auth;
+    if (!auth || !auth.uid) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'Authentication required',
+      );
+    }
+
+    const email = ((data && data.email) || '').toString().toLowerCase().trim();
+    if (!email)
+      throw new functions.https.HttpsError('invalid-argument', 'Missing email');
+
+    // Prevent sending requests to yourself
+    const callerEmail = (auth.token && auth.token.email) || '';
+    if (callerEmail.toLowerCase() === email.toLowerCase()) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Cannot add yourself as a friend',
+      );
+    }
+
+    try {
+      const usersRef = admin.firestore().collection('users');
+      const q = await usersRef.where('email', '==', email).limit(1).get();
+      if (q.empty) return { found: false };
+
+      const doc = q.docs[0];
+      const targetUid = doc.id;
+      const senderUid = auth.uid;
+
+      // Create pending request under the target user's friends collection
+      const targetFriendRef = usersRef
+        .doc(targetUid)
+        .collection('friends')
+        .doc(senderUid);
+      await targetFriendRef.set({
+        friendId: senderUid,
+        status: 'pending',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        sharing: {
+          readingProgress: true,
+          spiceRatings: true,
+          hardStops: false,
+          reviews: true,
+        },
+      });
+
+      // Create an outgoing marker under the sender's friends collection so the sender
+      // has a record of the request (status 'outgoing'). This is optional but useful.
+      const senderFriendRef = usersRef
+        .doc(senderUid)
+        .collection('friends')
+        .doc(targetUid);
+      await senderFriendRef.set({
+        friendId: targetUid,
+        status: 'outgoing',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      await writeAdminAudit(context, 'sendFriendRequest', targetUid, {
+        from: senderUid,
+        email,
+      });
+
+      return {
+        ok: true,
+        found: true,
+        uid: targetUid,
+        email: doc.data().email || null,
+        displayName: doc.data().displayName || null,
+      };
+    } catch (err) {
+      console.error('sendFriendRequestByEmail error', err);
+      throw new functions.https.HttpsError('internal', String(err));
+    }
+  },
+);
+
 exports.setLibrarianStatus = functions.https.onCall(async (data, context) => {
   if (!(await isAdmin(context))) {
     throw new functions.https.HttpsError(
