@@ -18,6 +18,7 @@ import '../../services/content_warning_utils.dart';
 import '../../widgets/hard_stop_warning_modal.dart';
 import '../../services/user_preferences_service.dart';
 import '../../models/user_preferences.dart';
+import '../../widgets/audible/audible_affiliate_widgets.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String title;
@@ -83,6 +84,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   int? _displayPersonalStars;
 
   BookOwnership _displayOwnership = BookOwnership.none;
+  BookFormat _displayFormat = BookFormat.paperback;
+  String? _displayNarrator;
+  int? _displayRuntimeMinutes;
+  int? _displayListeningProgress;
+  BookFormat _displayFormat = BookFormat.paperback;
+  String? _displayNarrator;
+  int? _displayRuntimeMinutes;
+  int? _displayListeningProgress;
 
   final Map<String, IconData> _intensityOptions = {
     'Emotional': Icons.favorite,
@@ -104,21 +113,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _displayEmotionalArc = widget.emotionalArc ?? 0.0;
 
     // Load existing userBook to obtain ownership and personalStars if available
-    if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
-      UserLibraryService()
-          .getUserBook(widget.userBookId!)
-          .then((ub) {
-            if (ub == null) return;
-            if (!mounted) return;
-            setState(() {
-              _displayOwnership = ub.ownership;
-              _displayPersonalStars = ub.personalStars;
-            });
-          })
-          .catchError((e) {
-            debugPrint('Failed to load userBook in detail screen: $e');
-          });
-    }
+    _loadExistingBookData();
 
     // After first frame, check whether this book conflicts with user's hard stops
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -246,10 +241,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   updated.spiceOverall ?? _displaySpiceOverall;
               _displaySpiceIntensity =
                   updated.spiceIntensity ?? _displaySpiceIntensity;
-              _displayEmotionalArc =
+              _displayEmotionalArc = _displayEmotionalArc =
                   updated.emotionalArc ?? _displayEmotionalArc;
               _displayOwnership = updated.ownership;
               _displayPersonalStars = updated.personalStars;
+              _displayFormat = updated.format;
+              _displayNarrator = updated.narrator;
+              _displayRuntimeMinutes = updated.runtimeMinutes;
+              _displayListeningProgress = updated.listeningProgressMinutes;
             });
           }
         }
@@ -297,6 +296,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             _displayEmotionalArc = updated.emotionalArc ?? _displayEmotionalArc;
             _displayOwnership = updated.ownership;
             _displayPersonalStars = updated.personalStars;
+            _displayFormat = updated.format;
+            _displayNarrator = updated.narrator;
+            _displayRuntimeMinutes = updated.runtimeMinutes;
+            _displayListeningProgress = updated.listeningProgressMinutes;
           });
         }
       }
@@ -307,6 +310,64 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
     }
+  }
+
+  /// Load existing book data including audiobook properties
+  Future<void> _loadExistingBookData() async {
+    if (widget.userBookId != null && widget.userBookId!.isNotEmpty) {
+      try {
+        final userBook = await UserLibraryService().getUserBook(
+          widget.userBookId!,
+        );
+        if (userBook != null && mounted) {
+          setState(() {
+            _displayFormat = userBook.format;
+            _displayNarrator = userBook.narrator;
+            _displayRuntimeMinutes = userBook.runtimeMinutes;
+            _displayListeningProgress = userBook.listeningProgressMinutes;
+            _displayOwnership = userBook.ownership;
+            _displayPersonalStars = userBook.personalStars;
+          });
+        }
+      } catch (e) {
+        debugPrint('Error loading existing book data: $e');
+      }
+    }
+  }
+
+  /// Create a mock UserBook for Audible widgets
+  UserBook get _currentUserBook {
+    return UserBook(
+      id: widget.userBookId ?? 'temp-id',
+      userId: FirebaseAuth.instance.currentUser?.uid ?? 'anonymous',
+      bookId: widget.bookId ?? 'unknown-book',
+      title: widget.title,
+      authors: [widget.author],
+      imageUrl: widget.coverUrl,
+      description: widget.description,
+      status: ReadingStatus.wantToRead,
+      genres: _displayGenres,
+      userSelectedTropes: _displayTropes,
+      userContentWarnings: _displayWarnings,
+      userNotes: _displayNotes,
+      seriesName: widget.seriesName,
+      seriesIndex: widget.seriesIndex,
+      spiceOverall: _displaySpiceOverall > 0 ? _displaySpiceOverall : null,
+      spiceIntensity: _displaySpiceIntensity != 'Mild'
+          ? _displaySpiceIntensity
+          : null,
+      emotionalArc: _displayEmotionalArc > 0 ? _displayEmotionalArc : null,
+      personalStars: _displayPersonalStars,
+      ownership: _displayOwnership,
+      pageCount: widget.pageCount,
+      publishedDate: widget.publishedDate,
+      publisher: widget.publisher,
+      format: _displayFormat,
+      narrator: _displayNarrator,
+      runtimeMinutes: _displayRuntimeMinutes,
+      listeningProgressMinutes: _displayListeningProgress,
+      dateAdded: DateTime.now(),
+    );
   }
 
   @override
@@ -721,6 +782,26 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
+            const SizedBox(height: 24),
+
+            // --- AUDIBLE AFFILIATE SECTION ---
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Audiobook Options',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AudibleAffiliateSection(
+                  book: _currentUserBook,
+                  // TODO: Add ASIN if available from book data
+                  asin: null,
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
 
             // --- DESCRIPTION ---

@@ -1,0 +1,258 @@
+// lib/services/audible_affiliate_service.dart
+import 'package:url_launcher/url_launcher.dart';
+import 'package:spicy_reads/models/user_book.dart';
+
+/// Service for handling Audible affiliate links and revenue tracking
+class AudibleAffiliateService {
+  static const AudibleAffiliateService _instance =
+      AudibleAffiliateService._internal();
+  factory AudibleAffiliateService() => _instance;
+  const AudibleAffiliateService._internal();
+
+  // Replace with your actual Audible affiliate tag
+  static const String _affiliateTag = 'spicyreads-20';
+  static const String _audibleBaseUrl = 'https://www.audible.com';
+
+  /// Generate Audible affiliate link for a book
+  String generateAffiliateLink(UserBook book) {
+    // Search URL with affiliate tag
+    final searchQuery = Uri.encodeComponent(
+      '${book.title} ${book.authors.join(' ')}',
+    );
+    return '$_audibleBaseUrl/search?keywords=$searchQuery&ref=a_search_c1_lProduct_1_1&pf_rd_p=83218cca-c308-412f-bfcf-90198b687a2f&pf_rd_r=&pageLoadId=&creativeId=&tag=$_affiliateTag';
+  }
+
+  /// Generate direct Audible link if we have an ASIN
+  String generateDirectAffiliateLink(String asin) {
+    return '$_audibleBaseUrl/pd/$asin?tag=$_affiliateTag';
+  }
+
+  /// Launch Audible affiliate link
+  Future<bool> openAudibleLink(UserBook book, {String? asin}) async {
+    try {
+      String url;
+      if (asin != null && asin.isNotEmpty) {
+        url = generateDirectAffiliateLink(asin);
+      } else {
+        url = generateAffiliateLink(book);
+      }
+
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+        // Track affiliate click for analytics
+        await _trackAffiliateClick(book, url);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Track affiliate link clicks for revenue analytics
+  Future<void> _trackAffiliateClick(UserBook book, String url) async {
+    try {
+      // TODO: Implement analytics tracking
+      // This could send data to Firebase Analytics, Google Analytics, or your own tracking system
+
+      // Example structure for tracking:
+      final clickData = {
+        'event': 'audible_affiliate_click',
+        'book_id': book.bookId,
+        'book_title': book.title,
+        'book_authors': book.authors.join(', '),
+        'affiliate_url': url,
+        'user_id': book.userId,
+        'timestamp': DateTime.now().toIso8601String(),
+        'book_format': book.format.name,
+        'has_narrator': book.narrator != null,
+      };
+
+      // Log for debugging (replace with actual analytics implementation)
+      print('Affiliate click tracked: $clickData');
+
+      // Future implementation could include:
+      // - Firebase Analytics event tracking
+      // - Custom analytics API calls
+      // - Revenue attribution tracking
+      // - A/B testing for affiliate link performance
+    } catch (e) {
+      // Silently handle tracking errors - don't block user experience
+      print('Failed to track affiliate click: $e');
+    }
+  }
+
+  /// Check if a book should show Audible affiliate link
+  bool shouldShowAudibleLink(UserBook book) {
+    // Show for all books, but emphasize for audiobooks
+    return true;
+  }
+
+  /// Get appropriate text for Audible button based on book format
+  String getAudibleButtonText(UserBook book) {
+    switch (book.format) {
+      case BookFormat.audiobook:
+        if (book.narrator != null) {
+          return 'Listen on Audible';
+        } else {
+          return 'Get Audiobook';
+        }
+      default:
+        return 'Listen on Audible';
+    }
+  }
+
+  /// Get icon for Audible button based on book format
+  String getAudibleButtonIcon(UserBook book) {
+    switch (book.format) {
+      case BookFormat.audiobook:
+        return 'headphones';
+      default:
+        return 'headphones';
+    }
+  }
+
+  /// Generate marketing message for audiobook conversion
+  String getAudiobookPrompt(UserBook book) {
+    if (book.format == BookFormat.audiobook) {
+      if (book.narrator != null) {
+        return 'Narrated by ${book.narrator}';
+      } else {
+        return 'Available as audiobook';
+      }
+    } else {
+      return 'Also available as audiobook';
+    }
+  }
+
+  /// Calculate potential commission (for internal analytics)
+  double calculatePotentialCommission(
+    double audiblePrice, {
+    double commissionRate = 0.05,
+  }) {
+    // Audible affiliate commission is typically around 5%
+    return audiblePrice * commissionRate;
+  }
+
+  /// Get suggested retail price range for audiobooks (for display purposes)
+  String getSuggestedPriceRange() {
+    return '\$14.95 - \$29.95'; // Typical Audible audiobook price range
+  }
+
+  /// Check if user has Audible app installed (mobile-specific)
+  Future<bool> hasAudibleApp() async {
+    try {
+      // Check if Audible app can be opened
+      const audibleAppUrl = 'audible://';
+      final uri = Uri.parse(audibleAppUrl);
+      return await canLaunchUrl(uri);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Open in Audible app if available, otherwise web
+  Future<bool> openInAudibleApp(UserBook book, {String? asin}) async {
+    try {
+      final hasApp = await hasAudibleApp();
+
+      if (hasApp && asin != null) {
+        // Try to open in Audible app with deep link
+        final appUrl = 'audible://book/$asin';
+        final appUri = Uri.parse(appUrl);
+
+        if (await canLaunchUrl(appUri)) {
+          await launchUrl(appUri);
+          await _trackAffiliateClick(book, appUrl);
+          return true;
+        }
+      }
+
+      // Fallback to web affiliate link
+      return await openAudibleLink(book, asin: asin);
+    } catch (e) {
+      // Fallback to web affiliate link
+      return await openAudibleLink(book, asin: asin);
+    }
+  }
+}
+
+/// Data class for tracking affiliate performance
+class AffiliateClickData {
+  final String bookId;
+  final String bookTitle;
+  final List<String> authors;
+  final String userId;
+  final DateTime timestamp;
+  final String affiliateUrl;
+  final BookFormat bookFormat;
+  final bool hasNarrator;
+
+  const AffiliateClickData({
+    required this.bookId,
+    required this.bookTitle,
+    required this.authors,
+    required this.userId,
+    required this.timestamp,
+    required this.affiliateUrl,
+    required this.bookFormat,
+    required this.hasNarrator,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'bookId': bookId,
+      'bookTitle': bookTitle,
+      'authors': authors,
+      'userId': userId,
+      'timestamp': timestamp.toIso8601String(),
+      'affiliateUrl': affiliateUrl,
+      'bookFormat': bookFormat.name,
+      'hasNarrator': hasNarrator,
+    };
+  }
+
+  factory AffiliateClickData.fromJson(Map<String, dynamic> json) {
+    return AffiliateClickData(
+      bookId: json['bookId'] as String,
+      bookTitle: json['bookTitle'] as String,
+      authors: List<String>.from(json['authors'] ?? []),
+      userId: json['userId'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      affiliateUrl: json['affiliateUrl'] as String,
+      bookFormat: BookFormat.values.byName(json['bookFormat'] as String),
+      hasNarrator: json['hasNarrator'] as bool,
+    );
+  }
+}
+
+/// Revenue analytics data for Pro dashboard
+class AffiliateRevenueStats {
+  final int totalClicks;
+  final int totalConversions;
+  final double totalRevenue;
+  final double conversionRate;
+  final Map<BookFormat, int> clicksByFormat;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+
+  const AffiliateRevenueStats({
+    required this.totalClicks,
+    required this.totalConversions,
+    required this.totalRevenue,
+    required this.conversionRate,
+    required this.clicksByFormat,
+    required this.periodStart,
+    required this.periodEnd,
+  });
+
+  String get formattedRevenue {
+    return '\$${totalRevenue.toStringAsFixed(2)}';
+  }
+
+  String get formattedConversionRate {
+    return '${(conversionRate * 100).toStringAsFixed(1)}%';
+  }
+}

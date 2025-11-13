@@ -33,7 +33,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
-        
+
         final books = snapshot.data ?? [];
         final stats = _analyticsService.calculateReadingStats(books);
 
@@ -53,9 +53,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
             children: [
               // Analytics Dashboard
               AnalyticsDashboard(stats: stats),
-              
+
               const SizedBox(height: 24),
-              
+
               // Quick Status Navigation
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -125,9 +125,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Currently Reading Section
               if (currentlyReading.isNotEmpty) ...[
                 Padding(
@@ -156,7 +156,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                 ),
                 const SizedBox(height: 24),
               ],
-              
+
               // Bottom padding for navigation bar
               const SizedBox(height: 80),
             ],
@@ -205,9 +205,9 @@ class _QuickAccessCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color.withOpacity(0.8),
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color.withOpacity(0.8)),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -234,20 +234,21 @@ class _BookCard extends StatelessWidget {
             Expanded(
               flex: 3,
               child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
                 child: userBook.imageUrl != null
                     ? Image.network(
                         userBook.imageUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(
-                              color: Colors.grey[200],
-                              child: Icon(
-                                Icons.book,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                            ),
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.book,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                        ),
                       )
                     : Container(
                         color: Colors.grey[200],
@@ -295,10 +296,11 @@ class _BookCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             userBook.spiceOverall!.toStringAsFixed(1),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.red[400],
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Colors.red[400],
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
                         ],
                       ),
