@@ -18,6 +18,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   int _step = 0;
   bool _saving = false;
+  String _landing = 'home'; // 'home' or 'curated'
 
   static const hardStopOptions = [
     'Dubious consent',
@@ -79,13 +80,16 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Onboarding saved')));
 
-        // Navigate to the app home using GoRouter so routing works with
-        // the ShellRoute/page-based navigation used by the app.
-        try {
+      // Navigate using GoRouter according to user's landing choice.
+      try {
+        if (_landing == 'curated') {
+          context.go('/curated');
+        } else {
           context.go('/');
-        } catch (navErr) {
-          debugPrint('Onboarding navigation failed via GoRouter: $navErr');
         }
+      } catch (navErr) {
+        debugPrint('Onboarding navigation failed via GoRouter: $navErr');
+      }
       // (CuratedLibrary navigation removed) We navigate via GoRouter above.
     } catch (e) {
       setState(() => _saving = false);
@@ -107,6 +111,22 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             LinearProgressIndicator(value: (_step + 1) / 4),
             const SizedBox(height: 16),
             Expanded(child: _buildStep()),
+            if (_step == 3) ...[
+              const SizedBox(height: 12),
+              Text('After finishing, open:', style: Theme.of(context).textTheme.titleMedium),
+              RadioListTile<String>(
+                title: const Text('Home'),
+                value: 'home',
+                groupValue: _landing,
+                onChanged: (v) => setState(() => _landing = v ?? 'home'),
+              ),
+              RadioListTile<String>(
+                title: const Text('Curated (optional)'),
+                value: 'curated',
+                groupValue: _landing,
+                onChanged: (v) => setState(() => _landing = v ?? 'home'),
+              ),
+            ],
             Row(
               children: [
                 if (_step > 0)
