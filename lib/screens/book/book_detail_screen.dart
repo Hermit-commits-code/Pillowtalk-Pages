@@ -373,7 +373,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   Future<void> _launchAmazon() async {
     final Uri uri;
-    
+
     // Use ASIN for direct product link if available, otherwise search
     if (_currentUserBook.asin != null && _currentUserBook.asin!.isNotEmpty) {
       uri = buildAmazonProductUrl(_currentUserBook.asin!, kAmazonAffiliateTag);
@@ -384,7 +384,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         kAmazonAffiliateTag,
       );
     }
-    
+
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
@@ -525,6 +525,155 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                 ],
               ),
+            const SizedBox(height: 24),
+
+            // --- FORMAT TABS (Paperback | Ebook | Audiobook) ---
+            Text('Available Formats', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            DefaultTabController(
+              length: 3,
+              child: Column(
+                children: [
+                  TabBar(
+                    tabs: const [
+                      Tab(text: 'Paperback'),
+                      Tab(text: 'Ebook'),
+                      Tab(text: 'Audiobook'),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 120,
+                    child: TabBarView(
+                      children: [
+                        // Paperback
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (widget.pageCount != null)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.description_outlined, size: 16),
+                                    const SizedBox(width: 8),
+                                    Text('${widget.pageCount} pages', style: theme.textTheme.bodyMedium),
+                                  ],
+                                ),
+                              if (widget.publishedDate != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today_outlined, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('Published: ${widget.publishedDate.toString().split(' ')[0]}', style: theme.textTheme.bodySmall),
+                                    ],
+                                  ),
+                                ),
+                              if (widget.publisher != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.business_outlined, size: 16),
+                                      const SizedBox(width: 8),
+                                      Expanded(child: Text('${widget.publisher}', style: theme.textTheme.bodySmall, overflow: TextOverflow.ellipsis)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // Ebook
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Digital version available'),
+                              const SizedBox(height: 8),
+                              if (widget.pageCount != null)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.description_outlined, size: 16),
+                                    const SizedBox(width: 8),
+                                    Text('${widget.pageCount} pages', style: theme.textTheme.bodyMedium),
+                                  ],
+                                ),
+                              if (widget.publishedDate != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today_outlined, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('Published: ${widget.publishedDate.toString().split(' ')[0]}', style: theme.textTheme.bodySmall),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // Audiobook
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_displayNarrator != null && _displayNarrator!.isNotEmpty)
+                                Row(
+                                  children: [
+                                    const Icon(Icons.person_outlined, size: 16),
+                                    const SizedBox(width: 8),
+                                    Expanded(child: Text('Narrated by: ${_displayNarrator}', style: theme.textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
+                                  ],
+                                ),
+                              if (_displayRuntimeMinutes != null && _displayRuntimeMinutes! > 0)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.schedule_outlined, size: 16),
+                                      const SizedBox(width: 8),
+                                      Text('${(_displayRuntimeMinutes! / 60).toStringAsFixed(1)}h runtime', style: theme.textTheme.bodyMedium),
+                                    ],
+                                  ),
+                                ),
+                              if (_displayNarrator == null || _displayNarrator!.isEmpty)
+                                const Text('Audiobook information not available', style: TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // --- LIBRARIAN SUMMARY (Placeholder for curated descriptions) ---
+            Text('What Should I Know?', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Librarian Summary',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Coming soon: Librarian-curated description highlighting spice level, key themes, and important content warnings.',
+                      style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 24),
 
             // --- GENRE TAGS (read-only display) ---
@@ -766,6 +915,57 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             ),
             const SizedBox(height: 24),
 
+            // --- COMMUNITY SPICE INSIGHTS (PRO FEATURE) ---
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text('Community Insights', style: theme.textTheme.titleLarge),
+                    const SizedBox(width: 8),
+                    Chip(
+                      label: const Text('PRO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                      backgroundColor: Colors.purple.shade200,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Coming soon (Pro feature):',
+                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          '• Average community spice rating\n'
+                          '• Most common tropes readers tag\n'
+                          '• Common hard stops found in this book\n'
+                          '• Emotional arc breakdown',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Available in Pro tier')),
+                            );
+                          },
+                          child: const Text('Upgrade to Pro'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
             // --- AMAZON BUTTON ---
             ElevatedButton.icon(
               onPressed: (_displayOwnership == BookOwnership.both)
@@ -824,15 +1024,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 ],
               ),
 
-            // --- BOOK DETAILS (Page Count, Publication Date, Publisher) ---
-            if (widget.pageCount != null ||
-                widget.publishedDate != null ||
-                widget.publisher != null)
+            // --- BOOK DETAILS (Publication Info) ---
+            // NOTE: Format-specific details moved to Format Tabs above.
+            // This section now only shows ASIN if available (for librarian verification).
+            if (_currentUserBook.asin != null && _currentUserBook.asin!.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Book Details',
+                    'Librarian Verification',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -841,98 +1041,34 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          if (widget.pageCount != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.description_outlined,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    '${widget.pageCount} pages',
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (widget.publishedDate != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_today_outlined,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Published: ${widget.publishedDate.toString().split(' ')[0]}',
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (widget.publisher != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.business_outlined,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Publisher: ${widget.publisher}',
-                                      style: theme.textTheme.bodyMedium,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          if (_currentUserBook.asin != null &&
-                              _currentUserBook.asin!.isNotEmpty)
-                            Row(
+                          const Icon(
+                            Icons.link_outlined,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Row(
                               children: [
-                                const Icon(
-                                  Icons.link_outlined,
-                                  size: 20,
-                                  color: Colors.grey,
+                                Text(
+                                  'ASIN: ${_currentUserBook.asin}',
+                                  style: theme.textTheme.bodyMedium
+                                      ?.copyWith(fontFamily: 'monospace'),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'ASIN: ${_currentUserBook.asin}',
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(fontFamily: 'monospace'),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(Amazon ID)',
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey[600],
+                                        fontStyle: FontStyle.italic,
                                       ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '(Amazon ID)',
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
-                                              color: Colors.grey[600],
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ],
                             ),
+                          ),
                         ],
                       ),
                     ),
