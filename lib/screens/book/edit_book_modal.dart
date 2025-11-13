@@ -41,6 +41,7 @@ class _EditBookModalState extends State<EditBookModal> {
   late ReadingStatus _status;
   late TextEditingController _notesController;
   BookOwnership _ownership = BookOwnership.none;
+  BookFormat _format = BookFormat.paperback;
 
   bool _isSaving = false;
   // Map of listId -> listName for display above the dropdown
@@ -59,6 +60,7 @@ class _EditBookModalState extends State<EditBookModal> {
       text: widget.userBook.userNotes ?? '',
     );
     _ownership = widget.userBook.ownership;
+    _format = widget.userBook.format;
     // Subscribe to lists so we can show human-friendly names for selected
     // list IDs. Use injected service when provided (testable), otherwise
     // construct a ListsService for the live app.
@@ -117,6 +119,7 @@ class _EditBookModalState extends State<EditBookModal> {
             ? _notesController.text.trim()
             : null,
         ownership: _ownership,
+        format: _format,
         status: _status,
         dateStarted: newDateStarted,
         dateFinished: newDateFinished,
@@ -281,6 +284,22 @@ class _EditBookModalState extends State<EditBookModal> {
                 }).toList(),
               ),
               const SizedBox(height: 12),
+              Text('Book Format', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: BookFormat.values.map((fmt) {
+                  final isSelected = _format == fmt;
+                  return ChoiceChip(
+                    label: Text(_formatLabel(fmt)),
+                    selected: isSelected,
+                    onSelected: (sel) => setState(
+                      () => _format = sel ? fmt : BookFormat.paperback,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 12),
               TextField(
                 controller: _notesController,
                 maxLines: 5,
@@ -315,6 +334,19 @@ class _EditBookModalState extends State<EditBookModal> {
         return 'Both';
       case BookOwnership.kindleUnlimited:
         return 'Borrowed on Kindle';
+    }
+  }
+
+  String _formatLabel(BookFormat format) {
+    switch (format) {
+      case BookFormat.paperback:
+        return 'Paperback';
+      case BookFormat.hardcover:
+        return 'Hardcover';
+      case BookFormat.ebook:
+        return 'Ebook';
+      case BookFormat.audiobook:
+        return 'Audiobook';
     }
   }
 

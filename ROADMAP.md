@@ -36,17 +36,20 @@
 
 ## ��� Product Positioning: Spicy Reads vs. Competitors
 
-| Aspect                                | Goodreads                              | Bookly                                   | Spicy Reads                                 |
-| ------------------------------------- | -------------------------------------- | ---------------------------------------- | ------------------------------------------- |
-| **Primary Use**                       | Social book tracking                   | Social + discovery                       | Personal tracking                           |
-| **Community Ratings**                 | ✅ Yes                                 | ✅ Yes                                   | ❌ No (personal-only)                       |
-| **Spice Rating**                      | ❌ No                                  | ✅ Basic                                 | ✅ Detailed (0-5 flames + sub-categories)   |
-| **Hard Stops / Mental Health Filter** | ❌ No                                  | ❌ No                                    | ✅ Yes                                      |
-| **Kink Filter**                       | ❌ No                                  | ❌ No                                    | ✅ Yes                                      |
-| **Privacy Model**                     | Centralized; profile public by default | Centralized; profile public by default   | Decentralized; all data private by default  |
-| **Data Ownership**                    | Goodreads owns your data               | Bookly owns your data                    | You own your data                           |
-| **Target User**                       | General readers + social seekers       | Millennial romance readers               | Private, protection-focused romance readers |
-| **Moat Strength**                     | Scale (100M+ users)                    | Network effects (influencer integration) | **Privacy + Mental Health**                 |
+| Aspect                                | Goodreads (Free)                       | StoryGraph (Plus $3.99/mo)          | Spicy Reads                                |
+| ------------------------------------- | -------------------------------------- | ----------------------------------- | ------------------------------------------ |
+| **Primary Use**                       | Social book tracking                   | Mood-based discovery + tracking     | Personal tracking (spice-focused)          |
+| **Community Ratings**                 | ✅ Yes                                 | ❌ No (personal-only)               | ❌ No (personal-only)                      |
+| **Spice Rating / Content Detail**     | ❌ No                                  | ✅ Half + quarter stars             | ✅ Detailed (0-5 flames + sub-categories)  |
+| **Hard Stops / Mental Health Filter** | ❌ No                                  | ✅ Content Warnings (basic)         | ✅ Yes (hard stops + kink filters)         |
+| **Mood-Based Discovery**              | ❌ No                                  | ✅ Yes                              | ❌ Manual filter only                      |
+| **Audiobook Support**                 | ✅ Basic (metadata only)               | ✅ Yes                              | ✅ Yes (format + listen tracking)          |
+| **Reading Stats + Heatmaps**          | ❌ Basic (counts only)                 | ✅ Yes (Charts, pace, mood splits)  | 🚧 Planned v0.7.0                          |
+| **Buddy Reads**                       | ✅ Yes (basic)                         | ✅ Yes (spoiler-safe + reactions)   | ❌ No (privacy-first)                      |
+| **Privacy Model**                     | Centralized; profile public by default | Centralized; profile can be private | Decentralized; all data private by default |
+| **Data Ownership**                    | Amazon owns your data                  | User owns; no Amazon backend        | You own your data                          |
+| **Target User**                       | General readers + social seekers       | Indie readers + mood-based seekers  | Private, spice-focused romance readers     |
+| **Moat Strength**                     | Scale (100M+ users)                    | Privacy + better UX                 | **Spice + Mental Health + Privacy**        |
 
 ---
 
@@ -83,18 +86,160 @@
 
 | Stream                        | Mechanism                                                       | Projected Monthly (100 Active Users)             | Projected Monthly (1000 Active Users) |
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
-| **Pro Subscription**          | $2.99/mo or $19.99/yr for unlimited books + advanced features   | $300 (10% conversion)                            | $3,000 (10% conversion)               |
+| **Pro Subscription**          | $2.99/mo or $24.99/yr for advanced features                     | $300 (10% conversion)                            | $3,000 (10% conversion)               |
 | **Amazon Affiliate**          | "Buy on Amazon" button on each book; 3% commission on purchases | $50-150 (users buy avg 2-5 books/mo at $15/book) | $500-1,500                            |
 | **Bookshop.org Affiliate**    | Alternative affiliate for users avoiding Amazon; 10% commission | $20-50                                           | $200-500                              |
+| **Audible Affiliate**         | Audiobook links + referrals; 3% commission or $5/signup         | $10-30 (audiobook readers)                       | $100-300                              |
 | **In-App Ads (Optional)**     | Banner/interstitial ads for free users; removed for Pro         | $20-50                                           | $200-500                              |
-| \***\*TOTAL MONTHLY REVENUE** |                                                                 | **$390 - $550**                                  | **$3,900 - $5,500**                   |
+| \***\*TOTAL MONTHLY REVENUE** |                                                                 | **$400 - $630**                                  | **$4,000 - $6,300**                   |
 
-### Pricing Tiers
+### Pricing Tiers (Benchmarked vs. Competitors)
 
-| Tier     | Features                                                                                             | Price                         | Target User                                    |
-| -------- | ---------------------------------------------------------------------------------------------------- | ----------------------------- | ---------------------------------------------- |
-| **Free** | Track up to 50 books, basic trope search (1-3 tags), hard stops + kink filter, reading status        | **$0/mo**                     | Casual romance readers                         |
-| **Pro**  | Unlimited books, advanced trope search (unlimited tags), reading analytics, priority support, no ads | **$2.99/mo** or **$19.99/yr** | Serious readers; converts ~5-10% of free users |
+**Competitive Context**:
+
+- **Goodreads**: Free (no premium tier)
+- **StoryGraph Plus**: $3.99/mo or $39.99/yr
+- **Spicy Reads Pro**: $2.99/mo or $24.99/yr (premium positioning, lower friction entry)
+
+| Tier     | Features                                                                                                                                                                                  | Price                         | Target User                                |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------ |
+| **Free** | Track up to 100 books, basic trope search (1-3 tags), hard stops + kink filter, reading status, 3 lists                                                                                   | **$0/mo**                     | Casual romance readers (discovery phase)   |
+| **Pro**  | ✅ Unlimited books ✅ Advanced trope search (unlimited) ✅ Reading analytics (dashboard + exports) ✅ Custom filters (saved searches) ✅ Audiobook tracking ✅ No ads ✅ Priority support | **$2.99/mo** or **$24.99/yr** | Serious readers; 5-10% conversion expected |
+
+### Pro Feature Breakdown (vs. Competitors)
+
+| Feature                          | StoryGraph Plus | Goodreads | Spicy Reads Pro       |
+| -------------------------------- | --------------- | --------- | --------------------- |
+| **Unlimited books**              | ✅              | ✅        | ✅                    |
+| **Advanced mood/filter search**  | ✅              | ❌        | ✅                    |
+| **Reading statistics dashboard** | ✅              | ❌        | ✅ (with export)      |
+| **Saved custom filters**         | ❌              | ❌        | ✅ (Spicy Reads edge) |
+| **Hard stops alerting**          | Basic           | ❌        | ✅ Advanced           |
+| **Audiobook format tracking**    | ✅              | ✅        | ✅                    |
+| **No ads**                       | ✅              | ✅        | ✅                    |
+| **Spice-specific features**      | ❌              | ❌        | ✅ (MOAT)             |
+| **Price**                        | $3.99/mo        | Free      | $2.99/mo              |
+
+---
+
+## ⚡ Competitive Strategy: Why Spicy Reads Wins
+
+**Spicy Reads Pro positioning**: "The most affordable, spice-optimized reading tracker."
+
+### What Makes Pro Worth $2.99/mo:
+
+1. **Audiobook Listening Tracking** 📻
+
+   - Track audiobooks separately from physical/digital
+   - Link to Audible affiliate (earn on referrals)
+   - Spicy Reads + StoryGraph both support; Goodreads doesn't
+
+2. **Saved Custom Filters** (Spicy Reads Edge)
+
+   - "Dark Romance + No Cheating + 4+ Spice" → saved as "My Perfect Dark Read"
+   - One-tap search re-run
+   - StoryGraph doesn't offer this; neither does Goodreads
+
+3. **Advanced Hard Stops Dashboard**
+
+   - Track which books triggered your hard stops
+   - Export "avoided" list
+   - Only Spicy Reads does this
+
+4. **Reading Analytics + Export**
+
+   - Monthly spice trends
+   - Books by format (physical vs. audiobook)
+   - Export as PDF for personal records
+   - StoryGraph has charts; Spicy Reads goes deeper on spice metrics
+
+5. **Priority Support** (email, in-app help)
+   - Faster response vs. free tier (24h vs. 72h)
+
+---
+
+## ⚡⚡⚡ STRATEGIC PIVOT: Hybrid Community + Personal Model (v0.8.0+)
+
+**Key Insight**: Separate **canonical/librarian books** from **community-contributed books** + **personal libraries**.
+
+This allows us to:
+
+- ✅ Maintain privacy (personal libraries stay private)
+- ✅ Enable community contribution (librarians + trusted users expand catalog)
+- ✅ Give users control (toggle content warnings, hard stops, spoiler warnings on/off)
+- ✅ Support diverse reading (Kindle-only, audiobook-only, format preferences)
+- ✅ Avoid moderation hell (librarians curate, not crowdsourced voting)
+
+### What Librarians Add to Canonical Books
+
+**Canonical Books** = Librarian-curated library + Google Books API base data
+
+- Page count, publication date, publisher (auto-fetched)
+- **Spice metadata**: Common hard stops, common tropes (verified by librarians)
+- **Content warnings**: Aggregated from reader reviews (no voting, just patterns)
+- **Narrator names** (for audiobooks)
+- **Format availability** (ebook, audiobook, physical)
+
+**User Libraries** = Personal tracking only (stays private)
+
+- Personal spice rating (0-5 flames)
+- Personal hard stops (private, only used for filtering)
+- Personal tropes tagged
+- Reading status, dates, personal notes
+
+### Settings: What Users Can Toggle
+
+1. **Content Warning Display**
+
+   - ☑️ Show full warnings (default, transparent)
+   - ☐ Hide warnings (read blind)
+   - ☐ Show only hard stops (hide mild warnings)
+
+2. **Preferred Formats**
+
+   - ☑️ Paperback
+   - ☑️ Ebook
+   - ☑️ Audiobook
+   - Filter out unsupported formats from search/browse
+
+3. **Hard Stops Visibility**
+
+   - ☑️ Show hard stops for this book (auto-filter)
+   - ☐ Hide hard stops (let me discover)
+   - ☐ Spoiler mode (show warnings only after reading)
+
+4. **Review Form Customization**
+   - ☑️ Spice rating
+   - ☑️ Hard stops check
+   - ☐ Tropes (optional)
+   - ☑️ Content warnings
+   - ☐ Emotional arc (optional)
+
+### Architecture: Three Book Collections
+
+```
+📚 /books (Canonical - Librarian-Curated)
+  - title, author, image, description
+  - pageCount, publishedDate, publisher
+  - genres, cachedTropes, cachedWarnings
+  - isPreSeeded: true/false
+  - librarian: "email@librarian.com" (who added/verified)
+  - lastVerifiedDate: ISO timestamp
+  - confidence: "high" | "medium" (based on source)
+
+📚 /community-books (User-Contributed - Needs Librarian Review)
+  - Same as /books BUT
+  - status: "pending" | "approved" | "rejected"
+  - submittedBy: userId
+  - reviewedBy: librarian userId
+  - votesUp: 5 (community feedback, not binding)
+  - approvalNotes: "Added narrator info from Audible"
+
+📚 /user-libraries/{userId}/books (Personal - Private)
+  - userBook data (no librarian review needed)
+  - personalSpiceRating, personalWarnings, personalNotes
+  - never shared unless user explicitly exports
+```
 
 ---
 
@@ -218,7 +363,163 @@
 
 ---
 
-## ��� Phase 1-4: Full Implementation Roadmap
+## ⚡⚡ Librarian Program (Starts v0.6.0, Ramps v0.7.0+)
+
+**Goal**: Build a trusted community of romance "librarians" who curate and expand the canonical book database.
+
+### Who Are Librarians?
+
+- **Expert romance readers** (self-identified)
+- **Content creators** (BookTok, BookTube, bloggers)
+- **Published romance authors** (expand own catalogs)
+- **Community moderators** (from Reddit, Discord romance communities)
+- **Spicy romance enthusiasts** who know the tropes + triggers
+
+### What Librarians Do
+
+1. **Verify & Enhance Canonical Books** (Monthly curations)
+   - Confirm spice ratings for popular books
+   - Add missing metadata: narrators, audiobook runtime, edition-specific warnings
+   - Flag books missing from Google Books API that should be added manually
+   - Review user-submitted book corrections
+
+2. **Submit New Books to Canonical DB** (if missing from Google Books API)
+   - Add indie-published spicy romance (often missing from Google Books)
+   - Add international romance titles
+   - Add niche sub-genres (paranormal, paranormal romance, PNR-specific tropes)
+   - Include full metadata: page count, publication date, publisher, narrator
+
+3. **Create Seasonal Curations** (4x/year)
+   - Q1: "Emotional Winters" (cozy, found family)
+   - Q2: "Summer Flings" (contemporary, beach romance)
+   - Q3: "Fall Dark Reads" (paranormal, dark romance)
+   - Q4: "Holiday Spice" (festive romance, holiday romance)
+   - Format: 20-30 books per curation with librarian's "why I chose this" note
+
+4. **Moderate Community Submissions** (if we enable user-contributed books later)
+   - Review pending books in /community-books collection
+   - Approve/reject based on accuracy + completeness
+   - Suggest edits to submitters (e.g., "Add narrator name from Audible")
+
+### Benefits for Librarians
+
+- **Prestige**: "Verified Librarian" badge in app + on profile
+- **Early access**: Beta features, Pro account free during tenure
+- **Monthly stipend** (after reaching 5K+ users): $50-100/month per librarian
+- **Revenue share**: 5% of affiliate revenue generated from their curations
+- **Community credit**: Public profile showing curations, books verified, books added
+
+### Librarian Onboarding (v0.6.0+)
+
+1. User signs up through "Become a Librarian" form
+2. Answer questions:
+   - How many romance books have you read?
+   - Favorite subgenres/tropes?
+   - Why do you want to help?
+   - Can you commit 2-4 hours/month?
+3. Admin review (manual approval)
+4. Grant Librarian role in Firestore
+5. Send access to librarian dashboard (Google Sheet → Firestore sync, or in-app UI)
+
+### Success Metrics (Librarians)
+
+- Target: 5-10 librarians by end of Year 1
+- Target: 100 new books verified/added per librarian per month
+- Target: 4 seasonal curations launched per year
+- Target: <2 week average review time for community submissions
+
+---
+
+## ⚡⚡ User Preferences & Settings (v0.6.1+)
+
+**Goal**: Let users customize how they interact with content warnings, hard stops, and review forms.
+
+### Settings Screen Additions
+
+```
+┌─ Content Warnings
+│  ☑️ Show full content warnings (default)
+│  ☐ Hide warnings (read blind)
+│  ☐ Show only hard stops (hide mild spoilers)
+│
+├─ Preferred Formats
+│  ☑️ Paperback
+│  ☑️ Hardcover
+│  ☑️ Ebook
+│  ☑️ Audiobook
+│  [Books will filter by selected formats in search]
+│
+├─ Hard Stops Behavior
+│  ☑️ Auto-filter hard stops (hide books with my hard stops)
+│  ☐ Show hard stops books (let me discover blind)
+│  ☐ Spoiler mode (show warnings only after I rate the book)
+│
+├─ Book Review Form
+│  ☑️ Spice Rating (0-5 flames)
+│  ☑️ Content Warnings Check
+│  ☐ Tropes (optional)
+│  ☑️ Emotional Arc Rating
+│  ☐ Personal Notes (optional)
+│  [Customize which fields appear when adding books to library]
+│
+├─ Reading Preference
+│  Primarily read via:
+│  ○ Physical books (paperback/hardcover)
+│  ○ Ebook / Kindle
+│  ○ Audiobook
+│  ○ Mix of all formats
+│  [Affects search ranking + recommendations]
+│
+└─ Privacy & Data
+   ☑️ Allow librarians to see my verified book ratings
+   ☐ Share my trending-tropes anonymously (helps improve AI filters)
+```
+
+### Implementation Details
+
+1. **Settings Model** (Firestore)
+   ```
+   /users/{userId}/settings
+   {
+     "showContentWarnings": true,
+     "showHardStops": true,
+     "hardStopsBehavior": "auto-filter", // or "show" or "spoiler-mode"
+     "preferredFormats": ["physical", "ebook", "audiobook"],
+     "reviewFormFields": {
+       "spiceRating": true,
+       "contentWarnings": true,
+       "tropes": false,
+       "emotionalArc": true,
+       "personalNotes": false
+     },
+     "primaryReadFormat": "mix",
+     "privacyAllowLibrarianAccess": true,
+     "privacyShareTrendingData": false
+   }
+   ```
+
+2. **Settings UI** (Flutter)
+   - New Settings tab in main navigation (or in ProfileScreen)
+   - Toggles for each setting with explanatory text
+   - Save preferences to Firestore on every change
+   - Load preferences on app start + cache locally
+
+3. **Filter & Display Logic**
+   - BookDetailScreen checks `showContentWarnings` setting before displaying warnings
+   - Search screen filters by `preferredFormats`
+   - HardStopsFilter logic checks `hardStopsBehavior` setting
+   - EditBookModal shows/hides fields based on `reviewFormFields`
+
+### Success Metrics (Settings)
+
+- **Adoption**: 60%+ users customize at least one setting
+- **Read-Blind Usage**: 10-20% disable content warnings (track anonymously)
+- **Format Preference**: 40% Kindle, 30% physical, 30% audiobook (expected distribution)
+- **Review Form Customization**: 50%+ simplify form by disabling non-essential fields
+
+---
+
+## ⚡ Phase 1-4: Full Implementation Roadmap
 
 ### Phase 1: Foundation (v0.1.0 - v0.1.x) ✅ COMPLETED
 
@@ -288,63 +589,149 @@
 
 **Deliverable**: Users get explicit warnings; can still proceed with "Ignore" option.
 
-#### v0.7.0: Reading Analytics Dashboard
+#### v0.7.0: Reading Analytics Dashboard + Audiobook Support
 
-**Goal**: Motivate Pro upgrade by showing personal reading insights.
+**Goal**: Motivate Pro upgrade by showing personal reading insights; add audiobook tracking as Pro feature.
 
 **Features**:
 
-- Total books read (all time)
-- Books read this month / year
+- Total books read (all time) + breakdown by format (physical, digital, audiobook)
+- Books read this month / year + audiobook listening time
 - Average spice rating across library
 - Most common tropes in your library
 - Reading streak (days with books added)
 - Heatmap (books added per day)
+- Audiobook metrics: total hours listened, avg listen time per book, books by narrator
+
+**Audiobook Implementation**:
+
+1. **Book Format Selection** (in edit modal)
+
+   - Paperback, Hardcover, Ebook, Audiobook
+   - One book entry per format (e.g., "Project Hail Mary" as Audiobook + Paperback)
+
+2. **Audiobook-Specific Fields**
+
+   - Narrator name(s)
+   - Total runtime (hours:minutes)
+   - Listening progress (hours listened)
+
+3. **Audible Affiliate Integration**
+
+   - "Listen on Audible" button (Audible affiliate link)
+   - Track audiobook referrals separately
+   - Revenue: $5 per signup or 3% commission on sales
+
+4. **Stats Dashboard Updates**
+   - Chart: Books by format (stacked bar)
+   - Metric: Total audiobook hours listened
+   - Metric: Average listener rating (audiobook vs. print experience)
 
 **Gating**:
 
-- Free: 3 basic stats
-- Pro: Full dashboard + export as PDF
+- Free: Format display only (no audiobook tracking)
+- Pro: Full audiobook tracking + listening stats + Audible affiliate links
 
-**Deliverable**: Dashboard visible on Home; compelling upgrade hook.
+**Deliverable**: Dashboard visible on Home; audiobook support live; affiliate revenue from audiobook referrals.
+
+**Time Estimate**: 1.5 weeks (format enum added, audiobook UI, stats integration, Audible API).
 
 ---
 
-### Phase 4: Distribution & Launch (v0.8.0+)
+### Phase 4: Distribution & Monetization Growth (v1.0.0+, After Phase 0-2)
 
-**Goal**: App Store release + sustainable user acquisition.
+**Goal**: Sustainable user acquisition + retention via targeted distribution + advanced monetization.
 
-#### v0.8.0: Play Store Launch
+#### v1.0.0: Android App Store Launch + Public Beta
 
 - [ ] Final security audit (penetration testing)
-- [ ] Final UI/UX polish
-- [ ] Create store listing + screenshots (5 images showing MOAT)
+- [ ] Final UI/UX polish (accessibility + performance)
+- [ ] Create store listing + screenshots (highlight spice filters + hard stops)
 - [ ] Submit to Play Store review
-- [ ] Monitor reviews; fix issues
+- [ ] Monitor reviews + ratings; fix critical issues
 - [ ] Launch to production (100% rollout)
+- [ ] Setup analytics tracking (Firebase, amplitude for cohort analysis)
 
-**KPIs to Track**:
+**Target Metrics**:
 
-- Installs/day
-- Retention (day 1, day 7, day 30)
-- Crash-free users (target: >98%)
-- Rating (target: >4.5 stars)
+- 1,000-5,000 installs in Month 1
+- 30%+ Day 1 retention (onboarding quality signal)
+- 15%+ Day 7 retention
 
-#### v0.9.0: iOS App Store Launch
+#### v1.1.0: Distribution & User Acquisition ($1-2K marketing budget)
+
+**Goal**: Get in front of spicy romance readers via organic + paid channels.
+
+**Channels**:
+
+1. **Community Outreach** (Free)
+
+   - Reddit: r/RomanceAuthors, r/Booksubreddits, r/Romances (crosspost to 5-10 communities)
+   - Discord: Join 10-15 romance communities; seed discussions organically
+   - TikTok: Reach out to BookTok creators with 10K-100K followers; offer "featured collection" spots
+   - Twitter: Daily spicy romance content (trending tropes, hard stops tips, user testimonials)
+   - Email: Beta user newsletter (weekly curation of trending spice books)
+
+2. **Paid Acquisition** (Budget: $500-1K)
+
+   - Google Play Ads: $0.5-1.50 cost per install
+   - TikTok ads: $5K minimum spend; test with $200 pilot
+   - Reddit ads: r/Romances, r/RomanceReaders ($100-200 test budget)
+   - Retargeting: Website visitors who don't download
+
+3. **Content Partnerships** (Free/Revenue-Share)
+
+   - Create "Spicy Romance Podcast" guests interviews (10-minute clips on TikTok/YouTube)
+   - Partner with 3-5 book bloggers: embedded "Find These Books on Spicy Reads" filter tool
+   - Monthly "Trending Spice Report" shared on romance subreddits + blogs
+
+4. **Influencer Seeding** (Budget: $100-300)
+   - Send 10-20 free "Pro" codes to micro-influencers (50K-500K followers)
+   - Request honest review after 2 weeks of use
+   - Track install source via UTM codes
+
+**Deliverable**: 10,000+ impressions/month organic reach; 100-500 new users/month from paid + organic.
+
+#### v1.2.0: Advanced Monetization
+
+**Goal**: Increase ARPU (average revenue per user) from $0.40 to $0.80+.
+
+**Strategies**:
+
+1. **Freemium Tier Optimization**
+
+   - Paywall test 1: Free users limited to 100 books; "Upgrade to add more" prompt at 90 books
+   - Paywall test 2: Advanced filter builder free 3x/month; unlimited for Pro
+   - A/B test messaging: "Unlimited filters" vs. "Save time with saved searches"
+
+2. **Annual Subscription Upgrade** ($24.99/yr = $2.08/mo, 30% cheaper)
+
+   - Promote annually during onboarding: "Save 30% with annual"
+   - Target: 40-50% of Pro users on annual (higher LTV)
+
+3. **Affiliate Revenue Diversification**
+
+   - Audible affiliate links (established v0.7.0)
+   - Kindle Unlimited links (affiliate commission)
+   - Goodreads alternative (cross-platform imports)
+   - Target: $200-500/month affiliate revenue from 500 active users
+
+4. **Potential Premium Features** (Future, only if traction warrants)
+   - Per-book spice level predictions (ML-based, not launched initially)
+   - "Buy the book" direct e-commerce (not necessary yet; affiliate sufficient)
+   - Author collaboration (pro feature; connect directly to authors for spice interviews)
+
+**Deliverable**: Pro conversion improves to 12-15%; affiliate revenue grows to $300-500/month.
+
+#### v1.3.0: iOS App Store Launch
 
 - [ ] Xcode + iOS-specific configuration
-- [ ] TestFlight beta testing
-- [ ] Create iOS store listing
-- [ ] Submit to App Store review
-- [ ] Launch to iOS
+- [ ] TestFlight beta testing (50-100 testers)
+- [ ] Create iOS store listing (optimized for App Store algorithm)
+- [ ] Submit to App Store review (typically 24-48h)
+- [ ] Launch to iOS (ramp 10% → 50% → 100%)
 
-#### v1.0.0: Growth & Optimization
-
-- [ ] Implement user acquisition strategy (Reddit, Discord, TikTok, Twitter)
-- [ ] Affiliate program for book influencers ("Share your spicy library, earn commission")
-- [ ] User referral system (Refer a friend → both get Pro month free)
-- [ ] Onboarding A/B testing (which Hard Stops order converts best?)
-- [ ] Pro paywall optimization (when to show upgrade prompt?)
+**Target**: 30% of Android installs come from iOS (typical for niche apps).
 
 ---
 

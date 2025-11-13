@@ -112,6 +112,9 @@ class _FinishedBooksScreenState extends State<FinishedBooksScreen> {
                         spiceOverall: ub.spiceOverall,
                         spiceIntensity: ub.spiceIntensity,
                         emotionalArc: ub.emotionalArc,
+                        pageCount: ub.pageCount,
+                        publishedDate: ub.publishedDate,
+                        publisher: ub.publisher,
                       ),
                     ),
                   );

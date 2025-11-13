@@ -45,6 +45,11 @@ class BookDetailLoader extends StatelessWidget {
         final genres = (data['genres'] as List<dynamic>?)?.cast<String>();
         final seriesName = data['seriesName'] as String?;
         final seriesIndex = data['seriesIndex'] as int?;
+        final pageCount = data['pageCount'] as int?;
+        final publishedDate = data['publishedDate'] != null
+            ? DateTime.tryParse(data['publishedDate'] as String)
+            : null;
+        final publisher = data['publisher'] as String?;
 
         return BookDetailScreen(
           title: title,
@@ -55,6 +60,9 @@ class BookDetailLoader extends StatelessWidget {
           seriesName: seriesName,
           seriesIndex: seriesIndex,
           bookId: bookId,
+          pageCount: pageCount,
+          publishedDate: publishedDate,
+          publisher: publisher,
         );
       },
     );

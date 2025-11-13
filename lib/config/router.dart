@@ -128,6 +128,9 @@ final GoRouter router = GoRouter(
             spiceOverall: userBook.spiceOverall,
             spiceIntensity: userBook.spiceIntensity,
             emotionalArc: userBook.emotionalArc,
+            pageCount: userBook.pageCount,
+            publishedDate: userBook.publishedDate,
+            publisher: userBook.publisher,
           );
         }
 

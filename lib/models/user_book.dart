@@ -5,6 +5,8 @@ enum ReadingStatus { wantToRead, reading, finished }
 
 enum BookOwnership { none, physical, digital, both, kindleUnlimited }
 
+enum BookFormat { paperback, hardcover, ebook, audiobook }
+
 class UserBook {
   final String id;
   final String userId;
@@ -31,6 +33,10 @@ class UserBook {
   final bool ignoreFilters;
   final BookOwnership ownership;
   final int? personalStars; // 1-5 user-only personal rating
+  final int? pageCount;
+  final DateTime? publishedDate;
+  final String? publisher;
+  final BookFormat format;
 
   const UserBook({
     required this.id,
@@ -58,6 +64,10 @@ class UserBook {
     this.cachedTropes = const [],
     this.ownership = BookOwnership.none,
     this.personalStars,
+    this.pageCount,
+    this.publishedDate,
+    this.publisher,
+    this.format = BookFormat.paperback,
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -97,6 +107,12 @@ class UserBook {
         json['ownership'] as String? ?? 'none',
       ),
       personalStars: (json['personalStars'] as num?)?.toInt(),
+      pageCount: (json['pageCount'] as num?)?.toInt(),
+      publishedDate: parseDate(json['publishedDate']),
+      publisher: json['publisher'] as String?,
+      format: BookFormat.values.byName(
+        json['format'] as String? ?? 'paperback',
+      ),
     );
   }
 
@@ -126,6 +142,10 @@ class UserBook {
       'cachedTropes': cachedTropes,
       'ownership': ownership.name,
       'personalStars': personalStars,
+      'pageCount': pageCount,
+      'publishedDate': publishedDate?.toIso8601String(),
+      'publisher': publisher,
+      'format': format.name,
     };
   }
 
@@ -155,6 +175,10 @@ class UserBook {
     List<String>? cachedTropes,
     BookOwnership? ownership,
     int? personalStars,
+    int? pageCount,
+    DateTime? publishedDate,
+    String? publisher,
+    BookFormat? format,
   }) {
     return UserBook(
       id: id ?? this.id,
@@ -182,6 +206,10 @@ class UserBook {
       cachedTropes: cachedTropes ?? this.cachedTropes,
       ownership: ownership ?? this.ownership,
       personalStars: personalStars ?? this.personalStars,
+      pageCount: pageCount ?? this.pageCount,
+      publishedDate: publishedDate ?? this.publishedDate,
+      publisher: publisher ?? this.publisher,
+      format: format ?? this.format,
     );
   }
 }

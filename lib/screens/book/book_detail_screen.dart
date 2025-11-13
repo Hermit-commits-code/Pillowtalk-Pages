@@ -27,6 +27,9 @@ class BookDetailScreen extends StatefulWidget {
   final String? bookId;
   final String? userBookId;
   final String? userNotes;
+  final int? pageCount;
+  final DateTime? publishedDate;
+  final String? publisher;
 
   // Vetted Spice Meter Data
   final double? spiceOverall;
@@ -50,6 +53,9 @@ class BookDetailScreen extends StatefulWidget {
     this.spiceOverall,
     this.spiceIntensity,
     this.emotionalArc,
+    this.pageCount,
+    this.publishedDate,
+    this.publisher,
   });
 
   @override
@@ -658,6 +664,88 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Html(data: widget.description!),
+                  const SizedBox(height: 24),
+                ],
+              ),
+
+            // --- BOOK DETAILS (Page Count, Publication Date, Publisher) ---
+            if (widget.pageCount != null ||
+                widget.publishedDate != null ||
+                widget.publisher != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Book Details',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.pageCount != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.description_outlined,
+                                    size: 20,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    '${widget.pageCount} pages',
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (widget.publishedDate != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today_outlined,
+                                    size: 20,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Published: ${widget.publishedDate.toString().split(' ')[0]}',
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (widget.publisher != null)
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.business_outlined,
+                                  size: 20,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Publisher: ${widget.publisher}',
+                                    style: theme.textTheme.bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
