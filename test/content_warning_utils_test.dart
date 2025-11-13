@@ -20,43 +20,43 @@ void main() {
 
     test('finds exact case-insensitive matches', () {
       final result = findWarningOverlap(
-        ['Violence', 'Romance'], 
-        ['violence', 'CHEATING']
+        ['Violence', 'Romance'],
+        ['violence', 'CHEATING'],
       );
       expect(result, equals(['Violence']));
     });
 
     test('ignores whitespace differences', () {
       final result = findWarningOverlap(
-        [' Violence ', 'Romance'], 
-        ['violence', 'romance ']
+        [' Violence ', 'Romance'],
+        ['violence', 'romance '],
       );
       expect(result, equals([' Violence ', 'Romance']));
     });
 
     test('excludes ignored warnings', () {
       final result = findWarningOverlap(
-        ['Violence', 'Cheating', 'Romance'], 
+        ['Violence', 'Cheating', 'Romance'],
         ['violence', 'cheating', 'romance'],
-        ['violence', 'romance'] // ignored
+        ['violence', 'romance'], // ignored
       );
       expect(result, equals(['Cheating']));
     });
 
     test('handles empty ignored list', () {
       final result = findWarningOverlap(
-        ['Violence'], 
+        ['Violence'],
         ['violence'],
-        [] // empty ignored
+        [], // empty ignored
       );
       expect(result, equals(['Violence']));
     });
 
     test('handles null ignored list', () {
       final result = findWarningOverlap(
-        ['Violence'], 
+        ['Violence'],
         ['violence'],
-        null // null ignored
+        null, // null ignored
       );
       expect(result, equals(['Violence']));
     });
@@ -64,17 +64,13 @@ void main() {
     test('complex real-world scenario', () {
       final bookWarnings = [
         'Sexual Content',
-        'Violence', 
+        'Violence',
         'Non-Consensual',
-        'Cheating'
+        'Cheating',
       ];
-      final userStops = [
-        'violence',
-        'non-consensual',
-        'abuse'
-      ];
+      final userStops = ['violence', 'non-consensual', 'abuse'];
       final ignored = ['violence']; // user decided to tolerate violence
-      
+
       final result = findWarningOverlap(bookWarnings, userStops, ignored);
       expect(result, equals(['Non-Consensual']));
     });

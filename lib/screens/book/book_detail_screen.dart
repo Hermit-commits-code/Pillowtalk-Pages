@@ -16,6 +16,8 @@ import '../../widgets/icon_rating_bar.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/content_warning_utils.dart';
 import '../../widgets/hard_stop_warning_modal.dart';
+import '../../services/user_preferences_service.dart';
+import '../../models/user_preferences.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String title;
@@ -129,6 +131,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       // If there are no warnings tagged on the book, nothing to do
       if (_displayWarnings.isEmpty) return;
 
+      // Check user preferences for hard stops behavior
+      final prefsService = UserPreferencesService();
+      final userPrefs = await prefsService.getUserPreferencesOnce();
+      
+      // If user has disabled auto-filter, don't show modal
+      if (userPrefs?.hardStopsBehavior == HardStopsBehavior.showAll) {
+        return;
+      }
+
       final svc = HardStopsService();
       final data = await svc.getHardStopsOnce();
       final userStops = (data['hardStops'] is List)
@@ -138,8 +149,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ? List<String>.from(data['ignoredWarnings'])
           : <String>[];
 
-      final matches = findWarningOverlap(_displayWarnings, userStops, ignoredWarnings);
+      final matches = findWarningOverlap(
+        _displayWarnings,
+        userStops,
+        ignoredWarnings,
+      );
       if (matches.isEmpty) return;
+
+      // For spoiler mode, show warnings only after reading
+      if (userPrefs?.hardStopsBehavior == HardStopsBehavior.spoilerMode) {
+        // Could implement post-reading warning here
+        return;
+      }
 
       final choice = await showHardStopWarningDialog(context, matches);
       if (choice == null) return;

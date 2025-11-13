@@ -5,6 +5,7 @@ import 'screens/hard_stops_screen.dart';
 import 'screens/kink_filters_screen.dart';
 import 'screens/summary_screen.dart';
 import 'screens/favorites_screen.dart';
+import 'screens/curated_library_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final String userId;
@@ -32,7 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < 4) {
+    if (_currentPage < 5) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
@@ -85,7 +86,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           label: 'Onboarding progress',
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: List.generate(5, (index) {
+                            children: List.generate(6, (index) {
                               final isActive = index == _currentPage;
                               return AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
@@ -139,6 +140,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     SummaryScreen(onNext: _nextPage, onPrevious: _previousPage),
                     FavoritesScreen(
+                      userId: widget.userId,
+                      onNext: _nextPage,
+                      onPrevious: _previousPage,
+                    ),
+                    CuratedLibraryScreen(
                       userId: widget.userId,
                       onNext: _completeOnboarding,
                       onPrevious: _previousPage,

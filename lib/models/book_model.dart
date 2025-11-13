@@ -10,6 +10,7 @@ class RomanceBook {
   final String? description;
   final String? publishedDate;
   final int? pageCount;
+  final String? publisher;
 
   const RomanceBook({
     required this.id,
@@ -20,6 +21,7 @@ class RomanceBook {
     this.description,
     this.publishedDate,
     this.pageCount,
+    this.publisher,
   });
 
   // This factory is used to parse data from Google Books API
@@ -53,6 +55,7 @@ class RomanceBook {
       description: volumeInfo['description'] as String?,
       publishedDate: volumeInfo['publishedDate'] as String?,
       pageCount: volumeInfo['pageCount'] as int?,
+      publisher: volumeInfo['publisher'] as String?,
     );
   }
 }
