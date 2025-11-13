@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 enum HardStopChoice { cancel, showAnyway, addToIgnore }
 
-Future<HardStopChoice?> showHardStopWarningDialog(BuildContext context, List<String> matchedWarnings) {
+Future<HardStopChoice?> showHardStopWarningDialog(
+  BuildContext context,
+  List<String> matchedWarnings,
+) {
   return showDialog<HardStopChoice>(
     context: context,
     barrierDismissible: false,
@@ -26,10 +29,14 @@ Future<HardStopChoice?> showHardStopWarningDialog(BuildContext context, List<Str
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: matchedWarnings.map((w) => Chip(
-                  label: Text(w),
-                  backgroundColor: Colors.orange.withOpacity(0.12),
-                )).toList(),
+                children: matchedWarnings
+                    .map(
+                      (w) => Chip(
+                        label: Text(w),
+                        backgroundColor: Colors.orange.withOpacity(0.12),
+                      ),
+                    )
+                    .toList(),
               ),
               const SizedBox(height: 12),
               const Text(

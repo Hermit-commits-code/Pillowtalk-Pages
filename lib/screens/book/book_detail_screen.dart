@@ -131,9 +131,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
       final svc = HardStopsService();
       final data = await svc.getHardStopsOnce();
-      final userStops = (data['hardStops'] is List) ? List<String>.from(data['hardStops']) : <String>[];
+      final userStops = (data['hardStops'] is List)
+          ? List<String>.from(data['hardStops'])
+          : <String>[];
+      final ignoredWarnings = (data['ignoredWarnings'] is List)
+          ? List<String>.from(data['ignoredWarnings'])
+          : <String>[];
 
-      final matches = findWarningOverlap(_displayWarnings, userStops);
+      final matches = findWarningOverlap(_displayWarnings, userStops, ignoredWarnings);
       if (matches.isEmpty) return;
 
       final choice = await showHardStopWarningDialog(context, matches);
@@ -142,7 +147,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       switch (choice) {
         case HardStopChoice.cancel:
           // User cancelled; do nothing (they remain on the page)
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Warning acknowledged')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Warning acknowledged')));
           break;
         case HardStopChoice.showAnyway:
           // User chose to proceed; no action required
@@ -150,7 +157,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         case HardStopChoice.addToIgnore:
           await svc.addIgnoredWarnings(matches);
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to ignore list')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Added to ignore list')));
           break;
       }
     } catch (e) {

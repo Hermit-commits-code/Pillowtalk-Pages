@@ -51,12 +51,17 @@ class HardStopsService {
     final enabled = data['hardStopsEnabled'] is bool
         ? data['hardStopsEnabled'] as bool
         : true;
-    return {'hardStops': stops, 'enabled': enabled};
+    final ignored = (data['ignoredWarnings'] is List)
+        ? List<String>.from(data['ignoredWarnings'].map((e) => e.toString()))
+        : <String>[];
+    return {'hardStops': stops, 'enabled': enabled, 'ignoredWarnings': ignored};
   }
 
   /// Add warnings to the user's ignore list (so they won't be treated as hard stops)
   Future<void> addIgnoredWarnings(List<String> warnings) async {
     if (warnings.isEmpty) return;
-    await _userDoc.set({'ignoredWarnings': FieldValue.arrayUnion(warnings)}, SetOptions(merge: true));
+    await _userDoc.set({
+      'ignoredWarnings': FieldValue.arrayUnion(warnings),
+    }, SetOptions(merge: true));
   }
 }
