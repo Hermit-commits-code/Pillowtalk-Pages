@@ -20,6 +20,9 @@ import '../screens/discovery/community_discovery_screen.dart';
 import '../screens/pro/pro_club_screen.dart';
 import '../screens/dev/dev_qa_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/social/friends_screen.dart';
+import '../screens/social/friend_settings_screen.dart';
+import '../screens/social/share_links_screen.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/',
@@ -90,6 +93,24 @@ final GoRouter router = GoRouter(
           path: '/curated',
           name: 'curated',
           builder: (context, state) => const CuratedScreen(),
+        ),
+        GoRoute(
+          path: '/social/friends',
+          name: 'social-friends',
+          builder: (context, state) => const FriendsScreen(),
+        ),
+        GoRoute(
+          path: '/social/friend-settings/:friendId',
+          name: 'social-friend-settings',
+          builder: (context, state) {
+            final friendId = state.pathParameters['friendId'] ?? '';
+            return FriendSettingsScreen(friendId: friendId);
+          },
+        ),
+        GoRoute(
+          path: '/social/share-links',
+          name: 'social-share-links',
+          builder: (context, state) => const ShareLinksScreen(),
         ),
       ],
     ),
