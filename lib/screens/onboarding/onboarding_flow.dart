@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'curated_library.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({super.key});
@@ -79,23 +79,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Onboarding saved')));
 
-      // Force replace the entire navigator stack so the CuratedLibrary becomes
-      // the visible screen in all contexts (works whether onboarding was
-      // launched modally or set as the app home).
-      try {
-        await Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (c) => CuratedLibrary(
-            hardStops: _hardStops,
-            kinkFilters: _kinkFilters,
-            favorites: _favorites,
-          )),
-          (route) => false,
-        );
-      } catch (navErr) {
-        // As a last resort, leave the confirmation snackbar visible. Navigation
-        // failures are non-fatal for onboarding completion.
-        debugPrint('Onboarding navigation failed: $navErr');
-      }
+        // Navigate to the app home using GoRouter so routing works with
+        // the ShellRoute/page-based navigation used by the app.
+        try {
+          context.go('/');
+        } catch (navErr) {
+          debugPrint('Onboarding navigation failed via GoRouter: $navErr');
+        }
+      // (CuratedLibrary navigation removed) We navigate via GoRouter above.
     } catch (e) {
       setState(() => _saving = false);
       ScaffoldMessenger.of(
