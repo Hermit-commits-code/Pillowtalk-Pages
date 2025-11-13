@@ -3,17 +3,21 @@
 // after async gaps to satisfy analyzer.
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import '../webview/docs_webview_screen.dart';
+import '../onboarding/onboarding_flow.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
+import '../admin/developer_tools_screen.dart';
+import '../librarian/librarian_tools_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   /// Optional provider for the current Firebase [User]. Tests can inject
@@ -44,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<String> _kinkFilters = [];
   bool _kinkFilterEnabled = true;
   final TextEditingController _customKinkController = TextEditingController();
+  bool _isLibrarian = false;
 
   @override
   void initState() {
@@ -51,6 +56,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadAppVersion();
     _loadHardStops();
     _loadKinkFilters();
+    _loadUserFlags();
+  }
+
+  // Load user-specific flags such as whether the user is a librarian
+  Future<void> _loadUserFlags() async {
+    try {
+      final user = AuthService.instance.currentUser;
+      if (user == null) return;
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      if (!mounted) return;
+      setState(() {
+        _isLibrarian = (doc.data()?['librarian'] ?? false) as bool;
+      });
+    } catch (_) {
+      // ignore; default to false
+    }
   }
 
   Future<void> _loadKinkFilters() async {
@@ -351,6 +375,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'https://hermit-commits-code.github.io/Spicy-Reads/docs/',
             ]),
           ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.edit_calendar),
+            title: const Text('Edit Onboarding'),
+            subtitle: const Text(
+              'Update your hard stops, kink filters, and favorites',
+            ),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const OnboardingFlow())),
+          ),
           const SizedBox(height: 16),
           Text('Kink Filters', style: theme.textTheme.titleMedium),
           SwitchListTile(
@@ -596,6 +631,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 8),
+          ],
+
+          const SizedBox(height: 16),
+
+          // Developer Tools (only visible to developer)
+          if (user?.email == 'hotcupofjoe2013@gmail.com') ...[
+            const Divider(height: 32),
+            Row(
+              children: [
+                Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.red[700],
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Developer Tools',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.red[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            Card(
+              color: Colors.red[50],
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.build, color: Colors.orange[700]),
+                      title: const Text('Admin Panel'),
+                      subtitle: const Text(
+                        'User management, ASIN tools, system controls',
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const DeveloperToolsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Librarian Tools (visible to any user marked as librarian)
+          if (_isLibrarian) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 32),
+            Row(
+              children: [
+                Icon(Icons.library_books, color: Colors.blue[700], size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Librarian Tools',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.blue[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Card(
+              color: Colors.blue[50],
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.book, color: Colors.blue[700]),
+                      title: const Text('Librarian Panel'),
+                      subtitle: const Text(
+                        'Verify books and ASINs, moderate entries',
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const LibrarianToolsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
 
           const SizedBox(height: 16),

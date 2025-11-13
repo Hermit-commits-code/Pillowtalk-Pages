@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
+import 'screens/onboarding/onboarding_flow.dart';
 import 'config/app_theme.dart';
 import 'config/router.dart';
 import 'firebase_options.dart';
@@ -10,6 +12,15 @@ import 'services/theme_provider.dart';
 import 'services/auth_service.dart';
 
 import 'dart:io' show Platform;
+
+class OnboardingWrapper extends StatelessWidget {
+  const OnboardingWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const OnboardingFlow();
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,8 +79,40 @@ class AppRoot extends StatelessWidget {
             );
           }
 
-          // The router will now handle showing the correct screen based on auth state.
-          return const SpicyReadsApp();
+          final user = snapshot.data;
+          if (user == null) {
+            return const SpicyReadsApp();
+          }
+
+          // If the user hasn't completed onboarding, show the onboarding flow first.
+          return FutureBuilder<DocumentSnapshot?>(
+            future: FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get()
+                .then((d) => d),
+            builder: (context, snap2) {
+              if (snap2.connectionState == ConnectionState.waiting) {
+                return const MaterialApp(
+                  home: Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  ),
+                );
+              }
+
+              final doc = snap2.data;
+              final onboarding =
+                  (doc?.data() as Map<String, dynamic>?)?['onboarding']
+                      as Map<String, dynamic>?;
+              if (onboarding == null || onboarding['completedAt'] == null) {
+                return MaterialApp(
+                  home: Builder(builder: (c) => const OnboardingWrapper()),
+                );
+              }
+
+              return const SpicyReadsApp();
+            },
+          );
         },
       ),
     );

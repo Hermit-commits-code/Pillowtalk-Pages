@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'curated_library.dart';
 
 class OnboardingFlow extends StatefulWidget {
   const OnboardingFlow({super.key});
@@ -43,7 +44,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   void _toggle(List<String> list, String value) {
     setState(() {
-      if (list.contains(value)) list.remove(value); else list.add(value);
+      if (list.contains(value))
+        list.remove(value);
+      else
+        list.add(value);
     });
   }
 
@@ -69,8 +73,16 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       }, SetOptions(merge: true));
       setState(() => _saving = false);
       if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Onboarding saved')));
+      // Navigate to a curated library view so the user sees personalized books.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (c) => CuratedLibrary(
+            hardStops: _hardStops,
+            kinkFilters: _kinkFilters,
+            favorites: _favorites,
+          ),
+        ),
+      );
     } catch (e) {
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save: $e')));
