@@ -37,9 +37,9 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
       setState(() => _isCreating = false);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
         setState(() => _isCreating = false);
       }
     }
@@ -47,7 +47,7 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
 
   void _showShareDialog(ShareLink shareLink) {
     final shareUrl = 'https://spicyreads.app/share/${shareLink.shareId}';
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -75,9 +75,9 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
             const SizedBox(height: 12),
             Text(
               'Anyone with this link can view your ${shareLink.type.replaceAll('-', ' ')} for 30 days.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -143,13 +143,11 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
             const SizedBox(height: 12),
 
             _buildShareLinkOption(
-              icon: Icons.target,
+              icon: Icons.flag,
               title: 'Reading Goal',
               subtitle: 'Share your reading goal and progress toward it',
-              onTap: () => _createShareLink(
-                type: 'reading-goal',
-                title: 'Reading Goal',
-              ),
+              onTap: () =>
+                  _createShareLink(type: 'reading-goal', title: 'Reading Goal'),
             ),
 
             const SizedBox(height: 12),
@@ -158,10 +156,8 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
               icon: Icons.library_add,
               title: 'To Be Read (TBR)',
               subtitle: 'Share your TBR pile with a friend',
-              onTap: () => _createShareLink(
-                type: 'spicy-tbr',
-                title: 'TBR Pile',
-              ),
+              onTap: () =>
+                  _createShareLink(type: 'spicy-tbr', title: 'TBR Pile'),
             ),
 
             const SizedBox(height: 32),
@@ -244,15 +240,15 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -290,17 +286,13 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
           return Center(
             child: Column(
               children: [
-                Icon(
-                  Icons.link_off,
-                  size: 48,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.link_off, size: 48, color: Colors.grey[400]),
                 const SizedBox(height: 12),
                 Text(
                   'No active share links',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -329,7 +321,9 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Revoke Link?'),
-        content: const Text('This link will no longer work. This cannot be undone.'),
+        content: const Text(
+          'This link will no longer work. This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -348,14 +342,14 @@ class _ShareLinksScreenState extends State<ShareLinksScreen> {
       try {
         await _shareLinksService.revokeShareLink(shareId);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Link revoked')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Link revoked')));
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -370,10 +364,7 @@ class _ShareLinkTile extends StatelessWidget {
   final ShareLink shareLink;
   final VoidCallback onRevoke;
 
-  const _ShareLinkTile({
-    required this.shareLink,
-    required this.onRevoke,
-  });
+  const _ShareLinkTile({required this.shareLink, required this.onRevoke});
 
   @override
   Widget build(BuildContext context) {
@@ -389,15 +380,15 @@ class _ShareLinkTile extends StatelessWidget {
           Text(
             'Expires in $daysLeft days',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: daysLeft <= 3 ? Colors.orange : Colors.grey[600],
-                ),
+              color: daysLeft <= 3 ? Colors.orange : Colors.grey[600],
+            ),
           ),
           const SizedBox(width: 12),
           Text(
             '${shareLink.accessCount} views',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           ),
         ],
       ),
@@ -414,7 +405,7 @@ class _ShareLinkTile extends StatelessWidget {
       case 'reading-progress':
         return Icons.bar_chart;
       case 'reading-goal':
-        return Icons.target;
+        return Icons.flag;
       case 'spicy-tbr':
         return Icons.library_add;
       default:
