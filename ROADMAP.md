@@ -6,19 +6,76 @@
 
 ---
 
+## Progress Update (2025-11-13)
+
+**RELEASE COMPLETED v0.8.3+1**:
+- Implemented onboarding flow (Hard Stops → Kink Filters → Favorite Tropes → Landing Choice)
+- Added landing preference (Home vs Curated) with GoRouter navigation per user choice
+- All onboarding data persists to Firestore and can be edited from Profile screen
+- Released v0.8.3 with conventional git tag and version bump
+
+**PRIOR (v0.8.x)**:
+- Implemented ASIN support: `UserBook` model and librarian UI now include an `asin` field to aid book verification.
+- Added Developer / Admin tools (developer-only UI): user lookup, Pro/Librarian toggles, Pro/Librarians lists, and ASIN management screens.
+- Introduced server-side callable Cloud Functions for admin operations (`getUserByEmail`, `setLibrarianStatus`, `setProStatus`, `getProUsers`, `getLibrarians`, `searchUsers`) and a diagnostics callable `pingAdmin`.
+- Hardened server security with an admin allow-list (functions config `admin.uids` set) and `isAdmin(context)` checks; deployed updated functions.
+- Added audit logging: admin actions are recorded to `admin_audit` (actorUid, actorEmail, action, targetUid, details, timestamp); most callables write audit entries on success.
+- Client now prefers callable-first admin operations via `UserManagementService`, with Firestore fallback when necessary.
+- Added a Diagnostics button in `DeveloperToolsScreen` to call `pingAdmin` and surface raw errors or caller info for debugging.
+- Moved "Currently Reading" above Reading Analytics on Home dashboard.
+
 ## Table of Contents
 
 1. Strategic Philosophy
 2. Product Positioning vs. Competitors
 3. Personal-Only MOAT (What Makes Us Different)
 4. Monetization Strategy (Personal-Only Model)
-5. Phase 0: Immediate Priorities (30 Days)
-6. Phase 1-4: Full Implementation Roadmap
-7. Success Metrics & KPIs
+5. **CURRENT STATUS: v0.8.3 Phase Summary**
+6. Phase 0: Immediate Priorities (30 Days)
+7. Phase 1-4: Full Implementation Roadmap
+8. Success Metrics & KPIs
+
+## 🎯 CURRENT STATUS: v0.8.3 Phase Summary
+
+**We are NOT at v0.6.0 anymore.** Here's where we actually are:
+
+### Completed Phases (v0.1 - v0.8)
+
+| Phase | Version | Status | What Was Done |
+| ----- | ------- | ------ | ------------- |
+| **Phase 1** | v0.1-v0.2 | ✅ DONE | Foundation: Auth, Firebase, UI theme |
+| **Phase 2** | v0.2-v0.5 | ✅ DONE | Core features: book search, spice meter, hard stops, kink filters, library, lists |
+| **Phase 3** | v0.6-v0.8.3 | ✅ DONE (Partial) | Refinements: ASIN field, Admin/Developer tools, Audit logging, Onboarding flow, GoRouter integration |
+
+### Current Release (v0.8.3+1) - November 2025
+
+✅ **Onboarding complete**: 4-step flow (Hard Stops → Kink Filters → Favorites → Landing Choice)  
+✅ **Navigation fixed**: Uses GoRouter; user lands on Home or Curated per preference  
+✅ **Version bumped**: Released v0.8.3 with git tag  
+
+### What's Next (v0.9.0+)
+
+**Recommended Next Focus** (Per UI Magpie doc):
+
+1. **v0.9.0 — BookDetail UI Improvements** (2-3 weeks)
+   - Hard stops alert modal (show warning if book matches user's hard stops)
+   - Format tabs (Paperback | Ebook | Audiobook with format-specific metadata)
+   - Librarian summary section (placeholder for curated book descriptions)
+   - Community spice insights (avg rating, common tropes, found hard stops) — Pro feature
+
+2. **v1.0.0 — Homepage Redesign** (3-4 weeks)
+   - Horizontal scrolls: Currently Reading, Your Trending Tropes, TBR Pile, Librarian Picks, Trending
+   - Replace "Currently Reading" simple tile with rich card (spice level, progress %)
+   - Add featured seasonal collections (Librarian curation)
+
+3. **v1.0+ — Private Social** (Later; per Strategic Framework)
+   - Only after home + book detail UX is polished
+   - Friends (invite-only, opt-in)
+   - Share links (encrypted, expiring, opt-in)
+   - Reading groups (2-10 people, private)
+   - Buddy reads with hard-stops respect
 
 ---
-
-## ��� Strategic Philosophy
 
 **Vein of Truth**: "Romance is not a genre; it's a culture. We are the first book tracker built INSIDE that culture, protecting reader mental health through personal data ownership."
 
@@ -394,6 +451,16 @@ This allows us to:
 **Deliverable**: 500-1000 books in Firestore with metadata; users can search/filter immediately.
 
 **Time Estimate**: 3-4 days (API bulk import + manual curation).
+
+### Completed Items (updated 2025-11-13)
+
+- [x] **ASIN support**: `UserBook` model and librarian UI include `asin` for book verification.
+- [x] **Developer/Admin tools**: Developer Tools screen with user lookup, Pro/Librarian toggles, Pro/Librarians lists, and ASIN management implemented.
+- [x] **Callable Cloud Functions**: Server-side callables for admin operations deployed (`getUserByEmail`, `setLibrarianStatus`, `setProStatus`, `getProUsers`, `getLibrarians`, `searchUsers`, `pingAdmin`).
+- [x] **Admin allow-list & audit**: `ADMIN_UIDS` configured, `isAdmin(context)` checks in functions, and audit logging to `admin_audit` added (callables write audit entries).
+- [x] **Diagnostics UI**: `pingAdmin` callable and Diagnostics button in `DeveloperToolsScreen` added.
+- [x] **Home dashboard reorder**: "Currently Reading" moved above Reading Analytics.
+- [x] **Release housekeeping**: Bumped package version to `0.8.2+2` and created tag `v0.8.2`.
 
 ---
 
@@ -964,6 +1031,7 @@ This allows us to:
 
 ---
 
-**Version**: 0.6.0+1
-**Last Updated**: November 11, 2025
+**Version**: 0.8.3+1
+**Last Updated**: November 13, 2025
+**Changelog**: See `CHANGELOG.md` for detailed release notes.
 **Next Review**: December 1, 2025 (Post-Beta-Launch)
