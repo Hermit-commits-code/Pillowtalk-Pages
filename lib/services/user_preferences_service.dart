@@ -9,8 +9,11 @@ class UserPreferencesService {
 
   String get _userId => _authService.currentUser?.uid ?? '';
 
-  DocumentReference<Map<String, dynamic>> get _userPrefsDoc =>
-      _firestore.collection('users').doc(_userId).collection('preferences').doc('settings');
+  DocumentReference<Map<String, dynamic>> get _userPrefsDoc => _firestore
+      .collection('users')
+      .doc(_userId)
+      .collection('preferences')
+      .doc('settings');
 
   /// Stream of user preferences
   Stream<UserPreferences?> userPreferencesStream() {

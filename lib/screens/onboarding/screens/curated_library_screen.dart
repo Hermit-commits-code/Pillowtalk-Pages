@@ -33,8 +33,14 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
   Future<void> _loadCuratedBooks() async {
     try {
       // Get user's preferences
-      final hardStopsService = Provider.of<HardStopsService>(context, listen: false);
-      final kinkFilterService = Provider.of<KinkFilterService>(context, listen: false);
+      final hardStopsService = Provider.of<HardStopsService>(
+        context,
+        listen: false,
+      );
+      final kinkFilterService = Provider.of<KinkFilterService>(
+        context,
+        listen: false,
+      );
 
       final stopsData = await hardStopsService.getHardStopsOnce();
       final kinksData = await kinkFilterService.getKinkFilterOnce();
@@ -59,7 +65,9 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
           'description': data['description'],
           'genres': List<String>.from(data['genres'] ?? []),
           'cachedTropes': List<String>.from(data['cachedTropes'] ?? []),
-          'cachedTopWarnings': List<String>.from(data['cachedTopWarnings'] ?? []),
+          'cachedTopWarnings': List<String>.from(
+            data['cachedTopWarnings'] ?? [],
+          ),
         };
       }).toList();
 
@@ -80,9 +88,9 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
         setState(() {
           isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading books: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading books: $e')));
       }
     }
   }
@@ -90,11 +98,7 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const SafeArea(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const SafeArea(child: Center(child: CircularProgressIndicator()));
     }
 
     return SafeArea(
@@ -105,16 +109,16 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
           children: [
             Text(
               'Your Curated Library',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Books selected based on your preferences',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             Expanded(
@@ -131,27 +135,26 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'No curated books available yet',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'You can still browse and add books manually',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[500],
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: Colors.grey[500]),
                           ),
                         ],
                       ),
                     )
                   : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.6,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.6,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: curatedBooks.length,
                       itemBuilder: (context, index) {
                         final book = curatedBooks[index];
@@ -167,14 +170,15 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
                                         book['imageUrl'],
                                         fit: BoxFit.cover,
                                         width: double.infinity,
-                                        errorBuilder: (context, error, stackTrace) =>
-                                            Container(
-                                          color: Colors.grey[200],
-                                          child: Icon(
-                                            Icons.book,
-                                            color: Colors.grey[400],
-                                          ),
-                                        ),
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  color: Colors.grey[200],
+                                                  child: Icon(
+                                                    Icons.book,
+                                                    color: Colors.grey[400],
+                                                  ),
+                                                ),
                                       )
                                     : Container(
                                         color: Colors.grey[200],
@@ -189,7 +193,8 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         book['title'],
@@ -223,9 +228,9 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
             const SizedBox(height: 16),
             Text(
               'These books are filtered to match your hard stops and preferences. You can explore more books after setup!',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[500],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

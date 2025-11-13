@@ -134,7 +134,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       // Check user preferences for hard stops behavior
       final prefsService = UserPreferencesService();
       final userPrefs = await prefsService.getUserPreferencesOnce();
-      
+
       // If user has disabled auto-filter, don't show modal
       if (userPrefs?.hardStopsBehavior == HardStopsBehavior.showAll) {
         return;

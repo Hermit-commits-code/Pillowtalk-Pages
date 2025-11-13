@@ -37,6 +37,9 @@ class UserBook {
   final DateTime? publishedDate;
   final String? publisher;
   final BookFormat format;
+  final String? narrator; // For audiobooks
+  final int? runtimeMinutes; // Total audiobook runtime in minutes
+  final int? listeningProgressMinutes; // Minutes listened so far
 
   const UserBook({
     required this.id,
@@ -68,6 +71,9 @@ class UserBook {
     this.publishedDate,
     this.publisher,
     this.format = BookFormat.paperback,
+    this.narrator,
+    this.runtimeMinutes,
+    this.listeningProgressMinutes,
   });
 
   factory UserBook.fromJson(Map<String, dynamic> json) {
@@ -113,6 +119,10 @@ class UserBook {
       format: BookFormat.values.byName(
         json['format'] as String? ?? 'paperback',
       ),
+      narrator: json['narrator'] as String?,
+      runtimeMinutes: (json['runtimeMinutes'] as num?)?.toInt(),
+      listeningProgressMinutes: (json['listeningProgressMinutes'] as num?)
+          ?.toInt(),
     );
   }
 
@@ -146,6 +156,9 @@ class UserBook {
       'publishedDate': publishedDate?.toIso8601String(),
       'publisher': publisher,
       'format': format.name,
+      'narrator': narrator,
+      'runtimeMinutes': runtimeMinutes,
+      'listeningProgressMinutes': listeningProgressMinutes,
     };
   }
 
@@ -179,6 +192,9 @@ class UserBook {
     DateTime? publishedDate,
     String? publisher,
     BookFormat? format,
+    String? narrator,
+    int? runtimeMinutes,
+    int? listeningProgressMinutes,
   }) {
     return UserBook(
       id: id ?? this.id,
@@ -210,6 +226,10 @@ class UserBook {
       publishedDate: publishedDate ?? this.publishedDate,
       publisher: publisher ?? this.publisher,
       format: format ?? this.format,
+      narrator: narrator ?? this.narrator,
+      runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      listeningProgressMinutes:
+          listeningProgressMinutes ?? this.listeningProgressMinutes,
     );
   }
 }
