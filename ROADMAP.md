@@ -95,6 +95,7 @@
 ### What Users Can Share (All Opt-In)
 
 1. **Friends** (Invite-Only)
+
    - Request to follow (you approve)
    - Share reading progress (you control visibility per friend)
    - Share spice ratings (you choose which friends see)
@@ -102,6 +103,7 @@
    - Receive comments on reviews (from friends only, no public feed)
 
 2. **Reading Groups** (Private, 2-10 people)
+
    - Buddy reads (read together, track progress per member)
    - Group chat (spoiler-safe, respects each member's hard stops)
    - Spice discussion (private, no algorithm)
@@ -115,6 +117,7 @@
    - User can revoke link anytime
 
 ### Privacy Guarantees (Never)
+
 - ❌ No public profiles or activity feeds
 - ❌ Hard stops never shared without explicit approval
 - ❌ No algorithmic recommendations
@@ -122,6 +125,7 @@
 - ❌ No permanent public records
 
 ### Privacy Guarantees (Always)
+
 - ✅ All share links encrypted (token-based, not guessable)
 - ✅ Share links expire (default 30 days)
 - ✅ User can see who accessed their links
@@ -131,12 +135,14 @@
 ### Monetization Lever (v1.0+)
 
 **Pro Tier Could Include**:
+
 - Unlimited reading groups (vs. 1 group free)
 - 30-day share link expiration (vs. 7-day free)
 - Group analytics (who read what, avg rating, trends)
 - "Priority friend notifications" (alerts when friend finishes a book)
 
 **Data Model** (Firestore):
+
 ```
 /users/{userId}/friends/{friendId}
   status: "accepted" | "pending" | "blocked"

@@ -11,6 +11,7 @@
 ## Why Optional Social Matters for Retention
 
 ### Goodreads Problem
+
 ```
 User adds book → Activity posted to public profile → Friends see it
 ↓
@@ -22,6 +23,7 @@ Result: "I want to track spicy books, but not publicly"
 ```
 
 ### StoryGraph Solution (Better)
+
 ```
 User adds book → Can control visibility
 ↓
@@ -33,6 +35,7 @@ But: Spice readers still feel exposed
 ```
 
 ### Spicy Reads Opportunity (Best)
+
 ```
 User adds book → Private by default
 ↓
@@ -82,6 +85,7 @@ SOCIAL SETTINGS (All Optional, All Disabled by Default)
 ### Scenario 1: Friend Wants to See Your Reading Progress
 
 **Traditional Approach (Goodreads):**
+
 ```
 1. Friend finds your public profile
 2. Sees all your books, ratings, activity
@@ -89,6 +93,7 @@ SOCIAL SETTINGS (All Optional, All Disabled by Default)
 ```
 
 **Spicy Reads Approach:**
+
 ```
 1. You send friend an encrypted link (expires in 30 days)
 2. Link shows: "Currently reading: [book]", "Your TBR: 47 books", "Avg spice: 4.2/5"
@@ -99,6 +104,7 @@ SOCIAL SETTINGS (All Optional, All Disabled by Default)
 ### Scenario 2: Buddy Read with Friends
 
 **What Users Want:**
+
 ```
 - Pick a spicy book with 2 friends
 - All three read at own pace
@@ -108,6 +114,7 @@ SOCIAL SETTINGS (All Optional, All Disabled by Default)
 ```
 
 **Spicy Reads Implementation:**
+
 ```
 1. Create private reading group: "My Spicy Crew"
 2. Add 2 friends (invite link)
@@ -123,12 +130,14 @@ SOCIAL SETTINGS (All Optional, All Disabled by Default)
 ### Scenario 3: Share Reading Goals
 
 **What Users Want:**
+
 ```
 "I want to read 30 spicy books in 2025. My friends can see my progress,
 but I don't want it on my public profile."
 ```
 
 **Spicy Reads Implementation:**
+
 ```
 1. Set goal: "30 spicy romance books in 2025"
 2. Generate shareable link: spicyreads.app/share/abc123xyz
@@ -213,6 +222,7 @@ but I don't want it on my public profile."
 ## Privacy Guarantees
 
 ### What Spicy Reads Will NEVER Do
+
 - ❌ Show public activity feed (no "User X finished a book" in public)
 - ❌ Allow anyone to find your profile (no search)
 - ❌ Share your hard stops with anyone except YOU
@@ -221,6 +231,7 @@ but I don't want it on my public profile."
 - ❌ Keep sharing links beyond expiration
 
 ### What Spicy Reads Will Do
+
 - ✅ Encrypt all share links (token-based, not guessable)
 - ✅ Expire share links (default 30 days, user can shorten)
 - ✅ Log access to share links (user can see who opened)
@@ -233,6 +244,7 @@ but I don't want it on my public profile."
 ## Rollout Strategy (v1.0+)
 
 ### Stage 1: Launch (Private by Default)
+
 ```
 ✅ All social features disabled by default
 ✅ Settings page: toggle each feature individually
@@ -241,6 +253,7 @@ but I don't want it on my public profile."
 ```
 
 ### Stage 2: Beta (Q1 2026)
+
 ```
 ✅ Invite 50 beta users to test:
   - Friend requests
@@ -252,6 +265,7 @@ but I don't want it on my public profile."
 ```
 
 ### Stage 3: Gradual Rollout (Q2 2026+)
+
 ```
 ✅ Roll out to Pro users first (monetization signal)
 ✅ Later: make available to all users
@@ -291,22 +305,22 @@ PRO TIER
 > - 📚 Track spicy romance books privately
 > - 👯 Share with trusted friends (invite-only)
 > - 🔥 Read together without public exposure
-> - ⚠️  Respect each other's hard stops
+> - ⚠️ Respect each other's hard stops
 > - 🔒 Your data never leaves your control
 
 ---
 
 ## Comparison Table
 
-| Feature | Goodreads | StoryGraph | Spicy Reads (v1.0+) |
-|---------|-----------|-----------|---|
-| **Public Profiles** | ✅ Default | ✅ Optional | ❌ Never |
-| **Friend Activity Feed** | ✅ Public | ✅ Optional | ❌ Private groups only |
-| **Private Sharing** | ❌ No | ❌ No | ✅ Yes (link-based, expires) |
-| **Reading Groups** | ❌ No | ❌ No | ✅ Yes (2-10 people) |
-| **Hard Stops Respect** | ❌ No | ❌ No | ✅ Yes (group chats hide spoilers) |
-| **Share Link Expiration** | N/A | N/A | ✅ 30 days default, user-controlled |
-| **Privacy by Default** | ❌ No | ⚠️ Partial | ✅ Yes |
+| Feature                   | Goodreads  | StoryGraph  | Spicy Reads (v1.0+)                 |
+| ------------------------- | ---------- | ----------- | ----------------------------------- |
+| **Public Profiles**       | ✅ Default | ✅ Optional | ❌ Never                            |
+| **Friend Activity Feed**  | ✅ Public  | ✅ Optional | ❌ Private groups only              |
+| **Private Sharing**       | ❌ No      | ❌ No       | ✅ Yes (link-based, expires)        |
+| **Reading Groups**        | ❌ No      | ❌ No       | ✅ Yes (2-10 people)                |
+| **Hard Stops Respect**    | ❌ No      | ❌ No       | ✅ Yes (group chats hide spoilers)  |
+| **Share Link Expiration** | N/A        | N/A         | ✅ 30 days default, user-controlled |
+| **Privacy by Default**    | ❌ No      | ⚠️ Partial  | ✅ Yes                              |
 
 ---
 
@@ -323,10 +337,12 @@ PRO TIER
 ## Final Thought
 
 **You're right that social is a retention driver.** But Goodreads/StoryGraph do it wrong for romance readers:
+
 - Goodreads: Forces public exposure (privacy nightmare)
 - StoryGraph: Optional but still social-forward (still feels exposed)
 
 **Spicy Reads can do it right:**
+
 - Private by default
 - Share only with trusted friends
 - Respect hard stops and preferences

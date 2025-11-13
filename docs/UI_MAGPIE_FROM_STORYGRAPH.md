@@ -1,6 +1,7 @@
 # UI Magpie Strategy: Learning from StoryGraph Screenshots
 
 ## Overview
+
 StoryGraph has exceptional UX. Rather than clone, we'll **steal the patterns** and apply them to Spicy Reads' unique positioning.
 
 ---
@@ -10,6 +11,7 @@ StoryGraph has exceptional UX. Rather than clone, we'll **steal the patterns** a
 ### 1. **Homepage Dashboard Architecture** (Images 1-2)
 
 **StoryGraph Pattern:**
+
 ```
 Search + Menu (sticky)
     ↓
@@ -25,12 +27,14 @@ Giveaways (horizontal scroll)
 ```
 
 **Why It Works:**
+
 - Immediate visual feedback ("What am I reading now?")
 - Multiple entry points (current, to-read, discover, popular)
 - Horizontal scrolls reduce cognitive load
 - Sticky search + menu = consistent navigation
 
 **Spicy Reads Adaptation:**
+
 ```
 Search + Menu (sticky)
     ↓
@@ -54,6 +58,7 @@ New Releases by Favorite Authors
 ### 2. **Community Features** (Community/Friends Feed Images)
 
 **StoryGraph Pattern:**
+
 ```
 Community dropdown (News Feed | Friends | Groups)
     ↓
@@ -80,12 +85,13 @@ Activity Feed shows:
   - "Friend finished [Book] + gave it 5 spice 🔥"
   - "Friend added [Book] to TBR (avoided hard stops)"
   - "1 hour ago"
-  
+
 !! CRITICAL: No public profiles. No recommendation algorithm.
 !! Only friends see activity, and only what they've shared.
 ```
 
 **Why This Matters:**
+
 - StoryGraph's social is WHERE users spend time (retention driver)
 - But their public profiles = data privacy risk
 - Your private-by-default approach = competitive advantage
@@ -96,6 +102,7 @@ Activity Feed shows:
 ### 3. **Profile Screen** (Profile Overview Image)
 
 **StoryGraph Pattern:**
+
 ```
 Profile Picture + Username (editable)
     ↓
@@ -115,7 +122,7 @@ Quick Links: Reading Journal | Stats
 ```
 Profile Picture + Username (editable)
     ↓
-Stats: 
+Stats:
   - 🔥 Average Spice (4.2/5)
   - 📚 Total Books (184)
   - 📅 This Year (41)
@@ -129,13 +136,14 @@ My Preferences (Summary):
 Quick Links: My Lists | Reading Analytics | Privacy Settings
 ```
 
-**Key Innovation:** Show *your* reading *preferences*, not just activity. This reinforces Spicy Reads' unique value (hard stops + personalization).
+**Key Innovation:** Show _your_ reading _preferences_, not just activity. This reinforces Spicy Reads' unique value (hard stops + personalization).
 
 ---
 
 ### 4. **Book Detail Screen** (Book Header + Tabs Images)
 
 **StoryGraph Pattern:**
+
 ```
 Book Cover (large) | Book Title/Author/Series
     ↓
@@ -194,6 +202,7 @@ Personal Notes (your own review)
 ```
 
 **Why This is Better:**
+
 - StoryGraph's "Who's it for?" is generic AI marketing
 - Spicy Reads' "What Should I Know?" is librarian-curated HARD STOPS + SPICE
 - Shows COMMUNITY hard stops patterns (not ratings, but safety info)
@@ -204,6 +213,7 @@ Personal Notes (your own review)
 ### 5. **Reading Challenges/Goals** (Images 3)
 
 **StoryGraph Pattern:**
+
 ```
 "Challenges" header
     ↓
@@ -241,6 +251,7 @@ Motivation: "You need 2 more dark romance books to reach your goal!"
 ### 6. **Library/Book Shelf** (Library Screen Image)
 
 **StoryGraph Pattern:**
+
 ```
 Currently Reading (1 book with progress)
     ↓
@@ -252,6 +263,7 @@ To-Read Pile (269 books, horizontal scroll)
 **Spicy Reads Already Has This** ✅
 
 But could enhance:
+
 ```
 Currently Reading
   - Book cover + progress % + current spice level
@@ -270,6 +282,7 @@ To-Read Pile (filterable):
 ### 7. **Edition Browsing** (Browse Editions Images)
 
 **StoryGraph Pattern:**
+
 ```
 "Browse editions – [Book Title]"
     ↓
@@ -313,21 +326,25 @@ Alternative Editions (if available):
 ## What StoryGraph Does That We Should NOT Copy
 
 ### ❌ Community Voting/Ratings
+
 - StoryGraph: "Rating 3.95 based on 639 reviews"
 - Problem: Quality death spiral (popular books get higher ratings regardless)
 - **Spicy Reads:** Personal spice rating only. Librarian verification instead.
 
 ### ❌ Algorithmic "Who's It For?"
+
 - StoryGraph: AI-generated blurb ("Powered by AI (Beta)")
 - Problem: Generic marketing speak
 - **Spicy Reads:** Librarian-written summaries focusing on SPICE + HARD STOPS
 
 ### ❌ Public Profiles / Activity Feed
+
 - StoryGraph: "User finished book X" visible to followers
 - Problem: Surveillance, toxicity risk, privacy concerns
 - **Spicy Reads:** Private by default. Optional friend-only sharing (v1.0+)
 
 ### ❌ Algorithmic Recommendations
+
 - StoryGraph: "Popular This Week" is algorithm-driven
 - Problem: Pushes books toward lowest-common-denominator
 - **Spicy Reads:** Librarian Picks (curation) + trending data (transparent)
@@ -337,6 +354,7 @@ Alternative Editions (if available):
 ## Feature Priority: What to Build When
 
 ### ✅ Phase 0 (NOW - Next 30 Days) - Must Have Before Beta
+
 - [x] Audiobook format tabs
 - [x] Publisher + publication date display
 - [x] Page count metadata
@@ -344,6 +362,7 @@ Alternative Editions (if available):
 - [ ] Format availability indicator (physical | ebook | audiobook)
 
 ### 🚧 Phase 1 (Weeks 5-8) - High Impact
+
 - [ ] Enhanced book detail with librarian summary (replaces AI blurb)
 - [ ] Community spice insights (avg rating, common tropes, found hard stops)
 - [ ] Reading goals dashboard (PRO: track spice books, formats, streak)
@@ -351,12 +370,14 @@ Alternative Editions (if available):
 - [ ] DNF tracking with reasons
 
 ### 🔲 Phase 2 (Weeks 9-12) - Growth
+
 - [ ] Advanced homepage (currently reading big card, TBR scroll, etc.)
 - [ ] Profile screen redesign (show preferences instead of activity)
 - [ ] Better library/shelf views with filtering
 - [ ] Reading analytics dashboard (PRO: charts, heatmaps, exports)
 
 ### 🔲 Phase 3 (Month 4+) - Retention
+
 - [ ] Optional private social (friends, activity feed, reading groups)
 - [ ] Buddy read feature (2 friends pick book, discuss hard stops)
 - [ ] Share reading goals via link
@@ -367,6 +388,7 @@ Alternative Editions (if available):
 ## Specific UI Components to Steal (Design Patterns)
 
 ### Horizontal Scrolls
+
 ```dart
 // StoryGraph does this beautifully for discovery
 // Multiple horizontal sections: Current Reads, TBR, Popular, Giveaways
@@ -377,6 +399,7 @@ Alternative Editions (if available):
 ```
 
 ### Progress Bars
+
 ```dart
 // StoryGraph shows:
 // - Books: 41/50 (82%)
@@ -391,6 +414,7 @@ Alternative Editions (if available):
 ```
 
 ### Format Tabs
+
 ```dart
 // On book detail: Paperback | Ebook | Audiobook
 // Tab content shows format-specific metadata
@@ -398,6 +422,7 @@ Alternative Editions (if available):
 ```
 
 ### Smart Alerts/Warnings
+
 ```dart
 // StoryGraph doesn't have this, but we should:
 // ⚠️ Hard Stops Alert (if book matches user's hard stops)
@@ -406,6 +431,7 @@ Alternative Editions (if available):
 ```
 
 ### Compact Stats Display
+
 ```dart
 // Profile shows 4 key metrics in a row:
 // [Streak] [Total Books] [This Year] [Avg Spice]
@@ -417,11 +443,13 @@ Alternative Editions (if available):
 ## Implementation Roadmap (What Code Changes)
 
 ### Immediate (v0.6.6 - DONE)
+
 - [x] Add audiobook format
 - [x] Add format field to UserBook
 - [x] Add pageCount, publishedDate, publisher
 
 ### Next (v0.7.0)
+
 - [ ] Update BookDetailScreen with format tabs
 - [ ] Add hard stops alert modal
 - [ ] Add librarian summary section (replace AI blurb)
@@ -429,6 +457,7 @@ Alternative Editions (if available):
 - [ ] Enhance edition browsing
 
 ### Then (v0.8.0)
+
 - [ ] Redesign homepage dashboard (horizontal scrolls)
 - [ ] Redesign profile screen (show preferences)
 - [ ] Add reading goals dashboard (Pro)
@@ -440,6 +469,7 @@ Alternative Editions (if available):
 ## Design System Consistency
 
 **What to Keep:**
+
 - ✅ Dark mode (matching StoryGraph)
 - ✅ Teal accents for CTAs (matching StoryGraph)
 - ✅ Rounded cards and chips
@@ -447,6 +477,7 @@ Alternative Editions (if available):
 - ✅ Sticky search + menu
 
 **What to Change for Spicy Reads:**
+
 - 🔥 Red/orange accents for spice levels (0-5 flames)
 - ⚠️ Purple/red for hard stops warnings
 - 📚 Different icon set (focus on spice + triggers, not generic reading)
@@ -456,20 +487,21 @@ Alternative Editions (if available):
 
 ## User Retention: Why These Patterns Matter
 
-| Pattern | StoryGraph Win | Spicy Reads Edge |
-|---------|---|---|
-| Horizontal scrolls | Visual variety | Show YOU filtered content |
-| Format tabs | Edition choice | Format preference display |
-| Progress bars | Goal tracking | Spice + format breakdown |
-| Profile summary | Show activity | Show preferences (hard stops) |
-| Community insights | Rating + moods | Spice + warnings + tropes |
-| Hard stops alerts | N/A | UNIQUE: protect user experience |
+| Pattern            | StoryGraph Win | Spicy Reads Edge                |
+| ------------------ | -------------- | ------------------------------- |
+| Horizontal scrolls | Visual variety | Show YOU filtered content       |
+| Format tabs        | Edition choice | Format preference display       |
+| Progress bars      | Goal tracking  | Spice + format breakdown        |
+| Profile summary    | Show activity  | Show preferences (hard stops)   |
+| Community insights | Rating + moods | Spice + warnings + tropes       |
+| Hard stops alerts  | N/A            | UNIQUE: protect user experience |
 
 ---
 
 ## Final Recommendation
 
 **Build in this order:**
+
 1. **Book detail enhancements** (format tabs, hard stops alert, librarian summary) → v0.7 → HIGH IMPACT, low effort
 2. **Homepage dashboard** (horizontal scrolls, trending, picks) → v0.8 → Medium effort, high engagement
 3. **Profile redesign** (show preferences) → v0.8 → Low effort, strong positioning
