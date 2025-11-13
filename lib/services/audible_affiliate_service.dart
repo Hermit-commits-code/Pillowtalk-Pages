@@ -1,6 +1,6 @@
 // lib/services/audible_affiliate_service.dart
 import 'package:url_launcher/url_launcher.dart';
-import 'package:spicy_reads/models/user_book.dart';
+import '../models/user_book.dart';
 
 /// Service for handling Audible affiliate links and revenue tracking
 class AudibleAffiliateService {

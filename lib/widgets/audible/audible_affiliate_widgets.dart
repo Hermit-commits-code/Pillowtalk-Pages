@@ -1,7 +1,7 @@
 // lib/widgets/audible/audible_affiliate_widgets.dart
 import 'package:flutter/material.dart';
-import 'package:spicy_reads/models/user_book.dart';
-import 'package:spicy_reads/services/audible_affiliate_service.dart';
+import '../../models/user_book.dart';
+import '../../services/audible_affiliate_service.dart';
 
 /// Main Audible affiliate button widget
 class AudibleAffiliateButton extends StatefulWidget {

@@ -88,10 +88,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   String? _displayNarrator;
   int? _displayRuntimeMinutes;
   int? _displayListeningProgress;
-  BookFormat _displayFormat = BookFormat.paperback;
-  String? _displayNarrator;
-  int? _displayRuntimeMinutes;
-  int? _displayListeningProgress;
 
   final Map<String, IconData> _intensityOptions = {
     'Emotional': Icons.favorite,

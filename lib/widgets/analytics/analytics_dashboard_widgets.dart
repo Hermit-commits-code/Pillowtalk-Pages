@@ -1,7 +1,7 @@
 // lib/widgets/analytics/analytics_dashboard_widgets.dart
 import 'package:flutter/material.dart';
-import 'package:spicy_reads/services/reading_analytics_service.dart';
-import 'package:spicy_reads/models/user_book.dart';
+import '../../services/reading_analytics_service.dart';
+import '../../models/user_book.dart';
 
 /// Main analytics dashboard widget for home screen
 class AnalyticsDashboard extends StatelessWidget {

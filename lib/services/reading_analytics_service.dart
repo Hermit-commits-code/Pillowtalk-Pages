@@ -1,5 +1,5 @@
 // lib/services/reading_analytics_service.dart
-import 'package:spicy_reads/models/user_book.dart';
+import '../models/user_book.dart';
 
 /// Service to calculate reading analytics and statistics for dashboard widgets
 class ReadingAnalyticsService {

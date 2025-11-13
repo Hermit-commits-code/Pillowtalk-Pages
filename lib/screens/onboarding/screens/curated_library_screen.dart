@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import '../../../services/hard_stops_service.dart';
-import '../../../services/kink_filter_service.dart';
+// import '../../../services/kink_filter_service.dart'; // Currently unused
 
 class CuratedLibraryScreen extends StatefulWidget {
   final String userId;
@@ -37,16 +37,16 @@ class _CuratedLibraryScreenState extends State<CuratedLibraryScreen> {
         context,
         listen: false,
       );
-      final kinkFilterService = Provider.of<KinkFilterService>(
-        context,
-        listen: false,
-      );
+      // final kinkFilterService = Provider.of<KinkFilterService>(
+      //   context,
+      //   listen: false,
+      // ); // Currently unused
 
       final stopsData = await hardStopsService.getHardStopsOnce();
-      final kinksData = await kinkFilterService.getKinkFilterOnce();
+      // final kinksData = await kinkFilterService.getKinkFilterOnce(); // Currently unused
 
       final userStops = stopsData['hardStops'] ?? <String>[];
-      final userKinks = kinksData['kinkFilter'] ?? <String>[];
+      // final userKinks = kinksData['kinkFilter'] ?? <String>[]; // Currently unused
 
       // Fetch a curated selection of books (limit 15)
       final booksSnapshot = await FirebaseFirestore.instance
