@@ -129,6 +129,11 @@ class UserBook {
     );
   }
 
+  // Alias for fromJson to match expected method name
+  factory UserBook.fromMap(Map<String, dynamic> map) {
+    return UserBook.fromJson(map);
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

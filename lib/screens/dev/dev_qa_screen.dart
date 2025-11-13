@@ -107,9 +107,7 @@ class _DevQAScreenState extends State<DevQAScreen> {
   Future<void> _openASINManagement() async {
     try {
       await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const AsinManagementScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const AsinManagementScreen()),
       );
     } catch (e) {
       _log('Error opening ASIN management: $e');

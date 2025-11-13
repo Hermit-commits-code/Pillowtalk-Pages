@@ -9,12 +9,14 @@
 ## Progress Update (2025-11-13)
 
 **RELEASE COMPLETED v0.8.3+1**:
+
 - Implemented onboarding flow (Hard Stops → Kink Filters → Favorite Tropes → Landing Choice)
 - Added landing preference (Home vs Curated) with GoRouter navigation per user choice
 - All onboarding data persists to Firestore and can be edited from Profile screen
 - Released v0.8.3 with conventional git tag and version bump
 
 **PRIOR (v0.8.x)**:
+
 - Implemented ASIN support: `UserBook` model and librarian UI now include an `asin` field to aid book verification.
 - Added Developer / Admin tools (developer-only UI): user lookup, Pro/Librarian toggles, Pro/Librarians lists, and ASIN management screens.
 - Introduced server-side callable Cloud Functions for admin operations (`getUserByEmail`, `setLibrarianStatus`, `setProStatus`, `getProUsers`, `getLibrarians`, `searchUsers`) and a diagnostics callable `pingAdmin`.
@@ -41,29 +43,31 @@
 
 ### Completed Phases (v0.1 - v0.8)
 
-| Phase | Version | Status | What Was Done |
-| ----- | ------- | ------ | ------------- |
-| **Phase 1** | v0.1-v0.2 | ✅ DONE | Foundation: Auth, Firebase, UI theme |
-| **Phase 2** | v0.2-v0.5 | ✅ DONE | Core features: book search, spice meter, hard stops, kink filters, library, lists |
+| Phase       | Version     | Status            | What Was Done                                                                                        |
+| ----------- | ----------- | ----------------- | ---------------------------------------------------------------------------------------------------- |
+| **Phase 1** | v0.1-v0.2   | ✅ DONE           | Foundation: Auth, Firebase, UI theme                                                                 |
+| **Phase 2** | v0.2-v0.5   | ✅ DONE           | Core features: book search, spice meter, hard stops, kink filters, library, lists                    |
 | **Phase 3** | v0.6-v0.8.3 | ✅ DONE (Partial) | Refinements: ASIN field, Admin/Developer tools, Audit logging, Onboarding flow, GoRouter integration |
 
 ### Current Release (v0.8.3+1) - November 2025
 
 ✅ **Onboarding complete**: 4-step flow (Hard Stops → Kink Filters → Favorites → Landing Choice)  
 ✅ **Navigation fixed**: Uses GoRouter; user lands on Home or Curated per preference  
-✅ **Version bumped**: Released v0.8.3 with git tag  
+✅ **Version bumped**: Released v0.8.3 with git tag
 
 ### What's Next (v0.9.0+)
 
 **Recommended Next Focus** (Per UI Magpie doc):
 
 1. **v0.9.0 — BookDetail UI Improvements** (2-3 weeks)
+
    - Hard stops alert modal (show warning if book matches user's hard stops)
    - Format tabs (Paperback | Ebook | Audiobook with format-specific metadata)
    - Librarian summary section (placeholder for curated book descriptions)
    - Community spice insights (avg rating, common tropes, found hard stops) — Pro feature
 
 2. **v1.0.0 — Homepage Redesign** (3-4 weeks)
+
    - Horizontal scrolls: Currently Reading, Your Trending Tropes, TBR Pile, Librarian Picks, Trending
    - Replace "Currently Reading" simple tile with rich card (spice level, progress %)
    - Add featured seasonal collections (Librarian curation)

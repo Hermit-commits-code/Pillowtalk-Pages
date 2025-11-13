@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.1] - 2025-11-03
 
+## [0.8.2] - 2025-11-13
+
+### ✨ Added
+
+- **ASIN field for books**: added `asin` to the `UserBook` model and librarian UI to allow librarians to verify books against ASINs.
+- **Developer / Admin tools**: added a Developer Tools screen (visible to the developer account) with user lookup, Pro/Librarian toggles, Pro/Librarians lists, and ASIN management screens.
+- **Callable Cloud Functions for admin ops**: added server-side callables (`getUserByEmail`, `setLibrarianStatus`, `setProStatus`, `getProUsers`, `getLibrarians`, `searchUsers`, and `pingAdmin`) to perform privileged operations securely via the Admin SDK.
+- **Diagnostics callable & UI**: `pingAdmin` callable and a Diagnostics button in `DeveloperToolsScreen` to validate admin access and show raw diagnostics.
+
+### 🔐 Security & Audit
+
+- **Admin allow-list**: server-side `isAdmin(context)` checks added. The allow-list supports:
+  - `ADMIN_UIDS` functions config (deployed),
+  - Firestore doc `config/admins` (field `uids`),
+  - custom `admin` claim on users, and
+  - fallback to the configured developer email.
+- **Audit logging**: admin actions are recorded to the `admin_audit` collection (fields: `actorUid`, `actorEmail`, `action`, `targetUid`, `details`, `timestamp`). Several callables write audit entries on successful actions.
+
+### ♻️ Client changes
+
+- **Callable-first client**: `UserManagementService` now prefers calling Cloud Functions for admin operations and falls back to Firestore reads/updates only when necessary.
+- **Home dashboard**: moved "Currently Reading" section above Reading Analytics in the home dashboard.
+
+### 📦 Dependencies & Release
+
+- Bumped `cloud_functions` dependency to `^6.0.3` to resolve compatibility with `cloud_firestore`.
+- Bumped package version to `0.8.2+2` and created git tag `v0.8.2`.
+
+### 🛠 Notes
+
+- Functions config `admin.uids` was set (developer UID added) and functions were redeployed. The CLI warns that `functions.config()` is deprecated; consider migrating the allow-list to Firestore or the newer dotenv approach before March 2026.
+
 ### ✨ Added
 
 #### User Interface & Experience

@@ -263,9 +263,9 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
   /// Launch the onboarding flow for testing
   void _runOnboarding() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (c) => const OnboardingFlow()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (c) => const OnboardingFlow()));
   }
 
   String _formatError(Object e) {

@@ -554,9 +554,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               if (widget.pageCount != null)
                                 Row(
                                   children: [
-                                    const Icon(Icons.description_outlined, size: 16),
+                                    const Icon(
+                                      Icons.description_outlined,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 8),
-                                    Text('${widget.pageCount} pages', style: theme.textTheme.bodyMedium),
+                                    Text(
+                                      '${widget.pageCount} pages',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
                                   ],
                                 ),
                               if (widget.publishedDate != null)
@@ -564,9 +570,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.calendar_today_outlined, size: 16),
+                                      const Icon(
+                                        Icons.calendar_today_outlined,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 8),
-                                      Text('Published: ${widget.publishedDate.toString().split(' ')[0]}', style: theme.textTheme.bodySmall),
+                                      Text(
+                                        'Published: ${widget.publishedDate.toString().split(' ')[0]}',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -575,9 +587,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.business_outlined, size: 16),
+                                      const Icon(
+                                        Icons.business_outlined,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 8),
-                                      Expanded(child: Text('${widget.publisher}', style: theme.textTheme.bodySmall, overflow: TextOverflow.ellipsis)),
+                                      Expanded(
+                                        child: Text(
+                                          '${widget.publisher}',
+                                          style: theme.textTheme.bodySmall,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -595,9 +616,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               if (widget.pageCount != null)
                                 Row(
                                   children: [
-                                    const Icon(Icons.description_outlined, size: 16),
+                                    const Icon(
+                                      Icons.description_outlined,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 8),
-                                    Text('${widget.pageCount} pages', style: theme.textTheme.bodyMedium),
+                                    Text(
+                                      '${widget.pageCount} pages',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
                                   ],
                                 ),
                               if (widget.publishedDate != null)
@@ -605,9 +632,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.calendar_today_outlined, size: 16),
+                                      const Icon(
+                                        Icons.calendar_today_outlined,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 8),
-                                      Text('Published: ${widget.publishedDate.toString().split(' ')[0]}', style: theme.textTheme.bodySmall),
+                                      Text(
+                                        'Published: ${widget.publishedDate.toString().split(' ')[0]}',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -620,27 +653,45 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (_displayNarrator != null && _displayNarrator!.isNotEmpty)
+                              if (_displayNarrator != null &&
+                                  _displayNarrator!.isNotEmpty)
                                 Row(
                                   children: [
                                     const Icon(Icons.person_outlined, size: 16),
                                     const SizedBox(width: 8),
-                                    Expanded(child: Text('Narrated by: ${_displayNarrator}', style: theme.textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
+                                    Expanded(
+                                      child: Text(
+                                        'Narrated by: ${_displayNarrator}',
+                                        style: theme.textTheme.bodyMedium,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              if (_displayRuntimeMinutes != null && _displayRuntimeMinutes! > 0)
+                              if (_displayRuntimeMinutes != null &&
+                                  _displayRuntimeMinutes! > 0)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8.0),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.schedule_outlined, size: 16),
+                                      const Icon(
+                                        Icons.schedule_outlined,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 8),
-                                      Text('${(_displayRuntimeMinutes! / 60).toStringAsFixed(1)}h runtime', style: theme.textTheme.bodyMedium),
+                                      Text(
+                                        '${(_displayRuntimeMinutes! / 60).toStringAsFixed(1)}h runtime',
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
                                     ],
                                   ),
                                 ),
-                              if (_displayNarrator == null || _displayNarrator!.isEmpty)
-                                const Text('Audiobook information not available', style: TextStyle(color: Colors.grey)),
+                              if (_displayNarrator == null ||
+                                  _displayNarrator!.isEmpty)
+                                const Text(
+                                  'Audiobook information not available',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                             ],
                           ),
                         ),
@@ -648,30 +699,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // --- LIBRARIAN SUMMARY (Placeholder for curated descriptions) ---
-            Text('What Should I Know?', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 8),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Librarian Summary',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Coming soon: Librarian-curated description highlighting spice level, key themes, and important content warnings.',
-                      style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -921,10 +948,19 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
               children: [
                 Row(
                   children: [
-                    Text('Community Insights', style: theme.textTheme.titleLarge),
+                    Text(
+                      'Community Insights',
+                      style: theme.textTheme.titleLarge,
+                    ),
                     const SizedBox(width: 8),
                     Chip(
-                      label: const Text('PRO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                      label: const Text(
+                        'PRO',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       backgroundColor: Colors.purple.shade200,
                       labelPadding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
@@ -939,7 +975,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                       children: [
                         const Text(
                           'Coming soon (Pro feature):',
-                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         const Text(
@@ -953,7 +992,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         ElevatedButton(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Available in Pro tier')),
+                              const SnackBar(
+                                content: Text('Available in Pro tier'),
+                              ),
                             );
                           },
                           child: const Text('Upgrade to Pro'),
@@ -1027,7 +1068,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             // --- BOOK DETAILS (Publication Info) ---
             // NOTE: Format-specific details moved to Format Tabs above.
             // This section now only shows ASIN if available (for librarian verification).
-            if (_currentUserBook.asin != null && _currentUserBook.asin!.isNotEmpty)
+            if (_currentUserBook.asin != null &&
+                _currentUserBook.asin!.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1054,17 +1096,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               children: [
                                 Text(
                                   'ASIN: ${_currentUserBook.asin}',
-                                  style: theme.textTheme.bodyMedium
-                                      ?.copyWith(fontFamily: 'monospace'),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontFamily: 'monospace',
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '(Amazon ID)',
-                                  style: theme.textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: Colors.grey[600],
-                                        fontStyle: FontStyle.italic,
-                                      ),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
                                 ),
                               ],
                             ),

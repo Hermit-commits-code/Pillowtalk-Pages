@@ -113,7 +113,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             Expanded(child: _buildStep()),
             if (_step == 3) ...[
               const SizedBox(height: 12),
-              Text('After finishing, open:', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'After finishing, open:',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               RadioListTile<String>(
                 title: const Text('Home'),
                 value: 'home',

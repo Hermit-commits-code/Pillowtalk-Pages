@@ -3,7 +3,8 @@
 /// Affiliate configuration and helpers for Amazon links.
 ///
 /// Set `kAmazonAffiliateTag` to your Associates tag (e.g. `yourtag-20`) when ready.
-const String? kAmazonAffiliateTag = null; // <-- Set your affiliate tag here when ready
+const String? kAmazonAffiliateTag =
+    null; // <-- Set your affiliate tag here when ready
 
 const String kAffiliateDisclosure =
     'Spicy Reads participates in the Amazon Services LLC Associates Program and may earn from qualifying purchases.';
@@ -20,6 +21,9 @@ Uri buildAmazonSearchUrl(String title, String author, String? tag) {
 Uri buildAmazonProductUrl(String asin, String? tag) {
   final params = <String, String>{};
   if (tag != null && tag.isNotEmpty) params['tag'] = tag;
-  return Uri.https('www.amazon.com', '/dp/$asin', params.isNotEmpty ? params : null);
+  return Uri.https(
+    'www.amazon.com',
+    '/dp/$asin',
+    params.isNotEmpty ? params : null,
+  );
 }
-

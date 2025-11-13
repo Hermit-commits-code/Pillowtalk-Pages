@@ -56,22 +56,9 @@ class _HomeDashboardState extends State<HomeDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Analytics Dashboard
-                  AnalyticsDashboard(
-                    stats: stats,
-                    userBooks: books,
-                    isPro: isPro,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Discover New Books Section
-                  _DiscoverBooksSection(),
-
-                  const SizedBox(height: 24),
-
-                  // Currently Reading Section
+                  // Currently Reading Section (moved above Analytics)
                   if (currentlyReading.isNotEmpty) ...[
+                    const SizedBox(height: 8),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
@@ -81,7 +68,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     SizedBox(
                       height: 220,
                       child: ListView.separated(
@@ -96,8 +83,22 @@ class _HomeDashboardState extends State<HomeDashboard> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                   ],
+
+                  // Analytics Dashboard
+                  AnalyticsDashboard(
+                    stats: stats,
+                    userBooks: books,
+                    isPro: isPro,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Discover New Books Section
+                  _DiscoverBooksSection(),
+
+                  const SizedBox(height: 24),
 
                   // Bottom padding for navigation bar
                   const SizedBox(height: 80),

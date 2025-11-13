@@ -18,7 +18,7 @@ class AsinManagementScreen extends StatefulWidget {
 class _AsinManagementScreenState extends State<AsinManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
   final UserLibraryService _libraryService = UserLibraryService();
-  
+
   List<UserBook> _allBooks = [];
   List<UserBook> _filteredBooks = [];
   bool _isLoading = true;
@@ -51,7 +51,7 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
   Future<void> _loadBooks() async {
     try {
       setState(() => _isLoading = true);
-      
+
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
@@ -74,9 +74,9 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading books: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading books: $e')));
     }
   }
 
@@ -85,14 +85,17 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
     setState(() {
       _filteredBooks = _allBooks.where((book) {
         // Search filter
-        final matchesSearch = _searchQuery.isEmpty ||
+        final matchesSearch =
+            _searchQuery.isEmpty ||
             book.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            book.authors.any((author) =>
-                author.toLowerCase().contains(_searchQuery.toLowerCase()));
+            book.authors.any(
+              (author) =>
+                  author.toLowerCase().contains(_searchQuery.toLowerCase()),
+            );
 
         // ASIN filter
-        final matchesASINFilter = !_showOnlyMissingASIN ||
-            (book.asin == null || book.asin!.isEmpty);
+        final matchesASINFilter =
+            !_showOnlyMissingASIN || (book.asin == null || book.asin!.isEmpty);
 
         return matchesSearch && matchesASINFilter;
       }).toList();
@@ -116,7 +119,9 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
       setState(() {
         final index = _allBooks.indexWhere((b) => b.id == book.id);
         if (index != -1) {
-          _allBooks[index] = book.copyWith(asin: asin.trim().isEmpty ? null : asin.trim());
+          _allBooks[index] = book.copyWith(
+            asin: asin.trim().isEmpty ? null : asin.trim(),
+          );
         }
       });
 
@@ -126,16 +131,16 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
         SnackBar(content: Text('Updated ASIN for "${book.title}"')),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating ASIN: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating ASIN: $e')));
     }
   }
 
   /// Show dialog to edit ASIN
   Future<void> _showEditASINDialog(UserBook book) async {
     final controller = TextEditingController(text: book.asin ?? '');
-    
+
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -146,9 +151,9 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
           children: [
             Text(
               book.title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             Text(
               book.authors.join(', '),
@@ -187,11 +192,10 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ASIN Management'),
-        subtitle: Text('${_filteredBooks.length} books'),
+        title: Text('ASIN Management (${_filteredBooks.length} books)'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -236,115 +240,122 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
               ],
             ),
           ),
-          
+
           // Books list
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredBooks.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.library_books,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _searchQuery.isNotEmpty || _showOnlyMissingASIN
-                                  ? 'No books match your filters'
-                                  : 'No books in library',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.library_books,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: _filteredBooks.length,
-                        itemBuilder: (context, index) {
-                          final book = _filteredBooks[index];
-                          final hasASIN = book.asin != null && book.asin!.isNotEmpty;
-                          
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: ListTile(
-                              leading: book.imageUrl != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Image.network(
-                                        book.imageUrl!,
-                                        width: 40,
-                                        height: 60,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => Container(
-                                          width: 40,
-                                          height: 60,
-                                          color: Colors.grey[300],
-                                          child: const Icon(Icons.book),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(
+                        const SizedBox(height: 16),
+                        Text(
+                          _searchQuery.isNotEmpty || _showOnlyMissingASIN
+                              ? 'No books match your filters'
+                              : 'No books in library',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _filteredBooks.length,
+                    itemBuilder: (context, index) {
+                      final book = _filteredBooks[index];
+                      final hasASIN =
+                          book.asin != null && book.asin!.isNotEmpty;
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        child: ListTile(
+                          leading: book.imageUrl != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Image.network(
+                                    book.imageUrl!,
+                                    width: 40,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
                                       width: 40,
                                       height: 60,
                                       color: Colors.grey[300],
                                       child: const Icon(Icons.book),
                                     ),
-                              title: Text(
-                                book.title,
-                                maxLines: 2,
+                                  ),
+                                )
+                              : Container(
+                                  width: 40,
+                                  height: 60,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.book),
+                                ),
+                          title: Text(
+                            book.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book.authors.join(', '),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              const SizedBox(height: 4),
+                              Row(
                                 children: [
-                                  Text(
-                                    book.authors.join(', '),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  Icon(
+                                    hasASIN
+                                        ? Icons.check_circle
+                                        : Icons.help_outline,
+                                    size: 16,
+                                    color: hasASIN
+                                        ? Colors.green
+                                        : Colors.orange,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        hasASIN ? Icons.check_circle : Icons.help_outline,
-                                        size: 16,
-                                        color: hasASIN ? Colors.green : Colors.orange,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        hasASIN ? 'ASIN: ${book.asin}' : 'No ASIN',
-                                        style: TextStyle(
-                                          color: hasASIN ? Colors.green : Colors.orange,
-                                          fontFamily: hasASIN ? 'monospace' : null,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    hasASIN ? 'ASIN: ${book.asin}' : 'No ASIN',
+                                    style: TextStyle(
+                                      color: hasASIN
+                                          ? Colors.green
+                                          : Colors.orange,
+                                      fontFamily: hasASIN ? 'monospace' : null,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showEditASINDialog(book),
-                                tooltip: 'Edit ASIN',
-                              ),
-                              onTap: () => _showEditASINDialog(book),
-                            ),
-                          );
-                        },
-                      ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _showEditASINDialog(book),
+                            tooltip: 'Edit ASIN',
+                          ),
+                          onTap: () => _showEditASINDialog(book),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
-      
+
       // Summary FAB
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showSummaryDialog,
@@ -357,9 +368,13 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
   /// Show ASIN summary statistics
   void _showSummaryDialog() {
     final totalBooks = _allBooks.length;
-    final booksWithASIN = _allBooks.where((book) => book.asin != null && book.asin!.isNotEmpty).length;
+    final booksWithASIN = _allBooks
+        .where((book) => book.asin != null && book.asin!.isNotEmpty)
+        .length;
     final booksWithoutASIN = totalBooks - booksWithASIN;
-    final percentageComplete = totalBooks > 0 ? (booksWithASIN / totalBooks * 100).toStringAsFixed(1) : '0';
+    final percentageComplete = totalBooks > 0
+        ? (booksWithASIN / totalBooks * 100).toStringAsFixed(1)
+        : '0';
 
     showDialog(
       context: context,
@@ -392,10 +407,7 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
