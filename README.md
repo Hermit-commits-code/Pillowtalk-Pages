@@ -1,4 +1,3 @@
-
 # 🌶️ Spicy Reads
 
 Spicy Reads is designed to comply with all [Google Play Developer Program Policies](https://play.google/developer-content-policy/), including but not limited to:
@@ -54,14 +53,14 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
 
 ## 🛠️ Technical Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Frontend** | Flutter 3.0+ | Cross-platform native performance |
-| **Backend** | Firebase (Firestore + Auth) | Serverless, scalable database |
-| **Book Data** | Google Books API | Comprehensive book metadata |
-| **Navigation** | Go Router | Type-safe, declarative routing |
-| **State Management** | Provider/Riverpod | Reactive state management |
-| **Authentication** | Firebase Auth | Secure user management |
+| Component            | Technology                  | Purpose                           |
+| -------------------- | --------------------------- | --------------------------------- |
+| **Frontend**         | Flutter 3.0+                | Cross-platform native performance |
+| **Backend**          | Firebase (Firestore + Auth) | Serverless, scalable database     |
+| **Book Data**        | Google Books API            | Comprehensive book metadata       |
+| **Navigation**       | Go Router                   | Type-safe, declarative routing    |
+| **State Management** | Provider/Riverpod           | Reactive state management         |
+| **Authentication**   | Firebase Auth               | Secure user management            |
 
 ## 🎨 Design Philosophy
 
@@ -104,7 +103,7 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
    ```bash
    # Install FlutterFire CLI
    dart pub global activate flutterfire_cli
-   
+
    # Configure Firebase for your project
    flutterfire configure
    ```
@@ -115,17 +114,59 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
    flutter run
    ```
 
-### Disable Analytics (development / CI)
+### Analytics & Tracking
 
-To disable analytics globally (for CI or when you don't want telemetry), pass the following flag at build/run time:
+Spicy Reads includes **optional analytics and affiliate tracking** to understand user behavior and generate affiliate revenue:
+
+#### Compile-Time Control
+
+To disable analytics entirely at build time:
 
 ```bash
 flutter run --dart-define=DISABLE_ANALYTICS=true
 ```
 
+This flag disables:
+
+- Firebase Analytics events
+- Audible affiliate link tracking
+- Affiliate clicks logging to Firestore
+
+#### Runtime Control (User-Level)
+
+Users can toggle analytics opt-out individually via **Profile → Allow analytics & affiliate tracking**. This persists to Firestore and is respected by the affiliate service.
+
+#### Owner-Only Mode (Optional)
+
+Analytics can be restricted to owner accounts only (useful for early testing or privacy-focused deployments). See `lib/config/admin.dart` for configuration:
+
+```dart
+const bool kRestrictAnalyticsToOwners = true;  // Set to false for normal operation
+const List<String> kOwnerAnalyticsUids = [];   // Add your UID here
+const List<String> kOwnerAnalyticsEmails = ['your-email@example.com'];
+```
+
+Toggle the runtime override in **Developer Tools → Owner-only analytics** or set it directly in Firestore at `app_config/admin.restrictAnalyticsToOwners`.
+
+For more details, see [PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md).
+
 ### Service Account (local tooling)
 
-Development tools may require a Google service account JSON file. Do not commit real credentials to Git. Copy `service-account.json.example` to `service-account.json` locally, or set `GOOGLE_APPLICATION_CREDENTIALS` to point to your credentials file when running tools.
+Development tools may require a Google service account JSON file. **Do not commit real credentials to Git.**
+
+1. Copy `service-account.json.example` to `service-account.json` locally:
+
+   ```bash
+   cp service-account.json.example service-account.json
+   ```
+
+2. Fill in your credentials in the local copy (it's in `.gitignore`), or
+
+3. Set `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to your credentials file:
+
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+   ```
 
 ## 📁 Project Structure
 
@@ -171,7 +212,7 @@ lib/
 We follow **Semantic Versioning** (SemVer) with phase-based development:
 
 - **Phase 1** (v0.1.x): Project Foundation
-- **Phase 2** (v0.2.x): Authentication & Compliance  
+- **Phase 2** (v0.2.x): Authentication & Compliance
 - **Phase 3** (v0.3.x): Core Features & MOAT
 - **Phase 4** (v0.4.x): Distribution Preparation
 - **Production** (v1.0.0+): Play Store Release
@@ -211,12 +252,12 @@ flutter build ios --release
 
 ## 📊 Revenue Model
 
-| Metric | Target (Year 1) | Strategy |
-|--------|-----------------|----------|
-| **Downloads** | 10,000 | Niche marketing to romance communities |
-| **Conversion Rate** | 3% | Freemium model with compelling Pro features |
-| **Annual Revenue** | $6,950 | Pro subscriptions + Amazon Associates |
-| **Retention** | 60%+ | Community-driven MOAT creates stickiness |
+| Metric              | Target (Year 1) | Strategy                                    |
+| ------------------- | --------------- | ------------------------------------------- |
+| **Downloads**       | 10,000          | Niche marketing to romance communities      |
+| **Conversion Rate** | 3%              | Freemium model with compelling Pro features |
+| **Annual Revenue**  | $6,950          | Pro subscriptions + Amazon Associates       |
+| **Retention**       | 60%+            | Community-driven MOAT creates stickiness    |
 
 ## 🤝 Community
 
@@ -230,7 +271,7 @@ flutter build ios --release
 ### Phase 1: Foundation ✅
 
 - [x] Project setup and dependencies
-- [x] Firebase configuration  
+- [x] Firebase configuration
 - [x] Theme and UI foundation
 - [x] Basic navigation structure
 
@@ -282,7 +323,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Built with 💖 for the Romance Reading Community**
+## Built with 💖 for the Romance Reading Community\*\*
 
 Empowering readers to find their perfect next book through data-driven recommendations
 
