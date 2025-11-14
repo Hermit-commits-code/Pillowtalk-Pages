@@ -175,6 +175,36 @@ This project uses [Semantic Versioning](https://semver.org/):
 
 Current version: `1.1.5+0`
 
+## [1.1.6] - 2025-11-14
+
+### 🔧 Fixed
+
+- **Developer Tools / Admin callables**: Made client-side callable response parsing defensive for `getProUsers` and `getLibrarians` to avoid runtime cast errors that caused the app to fall back to direct Firestore reads (which were blocked by security rules). This resolves spurious "Permission denied" errors in Developer Tools.
+- **Admin diagnostics**: Added a debug callable and client helper to surface raw responses and errors when diagnosing admin callables.
+
+### ✨ Changed
+
+- **Cloud Functions and tooling**: Added `logClientDiagnostic` callable, strengthened `isAdmin(context)` checks, and bumped `firebase-functions` dependency (functions package lock updated).
+- **Librarian tooling**: Added a librarian search screen and wired it to the Librarian Tools.
+
+### 📝 Notes
+
+- Updated `pubspec.yaml` to `1.1.6+0` and created annotated tag `v1.1.6`.
+
+Current version: `1.1.6+0`
+---
+
+## [1.1.7] - 2025-11-14
+
+### 🔧 Fixed
+
+- **Curated collections rules & client resilience**: Tightened Firestore rules for the `collections` namespace to avoid permission-denied errors on listing while keeping Pro-only collections protected. Also adjusted client-side queries to avoid unfiltered lists for non-Pro users (prevents unexpected permission errors in the UI).
+
+### 📝 Notes
+
+- Bumped `pubspec.yaml` to `1.1.7+0` and created annotated tag `v1.1.7`.
+
+Current version: `1.1.7+0`
 ---
 
 ## Upcoming
