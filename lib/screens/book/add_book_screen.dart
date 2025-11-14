@@ -158,9 +158,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
   // Tropes are now selected via the compact TropeDropdownTile (two-pane picker).
 
   /// Check if any selected tropes conflict with user's kink filters or hard stops.
-  /// Returns a map: {'hasConflicts': bool, 'conflictingTropes': List<String>}
+  /// Returns a map: {'hasConflicts': bool, 'conflictingTropes': `List<String>`}
   /// Public for tests: check if any selected tropes conflict with user's
-  /// kink filters or hard stops. Returns {'hasConflicts': bool, 'conflictingTropes': List<String>}.
+  /// kink filters or hard stops. Returns {'hasConflicts': bool, 'conflictingTropes': `List<String>`}.
   Future<Map<String, dynamic>> checkForTropeConflicts() async {
     if (_selectedTropes.isEmpty) {
       return {'hasConflicts': false, 'conflictingTropes': <String>[]};

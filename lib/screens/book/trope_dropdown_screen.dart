@@ -183,17 +183,16 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                     });
                                   },
                                 ),
-                                ...items
-                                    .map(
-                                      (t) => CheckboxListTile(
-                                        title: Text(t),
-                                        value: _selectedTropes.contains(t),
-                                        onChanged: (_) => _toggleTrope(t),
-                                      ),
-                                    ),
+                                ...items.map(
+                                  (t) => CheckboxListTile(
+                                    title: Text(t),
+                                    value: _selectedTropes.contains(t),
+                                    onChanged: (_) => _toggleTrope(t),
+                                  ),
+                                ),
                               ],
                             );
-                          }).toList(),
+                          }),
                           ListTile(
                             leading: const Icon(Icons.add),
                             title: const Text('Add custom trope...'),
@@ -237,14 +236,14 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                   Wrap(
                                     spacing: 8,
                                     runSpacing: 4,
-                                    children: _selectedTropes
-                                        .map(
-                                          (t) => Chip(
-                                            label: Text(t),
-                                            onDeleted: () => _toggleTrope(t),
-                                          ),
-                                        )
-                                        .toList(),
+                                    children: [
+                                      ..._selectedTropes.map(
+                                        (t) => Chip(
+                                          label: Text(t),
+                                          onDeleted: () => _toggleTrope(t),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 8),
                                   Expanded(
@@ -279,17 +278,15 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                             });
                                           },
                                         ),
-                                        ..._filteredForCategory(_activeCategory)
-                                                .map(
-                                              (t) => CheckboxListTile(
-                                                title: Text(t),
-                                                value: _selectedTropes.contains(
-                                                  t,
-                                                ),
-                                                onChanged: (_) =>
-                                                    _toggleTrope(t),
-                                              ),
-                                                ),
+                                        ..._filteredForCategory(
+                                          _activeCategory,
+                                        ).map(
+                                          (t) => CheckboxListTile(
+                                            title: Text(t),
+                                            value: _selectedTropes.contains(t),
+                                            onChanged: (_) => _toggleTrope(t),
+                                          ),
+                                        ),
                                         const SizedBox(height: 8),
                                         ListTile(
                                           leading: const Icon(Icons.add),

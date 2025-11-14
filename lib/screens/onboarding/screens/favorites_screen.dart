@@ -6,11 +6,11 @@ class FavoritesScreen extends StatefulWidget {
   final VoidCallback onPrevious;
 
   const FavoritesScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();

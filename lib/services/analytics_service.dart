@@ -17,8 +17,9 @@ class AnalyticsService {
   /// when a Firebase app hasn't been initialized (e.g., in unit tests).
   Future<void> _safeLog(String name, {Map<String, Object>? params}) async {
     if (_analyticsDisabled) {
-      if (kDebugMode)
+      if (kDebugMode) {
         debugPrint('Analytics disabled via DISABLE_ANALYTICS; skipping $name');
+      }
       return;
     }
 
@@ -26,7 +27,9 @@ class AnalyticsService {
       final analytics = FirebaseAnalytics.instance;
       await analytics.logEvent(name: name, parameters: params);
     } catch (e) {
-      if (kDebugMode) debugPrint('Analytics _safeLog failed: $e');
+      if (kDebugMode) {
+        debugPrint('Analytics _safeLog failed: $e');
+      }
     }
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class WelcomeScreen extends StatelessWidget {
   final VoidCallback onNext;
 
-  const WelcomeScreen({Key? key, required this.onNext}) : super(key: key);
+  const WelcomeScreen({super.key, required this.onNext});
 
   @override
   Widget build(BuildContext context) {

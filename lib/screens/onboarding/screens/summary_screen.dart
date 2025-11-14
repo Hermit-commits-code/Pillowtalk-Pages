@@ -8,10 +8,10 @@ class SummaryScreen extends StatefulWidget {
   final VoidCallback onPrevious;
 
   const SummaryScreen({
-    Key? key,
+    super.key,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
 
   @override
   State<SummaryScreen> createState() => _SummaryScreenState();
@@ -142,9 +142,13 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           children: hardStops.map((stop) {
                             return Chip(
                               label: Text(stop),
-                              backgroundColor: Colors.blue.withAlpha((0.15 * 255).round()),
+                              backgroundColor: Colors.blue.withAlpha(
+                                (0.15 * 255).round(),
+                              ),
                               side: BorderSide(
-                                color: Colors.blue.withAlpha((0.3 * 255).round()),
+                                color: Colors.blue.withAlpha(
+                                  (0.3 * 255).round(),
+                                ),
                               ),
                             );
                           }).toList(),
@@ -216,9 +220,13 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           children: kinkFilters.map((kink) {
                             return Chip(
                               label: Text(kink),
-                              backgroundColor: Colors.purple.withAlpha((0.15 * 255).round()),
+                              backgroundColor: Colors.purple.withAlpha(
+                                (0.15 * 255).round(),
+                              ),
                               side: BorderSide(
-                                color: Colors.purple.withAlpha((0.3 * 255).round()),
+                                color: Colors.purple.withAlpha(
+                                  (0.3 * 255).round(),
+                                ),
                               ),
                             );
                           }).toList(),
@@ -286,4 +294,3 @@ class _SummaryScreenState extends State<SummaryScreen> {
     );
   }
 }
-  

@@ -289,12 +289,13 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
                                     width: 40,
                                     height: 60,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      width: 40,
-                                      height: 60,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.book),
-                                    ),
+                                    errorBuilder: (context, error, stack) =>
+                                        Container(
+                                          width: 40,
+                                          height: 60,
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.book),
+                                        ),
                                   ),
                                 )
                               : Container(

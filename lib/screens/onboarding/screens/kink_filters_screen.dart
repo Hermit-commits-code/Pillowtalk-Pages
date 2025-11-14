@@ -8,11 +8,11 @@ class KinkFiltersScreen extends StatefulWidget {
   final VoidCallback onPrevious;
 
   const KinkFiltersScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
 
   @override
   State<KinkFiltersScreen> createState() => _KinkFiltersScreenState();

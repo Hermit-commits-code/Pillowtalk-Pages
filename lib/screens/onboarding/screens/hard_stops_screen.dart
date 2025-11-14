@@ -8,11 +8,11 @@ class HardStopsScreen extends StatefulWidget {
   final VoidCallback onPrevious;
 
   const HardStopsScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
 
   @override
   State<HardStopsScreen> createState() => _HardStopsScreenState();

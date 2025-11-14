@@ -63,12 +63,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserFlags() async {
     try {
       final user = AuthService.instance.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        return;
+      }
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _isLibrarian = (doc.data()?['librarian'] ?? false) as bool;
       });
@@ -81,7 +85,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final svc = KinkFilterService();
       final result = await svc.getKinkFilterOnce();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _kinkFilters = List<String>.from(result['kinkFilter'] as List<String>);
         _kinkFilterEnabled = result['enabled'] as bool;
@@ -95,7 +101,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final svc = HardStopsService();
       final result = await svc.getHardStopsOnce();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _hardStops = List<String>.from(result['hardStops'] as List<String>);
         _hardStopsEnabled = result['enabled'] as bool;
@@ -107,7 +115,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadAppVersion() async {
     final info = await PackageInfo.fromPlatform();
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _appVersion = '${info.version}+${info.buildNumber}';
     });
@@ -146,13 +156,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           await AuthService.instance.signOut();
         }
       } catch (e) {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         messenger.showSnackBar(
           const SnackBar(content: Text('Logout failed. Please try again.')),
         );
         return;
       }
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       router.go('/login');
     }
   }
@@ -182,7 +196,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final choice = await showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
@@ -208,9 +224,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (choice == 'copy') {
-      if (candidates.isNotEmpty)
+      if (candidates.isNotEmpty) {
         await Clipboard.setData(ClipboardData(text: candidates.first));
-      if (!mounted) return;
+      }
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
@@ -221,7 +240,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final target = candidates.isNotEmpty
           ? candidates.first
           : 'https://hermit-commits-code.github.io/Spicy-Reads/';
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => DocsWebViewScreen(initialUrl: target),
@@ -341,7 +362,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final messenger = ScaffoldMessenger.of(context);
               setState(() => _kinkFilterEnabled = val);
               await KinkFilterService().setKinkFilterEnabled(val);
-              if (!mounted) return;
+              if (!mounted) {
+                return;
+              }
               messenger.showSnackBar(
                 SnackBar(
                   content: Text(
@@ -438,7 +461,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       setState(() => _kinkFilters = ordered);
                       _customKinkController.clear();
-                      if (!mounted) return;
+                      if (!mounted) {
+                        return;
+                      }
                       messenger.showSnackBar(
                         const SnackBar(content: Text('Added kink filter')),
                       );
@@ -547,7 +572,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         await HardStopsService().setHardStops(ordered);
                       } catch (e, st) {
                         debugPrint('Failed to persist hard stop: $e\n$st');
-                        if (!mounted) return;
+                        if (!mounted) {
+                          return;
+                        }
                         messenger.showSnackBar(
                           const SnackBar(
                             content: Text('Added locally but failed to save'),
@@ -559,7 +586,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       setState(() => _hardStops = ordered);
                       _customHardStopController.clear();
-                      if (!mounted) return;
+                      if (!mounted) {
+                        return;
+                      }
                       messenger.showSnackBar(
                         const SnackBar(content: Text('Added hard stop')),
                       );
@@ -706,8 +735,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         value: checked,
         onChanged: (val) async {
           if (val == true) {
-            if (!_hardStops.contains(warning))
+            if (!_hardStops.contains(warning)) {
               setState(() => _hardStops.add(warning));
+            }
           } else {
             setState(() => _hardStops.remove(warning));
           }
@@ -746,8 +776,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         value: checked,
         onChanged: (val) async {
           if (val == true) {
-            if (!_hardStops.contains(warning))
+            if (!_hardStops.contains(warning)) {
               setState(() => _hardStops.add(warning));
+            }
           } else {
             setState(() => _hardStops.remove(warning));
           }
@@ -790,7 +821,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         value: checked,
         onChanged: (val) async {
           if (val == true) {
-            if (!_kinkFilters.contains(k)) setState(() => _kinkFilters.add(k));
+            if (!_kinkFilters.contains(k)) {
+              setState(() => _kinkFilters.add(k));
+            }
           } else {
             setState(() => _kinkFilters.remove(k));
           }
@@ -839,7 +872,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         value: checked,
         onChanged: (val) async {
           if (val == true) {
-            if (!_kinkFilters.contains(k)) setState(() => _kinkFilters.add(k));
+            if (!_kinkFilters.contains(k)) {
+              setState(() => _kinkFilters.add(k));
+            }
           } else {
             setState(() => _kinkFilters.remove(k));
           }

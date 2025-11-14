@@ -1,5 +1,8 @@
 // lib/services/audible_affiliate_service.dart
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../models/user_book.dart';
 
 /// Service for handling Audible affiliate links and revenue tracking
@@ -54,33 +57,43 @@ class AudibleAffiliateService {
   /// Track affiliate link clicks for revenue analytics
   Future<void> _trackAffiliateClick(UserBook book, String url) async {
     try {
-      // TODO: Implement analytics tracking
-      // This could send data to Firebase Analytics, Google Analytics, or your own tracking system
+      // Log an analytics event to Firebase Analytics
+      final analytics = FirebaseAnalytics.instance;
+      await analytics.logEvent(
+        name: 'audible_affiliate_click',
+        parameters: {
+          'book_id': book.bookId,
+          'book_title': book.title,
+          'book_authors': book.authors.join(', '),
+          'affiliate_url': url,
+          'user_id': book.userId,
+          'book_format': book.format.name,
+          'has_narrator': book.narrator != null,
+        },
+      );
 
-      // Example structure for tracking:
-      final clickData = {
-        'event': 'audible_affiliate_click',
-        'book_id': book.bookId,
-        'book_title': book.title,
-        'book_authors': book.authors.join(', '),
-        'affiliate_url': url,
-        'user_id': book.userId,
-        'timestamp': DateTime.now().toIso8601String(),
-        'book_format': book.format.name,
-        'has_narrator': book.narrator != null,
-      };
+      // Persist a lightweight record to Firestore for internal reporting
+      try {
+        await FirebaseFirestore.instance.collection('affiliate_clicks').add({
+          'bookId': book.bookId,
+          'bookTitle': book.title,
+          'authors': book.authors,
+          'affiliateUrl': url,
+          'userId': book.userId,
+          'bookFormat': book.format.name,
+          'hasNarrator': book.narrator != null,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        // Firestore write failures shouldn't block the user flow; log in debug mode.
+        debugPrint('affiliate_clicks write failed: $e');
+      }
 
-      // Log for debugging (replace with actual analytics implementation)
-      print('Affiliate click tracked: $clickData');
-
-      // Future implementation could include:
-      // - Firebase Analytics event tracking
-      // - Custom analytics API calls
-      // - Revenue attribution tracking
-      // - A/B testing for affiliate link performance
+      // Keep a debug log locally as well.
+      debugPrint('Affiliate click tracked for book ${book.bookId}');
     } catch (e) {
       // Silently handle tracking errors - don't block user experience
-      print('Failed to track affiliate click: $e');
+      debugPrint('Failed to track affiliate click: $e');
     }
   }
 

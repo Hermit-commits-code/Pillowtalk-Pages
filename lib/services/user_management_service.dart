@@ -255,7 +255,7 @@ class UserManagementService {
         final snapshot = await _firestore
             .collection('users')
             .where('email', isGreaterThanOrEqualTo: emailPattern.toLowerCase())
-            .where('email', isLessThan: emailPattern.toLowerCase() + '\\uf8ff')
+            .where('email', isLessThan: '${emailPattern.toLowerCase()}\\uf8ff')
             .limit(20)
             .get();
 

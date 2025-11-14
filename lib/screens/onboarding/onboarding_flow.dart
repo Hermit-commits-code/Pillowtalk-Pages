@@ -45,10 +45,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   void _toggle(List<String> list, String value) {
     setState(() {
-      if (list.contains(value))
+      if (list.contains(value)) {
         list.remove(value);
-      else
+      } else {
         list.add(value);
+      }
     });
   }
 
@@ -117,17 +118,25 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                 'After finishing, open:',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              RadioListTile<String>(
+              ListTile(
                 title: const Text('Home'),
-                value: 'home',
-                groupValue: _landing,
-                onChanged: (v) => setState(() => _landing = v ?? 'home'),
+                leading: Icon(
+                  _landing == 'home'
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
+                ),
+                selected: _landing == 'home',
+                onTap: () => setState(() => _landing = 'home'),
               ),
-              RadioListTile<String>(
+              ListTile(
                 title: const Text('Curated (optional)'),
-                value: 'curated',
-                groupValue: _landing,
-                onChanged: (v) => setState(() => _landing = v ?? 'home'),
+                leading: Icon(
+                  _landing == 'curated'
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_off,
+                ),
+                selected: _landing == 'curated',
+                onTap: () => setState(() => _landing = 'curated'),
               ),
             ],
             Row(

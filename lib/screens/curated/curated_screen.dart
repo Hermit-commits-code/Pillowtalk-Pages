@@ -5,7 +5,7 @@ import '../../services/auth_service.dart';
 import '../../services/feature_gating_service.dart';
 
 class CuratedScreen extends StatefulWidget {
-  const CuratedScreen({Key? key}) : super(key: key);
+  const CuratedScreen({super.key});
 
   @override
   State<CuratedScreen> createState() => _CuratedScreenState();
@@ -121,7 +121,9 @@ class _CuratedScreenState extends State<CuratedScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withAlpha((0.08 * 255).round()),
+          color: Theme.of(
+            context,
+          ).colorScheme.primary.withAlpha((0.08 * 255).round()),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -479,7 +481,10 @@ class _CollectionCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withAlpha((0.7 * 255).round())],
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withAlpha((0.7 * 255).round()),
+                  ],
                 ),
               ),
             ),

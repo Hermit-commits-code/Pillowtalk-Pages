@@ -193,7 +193,9 @@ class _TropeSelectionScreenState extends State<TropeSelectionScreen> {
                     if (sel == true) {
                       _selectedTropes.addAll(items);
                     } else {
-                      for (final i in items) _selectedTropes.remove(i);
+                      for (final i in items) {
+                        _selectedTropes.remove(i);
+                      }
                     }
                   });
                 },

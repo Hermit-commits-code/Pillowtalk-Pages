@@ -82,7 +82,9 @@ class CommunityBookService {
                   bookGenre.toLowerCase().contains(genre.toLowerCase()),
             ),
           );
-          if (!hasAllGenres) return false;
+          if (!hasAllGenres) {
+            return false;
+          }
         }
 
         // Trope filtering (if multiple tropes)
@@ -93,14 +95,18 @@ class CommunityBookService {
                   bookTrope.toLowerCase().contains(trope.toLowerCase()),
             ),
           );
-          if (!hasAllTropes) return false;
+          if (!hasAllTropes) {
+            return false;
+          }
         }
 
         // Spice level filtering
-        if (minSpice != null && (book.averageSpice ?? 0) < minSpice)
+        if (minSpice != null && (book.averageSpice ?? 0) < minSpice) {
           return false;
-        if (maxSpice != null && (book.averageSpice ?? 0) > maxSpice)
+        }
+        if (maxSpice != null && (book.averageSpice ?? 0) > maxSpice) {
           return false;
+        }
 
         return true;
       }).toList();

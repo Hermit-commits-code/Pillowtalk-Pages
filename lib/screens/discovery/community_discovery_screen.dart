@@ -541,7 +541,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                 ? Image.network(
                     book.imageUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (context, error, stack) => Container(
                       color: theme.colorScheme.surfaceContainerHighest,
                       child: const Icon(Icons.book, size: 48),
                     ),

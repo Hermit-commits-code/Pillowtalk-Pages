@@ -69,9 +69,9 @@ void main(List<String> args) {
   buffer.writeln();
   buffer.writeln("const Map<String, List<String>> tropeCategories = {");
   for (final cat in out.keys) {
-    buffer.writeln("  '\${_escape(cat)}': [");
+    buffer.writeln("  '${_escape(cat)}': [");
     for (final t in out[cat]!) {
-      buffer.writeln("    '\${_escape(t)}',");
+      buffer.writeln("    '${_escape(t)}',");
     }
     buffer.writeln('  ],');
   }

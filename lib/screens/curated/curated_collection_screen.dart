@@ -8,11 +8,11 @@ class CuratedCollectionScreen extends StatelessWidget {
   final List<String> bookIds;
 
   const CuratedCollectionScreen({
-    Key? key,
+    super.key,
     required this.collectionId,
     required this.title,
     required this.bookIds,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

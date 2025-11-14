@@ -355,7 +355,9 @@ class _DiscoveryCard extends StatelessWidget {
                 child: Text(
                   subtitle,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.7 * 255).round(),
+                    ),
                     fontSize: 10,
                   ),
                   maxLines: 2,

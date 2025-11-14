@@ -353,9 +353,9 @@ class StatsCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: color.withAlpha((0.8 * 255).round())),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: color.withAlpha((0.8 * 255).round()),
+            ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -404,7 +404,9 @@ class YearlyGoalWidget extends StatelessWidget {
             Text(
               progress.goalDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
               ),
             ),
             const SizedBox(height: 12),
@@ -480,10 +482,14 @@ class FavoriteGenresWidget extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withAlpha((0.1 * 255).round()),
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha((0.1 * 255).round()),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Theme.of(context).primaryColor.withAlpha((0.2 * 255).round()),
+                      color: Theme.of(
+                        context,
+                      ).primaryColor.withAlpha((0.2 * 255).round()),
                     ),
                   ),
                   child: Row(
