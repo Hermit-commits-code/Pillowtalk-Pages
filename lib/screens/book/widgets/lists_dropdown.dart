@@ -219,6 +219,7 @@ class _ListSelectionScreenProxyState extends State<ListSelectionScreenProxy> {
                               name: nameCtrl.text.trim(),
                               description: descCtrl.text.trim(),
                             );
+                            if (!mounted) return;
                             setState(() {
                               _selected.add(created.id);
                             });

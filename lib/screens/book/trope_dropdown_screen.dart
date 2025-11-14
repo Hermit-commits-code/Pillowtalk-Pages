@@ -89,6 +89,7 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
     );
 
     if (value != null) {
+      if (!mounted) return;
       setState(() {
         if (!_customTropes.contains(value)) {
           _customTropes.add(value);
