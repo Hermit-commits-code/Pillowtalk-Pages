@@ -1,12 +1,12 @@
 // lib/screens/admin/developer_tools_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../services/user_management_service.dart';
-import 'asin_management_screen.dart';
-import '../onboarding/onboarding_flow.dart';
 import '../../config/admin.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_management_service.dart';
+import '../onboarding/onboarding_flow.dart';
+import 'asin_management_screen.dart';
 
 /// Developer-only admin tools screen
 /// Accessible only to hotcupofjoe2013@gmail.com
@@ -138,6 +138,9 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
   /// Show Pro users list
   Future<void> _showProUsers() async {
+    // Pre-flight admin access and provide an actionable message if not available.
+    if (!await _ensureAdminAccess()) return;
+
     setState(() => _isLoading = true);
 
     try {
@@ -146,34 +149,39 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (c) => AlertDialog(
           title: const Text('Pro Users'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 300,
-            child: proUsers.isEmpty
-                ? const Center(child: Text('No Pro users found'))
-                : ListView.builder(
-                    itemCount: proUsers.length,
-                    itemBuilder: (context, index) {
-                      final user = proUsers[index];
-                      return ListTile(
-                        title: Text(user['email'] ?? 'Unknown'),
-                        subtitle: Text(user['displayName'] ?? 'No name'),
-                        trailing: Text(
-                          'Pro',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(c).size.height * 0.7,
+            ),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: proUsers.isEmpty
+                  ? const Center(child: Text('No Pro users found'))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: proUsers.length,
+                      itemBuilder: (context, index) {
+                        final user = proUsers[index];
+                        return ListTile(
+                          title: Text(user['email'] ?? 'Unknown'),
+                          subtitle: Text(user['displayName'] ?? 'No name'),
+                          trailing: Text(
+                            'Pro',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
+            ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(c).pop(),
               child: const Text('Close'),
             ),
           ],
@@ -190,6 +198,8 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
   /// Show Librarians list
   Future<void> _showLibrarians() async {
+    if (!await _ensureAdminAccess()) return;
+
     setState(() => _isLoading = true);
 
     try {
@@ -198,34 +208,39 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (c) => AlertDialog(
           title: const Text('Librarians'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 300,
-            child: librarians.isEmpty
-                ? const Center(child: Text('No Librarians found'))
-                : ListView.builder(
-                    itemCount: librarians.length,
-                    itemBuilder: (context, index) {
-                      final user = librarians[index];
-                      return ListTile(
-                        title: Text(user['email'] ?? 'Unknown'),
-                        subtitle: Text(user['displayName'] ?? 'No name'),
-                        trailing: Text(
-                          'Librarian',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(c).size.height * 0.7,
+            ),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: librarians.isEmpty
+                  ? const Center(child: Text('No Librarians found'))
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: librarians.length,
+                      itemBuilder: (context, index) {
+                        final user = librarians[index];
+                        return ListTile(
+                          title: Text(user['email'] ?? 'Unknown'),
+                          subtitle: Text(user['displayName'] ?? 'No name'),
+                          trailing: Text(
+                            'Librarian',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
+            ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(c).pop(),
               child: const Text('Close'),
             ),
           ],
@@ -271,23 +286,22 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Warning banner
+            // Warning banner (theme-aware)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red[50],
-                border: Border.all(color: Colors.red[300]!),
+                color: theme.colorScheme.errorContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.warning, color: Colors.red[700]),
+                  Icon(Icons.warning, color: theme.colorScheme.onErrorContainer),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Developer-only tools. Use with caution.',
                       style: TextStyle(
-                        color: Colors.red[700],
+                        color: theme.colorScheme.onErrorContainer,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -564,6 +578,12 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
 
   /// Run a lightweight diagnostics ping to validate callable access
   Future<void> _runDiagnostics() async {
+    final user = AuthService.instance.currentUser;
+    if (user == null) {
+      setState(() => _statusMessage = 'Please sign in to run diagnostics.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _statusMessage = '';
@@ -607,8 +627,56 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
     }
   }
 
+  /// Verify admin callable access. Shows a helpful dialog if access is unavailable.
+  Future<bool> _ensureAdminAccess() async {
+    final user = AuthService.instance.currentUser;
+    if (user == null) {
+      setState(() => _statusMessage = 'Please sign in as the developer to use these tools.');
+      return false;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+      await _userService.pingAdmin();
+      return true;
+    } catch (e) {
+      // Provide an actionable dialog explaining common fixes.
+      if (!mounted) return false;
+      await showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Admin Access Unavailable'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_formatError(e)),
+                const SizedBox(height: 12),
+                const Text('Possible resolutions:'),
+                const SizedBox(height: 8),
+                const Text('• Sign in as the developer account (hotcupofjoe2013@gmail.com).'),
+                const Text('• Ensure Cloud Functions are deployed and reachable.'),
+                const Text('• Add your UID to the admin allow-list at `config/admins` in Firestore or set ADMIN_UIDS in the functions environment.'),
+                const SizedBox(height: 8),
+                const Text('If you need, run diagnostics from this screen to capture the exact error.'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+          ],
+        ),
+      );
+      return false;
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   /// Show recent affiliate_clicks entries (read-only)
   Future<void> _showAffiliateClicks() async {
+    if (!await _ensureAdminAccess()) return;
+
     setState(() => _isLoading = true);
     try {
       final q = FirebaseFirestore.instance
@@ -622,33 +690,40 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
         context: context,
         builder: (c) => AlertDialog(
           title: const Text('Recent Affiliate Clicks'),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 400,
-            child: docs.isEmpty
-                ? const Center(child: Text('No clicks recorded'))
-                : ListView.separated(
-                    itemCount: docs.length,
-                    separatorBuilder: (context, _) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final d = docs[index].data();
-                      final ts = d['createdAt'];
-                      final when = ts is Timestamp
-                          ? ts.toDate().toString()
-                          : (ts?.toString() ?? '');
-                      return ListTile(
-                        title: Text(d['bookTitle'] ?? d['bookId'] ?? 'Unknown'),
-                        subtitle: Text('${d['affiliateUrl'] ?? ''}\n$when'),
-                        trailing: Text(d['userId'] ?? ''),
-                        isThreeLine: true,
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                      );
-                    },
-                  ),
+          content: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(c).size.height * 0.75,
+            ),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: docs.isEmpty
+                  ? const Center(child: Text('No clicks recorded'))
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: docs.length,
+                      separatorBuilder: (context, _) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final d = docs[index].data();
+                        final ts = d['createdAt'];
+                        final when = ts is Timestamp
+                            ? ts.toDate().toString()
+                            : (ts?.toString() ?? '');
+                        return ListTile(
+                          title: Text(
+                            d['bookTitle'] ?? d['bookId'] ?? 'Unknown',
+                          ),
+                          subtitle: Text('${d['affiliateUrl'] ?? ''}\n$when'),
+                          trailing: Text(d['userId'] ?? ''),
+                          isThreeLine: true,
+                          dense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ),
           actions: [
             TextButton(

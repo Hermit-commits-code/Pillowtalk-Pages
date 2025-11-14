@@ -228,158 +228,177 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
   }
 
   Widget _buildSearchTab(ThemeData theme) {
-    return Column(
-      children: [
-        // Search input
-        Container(
-          padding: const EdgeInsets.all(16),
+    // Expand the search header box to fill the tab so Quick Moods are visible
+    // and remove the separate results box below.
+    return SizedBox.expand(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        labelText: 'What mood are you in?',
-                        hintText:
-                            'Try "spicy werewolf romance" or "enemies to lovers"',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.search),
-                      ),
-                      onSubmitted: (_) => _searchBooks(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _searchBooks,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(56, 56),
-                      shape: RoundedRectangleBorder(
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'What mood are you in?',
+                      hintText:
+                          'Try "spicy werewolf romance" or "enemies to lovers"',
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      prefixIcon: const Icon(Icons.search),
                     ),
-                    child: const Icon(Icons.search),
+                    onSubmitted: (_) => _searchBooks(),
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _searchBooks,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(56, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Icon(Icons.search),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Quick mood tags
+            Text(
+              'Quick Moods',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              // Quick mood tags
-              Text(
-                'Quick Moods',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(height: 8),
+            // Fixed-height moods area increased so more chips are visible
+            SizedBox(
+              height: 200,
+              child: SingleChildScrollView(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    ..._moodTags.map(
+                      (mood) => ActionChip(
+                        label: Text(mood, style: const TextStyle(fontSize: 12)),
+                        onPressed: () => _quickMoodSearch(mood),
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                      ),
+                    ),
+                    if (!_isPro)
+                      ActionChip(
+                        label: const Text(
+                          '+ More with Pro',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        onPressed: () => context.push('/pro-club'),
+                        backgroundColor: theme.colorScheme.secondaryContainer,
+                        avatar: const Icon(Icons.star, size: 14),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 80,
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      ..._moodTags.map(
-                        (mood) => ActionChip(
-                          label: Text(
-                            mood,
-                            style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 8),
+            // Search results are now shown inside the expanded search header box.
+            Expanded(
+              child: Builder(
+                builder: (context) {
+                  if (_isLoading) return const Center(child: LoadingSpinner());
+
+                  if (_error != null) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: theme.colorScheme.error,
                           ),
-                          onPressed: () => _quickMoodSearch(mood),
-                          backgroundColor: theme.colorScheme.primaryContainer,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          const SizedBox(height: 16),
+                          Text(
+                            _error!,
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadInitialData,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (!_hasSearched) {
+                    // Top-align the placeholder so it doesn't center and visually
+                    // overlap or push the Quick Moods area; reduce sizes slightly.
+                    return Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: 48,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Ready to discover new books?',
+                              style: theme.textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Search by mood, trope, or try one of the quick mood tags above.',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withAlpha(
+                                  (0.7 * 255).round(),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      if (!_isPro)
-                        ActionChip(
-                          label: const Text(
-                            '+ More with Pro',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          onPressed: () => context.push('/pro-club'),
-                          backgroundColor: theme.colorScheme.secondaryContainer,
-                          avatar: const Icon(Icons.star, size: 14),
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+                    );
+                  }
 
-        // Search results
-        Expanded(child: _buildSearchResults(theme)),
-      ],
+                  if (_searchResults.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No books found for that mood. Try a different search!',
+                      ),
+                    );
+                  }
+
+                  return _buildBookGrid(_searchResults);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildSearchResults(ThemeData theme) {
-    if (_isLoading) {
-      return const Center(child: LoadingSpinner());
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
-            const SizedBox(height: 16),
-            Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadInitialData,
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (!_hasSearched) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search, size: 64, color: theme.colorScheme.primary),
-            const SizedBox(height: 16),
-            Text(
-              'Ready to discover new books?',
-              style: theme.textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Search by mood, trope, or try one of the quick mood tags above.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha(
-                  (0.7 * 255).round(),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_searchResults.isEmpty) {
-      return const Center(
-        child: Text('No books found for that mood. Try a different search!'),
-      );
-    }
-
-    return _buildBookGrid(_searchResults);
-  }
+  // _buildSearchResults removed — search UI is now integrated into the
+  // expanded search header box. Keep helper methods like _buildBookGrid below.
 
   Widget _buildTrendingTab(ThemeData theme) {
     if (_isLoading && _trendingBooks.isEmpty) {

@@ -80,7 +80,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _analyticsEnabled = (doc.data()?['analyticsEnabled'] as bool?) ?? true;
       });
       // Update audible service cache
-      AudibleAffiliateService().setUserAnalyticsEnabled(user.uid, _analyticsEnabled);
+      AudibleAffiliateService().setUserAnalyticsEnabled(
+        user.uid,
+        _analyticsEnabled,
+      );
     } catch (_) {
       // ignore; default to false
     }
@@ -338,13 +341,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   await FirebaseFirestore.instance
                       .collection('users')
                       .doc(user.uid)
-                      .set({'analyticsEnabled': val, 'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
-                  AudibleAffiliateService().setUserAnalyticsEnabled(user.uid, val);
+                      .set({
+                        'analyticsEnabled': val,
+                        'updatedAt': FieldValue.serverTimestamp(),
+                      }, SetOptions(merge: true));
+                  AudibleAffiliateService().setUserAnalyticsEnabled(
+                    user.uid,
+                    val,
+                  );
                 }
               } catch (e) {
                 debugPrint('Failed to persist analytics preference: $e');
                 if (!mounted) return;
-                messenger.showSnackBar(const SnackBar(content: Text('Failed to save analytics preference')));
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Failed to save analytics preference'),
+                  ),
+                );
               }
             },
             secondary: const Icon(Icons.bar_chart),
@@ -664,18 +677,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
 
             Card(
-              color: Colors.red[50],
+              color: theme.colorScheme.surfaceVariant,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.build, color: Colors.orange[700]),
-                      title: const Text('Admin Panel'),
-                      subtitle: const Text(
+                      leading: Icon(Icons.build, color: theme.colorScheme.primary),
+                      title: Text('Admin Panel', style: theme.textTheme.titleMedium),
+                      subtitle: Text(
                         'User management, ASIN tools, system controls',
+                        style: theme.textTheme.bodySmall,
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const DeveloperToolsScreen(),
