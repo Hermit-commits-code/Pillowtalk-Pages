@@ -24,6 +24,7 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 service-account.json
+service-account.json.local
 google-services.json.bak
 
 # Backup files
