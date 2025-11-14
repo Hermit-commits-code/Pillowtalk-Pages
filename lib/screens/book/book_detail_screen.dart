@@ -656,7 +656,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'Narrated by: ${_displayNarrator}',
+                                        'Narrated by: $_displayNarrator',
                                         style: theme.textTheme.bodyMedium,
                                         overflow: TextOverflow.ellipsis,
                                       ),
