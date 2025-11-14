@@ -190,8 +190,7 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                         value: _selectedTropes.contains(t),
                                         onChanged: (_) => _toggleTrope(t),
                                       ),
-                                    )
-                                    .toList(),
+                                    ),
                               ],
                             );
                           }).toList(),
@@ -281,7 +280,7 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                           },
                                         ),
                                         ..._filteredForCategory(_activeCategory)
-                                            .map(
+                                                .map(
                                               (t) => CheckboxListTile(
                                                 title: Text(t),
                                                 value: _selectedTropes.contains(
@@ -290,8 +289,7 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                                 onChanged: (_) =>
                                                     _toggleTrope(t),
                                               ),
-                                            )
-                                            .toList(),
+                                                ),
                                         const SizedBox(height: 8),
                                         ListTile(
                                           leading: const Icon(Icons.add),
