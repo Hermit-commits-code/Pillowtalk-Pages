@@ -446,3 +446,31 @@ exports.pingAdmin = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', String(err));
   }
 });
+
+// Allow an admin caller to write a diagnostic/audit entry from the client.
+// This callable is intentionally restricted to admins via `isAdmin(context)`
+// so that only trusted developer accounts or allow-listed UIDs can write
+// diagnostic messages into `admin_audit` for troubleshooting.
+exports.logClientDiagnostic = functions.https.onCall(async (data, context) => {
+  if (!(await isAdmin(context))) {
+    throw new functions.https.HttpsError(
+      'permission-denied',
+      'Developer access required',
+    );
+  }
+
+  try {
+    const message = (data && data.message) || '';
+    const extra = (data && data.extra) || {};
+
+    await writeAdminAudit(context, 'clientDiagnostic', null, {
+      message: message.toString(),
+      extra: extra,
+    });
+
+    return { ok: true };
+  } catch (err) {
+    console.error('logClientDiagnostic error', err);
+    throw new functions.https.HttpsError('internal', String(err));
+  }
+});

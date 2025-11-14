@@ -26,11 +26,27 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
   // _searchResults removed: search UI not used currently
   bool _isLoading = false;
   String _statusMessage = '';
+  bool? _hasAdminAccess;
 
   @override
   void initState() {
     super.initState();
     _checkDeveloperAccess();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    try {
+      setState(() => _isLoading = true);
+      await _userService.pingAdmin();
+      if (!mounted) return;
+      setState(() => _hasAdminAccess = true);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _hasAdminAccess = false);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   /// Verify developer access
@@ -298,12 +314,35 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
                   Icon(Icons.warning, color: theme.colorScheme.onErrorContainer),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'Developer-only tools. Use with caution.',
-                      style: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Developer-only tools. Use with caution.',
+                            style: TextStyle(
+                              color: theme.colorScheme.onErrorContainer,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        // Admin status badge
+                        if (_hasAdminAccess != null) ...[
+                          const SizedBox(width: 8),
+                          Chip(
+                            label: Text(_hasAdminAccess! ? 'Admin: OK' : 'Admin: No'),
+                            backgroundColor: _hasAdminAccess!
+                                ? Colors.green.shade600
+                                : Colors.red.shade600,
+                            labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                          IconButton(
+                            onPressed: _checkAdminStatus,
+                            icon: const Icon(Icons.refresh),
+                            color: theme.colorScheme.onErrorContainer,
+                            tooltip: 'Re-check admin access',
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
