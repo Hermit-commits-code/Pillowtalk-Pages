@@ -81,6 +81,24 @@ try {
 }
 ```
 
+Local helper: set custom admin claim using a service account
+----------------------------------------------------------
+
+If you prefer to set an `admin` custom claim via a service account (Option C), a helper script is included at `tools/set_admin_claim.js`. Place a `service-account.json` file at the repository root (keep it secure) and run:
+
+```bash
+# Set admin claim for a UID
+node tools/set_admin_claim.js <UID> --set
+
+# Remove custom claims for a UID
+node tools/set_admin_claim.js <UID> --remove
+```
+
+Notes:
+- The script reads `service-account.json` from the repo root. Ensure the file is not accidentally committed to public repos.
+- After setting a custom claim, the user must sign out and sign back in (or refresh their ID token) to pick up the new claim.
+
+
 Verifying admin access
 - Use the Developer Tools screen > Diagnostics to run `pingAdmin` from the app to confirm callable access.
 - Check the `admin_audit` collection in Firestore for `pingAdmin` and other audit logs.
