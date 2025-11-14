@@ -5,6 +5,33 @@ All notable changes to Spicy Reads will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2025-11-13
+
+### 🔧 Fixed
+
+- **Dark mode TabBar text visibility**: Friends and Discover screens now display tab labels clearly in dark mode by explicitly setting text colors to white/white70
+- **Firestore security rules**: Updated rules to check both `request.auth.token.admin` and `request.auth.customClaims.admin` for better admin permission support
+- **Book discovery composite indexes**: Removed orderBy + where combinations that require composite indexes; now sort results in-memory for better performance
+- **Query performance**: Book discovery now fetches 2x limit and filters client-side, eliminating dependency on composite Firestore indexes
+
+### 📝 Notes
+
+- Firestore rules deployed and active
+- Book discovery queries work without composite index setup
+- Admin permissions now respect Firebase custom claims
+
+---
+
+## [1.1.2] - 2025-11-13
+
+### 🔧 Fixed
+
+- **Firestore query index errors**: Removed orderBy + where combinations in friends_service.dart queries
+- **TabBar text squashing**: Added scrollable tabs to Discover screen to prevent label cutoff
+- **In-memory sorting**: Friends and requests now sorted in Dart instead of Firestore
+
+---
+
 ## [1.1.1] - 2025-11-13
 
 ### 🔧 Fixed
