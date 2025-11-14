@@ -430,56 +430,59 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _isPro ? 'Curated For You' : 'Discover Books',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _isPro
-                    ? 'Personalized recommendations based on your reading history'
-                    : 'Handpicked selection from our community library',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha(
-                    (0.7 * 255).round(),
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isPro ? 'Curated For You' : 'Discover Books',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              if (!_isPro) ...[
-                const SizedBox(height: 12),
-                Card(
-                  color: theme.colorScheme.secondaryContainer.withAlpha(
-                    (0.3 * 255).round(),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.star, color: theme.colorScheme.secondary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Upgrade to Pro for personalized recommendations',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.push('/pro-club'),
-                          child: const Text('Upgrade'),
-                        ),
-                      ],
+                const SizedBox(height: 4),
+                Text(
+                  _isPro
+                      ? 'Personalized recommendations based on your reading history'
+                      : 'Handpicked selection from our community library',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.7 * 255).round(),
                     ),
                   ),
                 ),
+                if (!_isPro) ...[
+                  const SizedBox(height: 12),
+                  Card(
+                    color: theme.colorScheme.secondaryContainer.withAlpha(
+                      (0.3 * 255).round(),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.star,
+                              color: theme.colorScheme.secondary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Upgrade to Pro for personalized recommendations',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/pro-club'),
+                            child: const Text('Upgrade'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         Expanded(child: _buildBookGrid(_recommendedBooks)),

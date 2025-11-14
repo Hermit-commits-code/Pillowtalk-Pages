@@ -45,15 +45,19 @@ class _FriendsScreenState extends State<FriendsScreen>
     });
 
     try {
+      debugPrint('[Friends] Attempting to send friend request to: $email');
       final callable = FirebaseFunctions.instance.httpsCallable(
         'sendFriendRequestByEmail',
       );
+      debugPrint('[Friends] Calling Cloud Function...');
       final result = await callable.call(<String, dynamic>{'email': email});
+      debugPrint('[Friends] Cloud Function response: $result');
       final data = result.data as Map<String, dynamic>?;
 
       if (!mounted) return;
 
       if (data == null) {
+        debugPrint('[Friends] Null response data');
         setState(() {
           _addFriendError = 'Unexpected response from server.';
           _isAddingFriend = false;
@@ -61,7 +65,10 @@ class _FriendsScreenState extends State<FriendsScreen>
         return;
       }
 
+      debugPrint('[Friends] Response data: $data');
+
       if (data['found'] == false) {
+        debugPrint('[Friends] User not found');
         setState(() {
           _addFriendError = 'No user found with that email.';
           _isAddingFriend = false;
@@ -69,12 +76,17 @@ class _FriendsScreenState extends State<FriendsScreen>
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
-      _emailController.clear();
-      setState(() => _isAddingFriend = false);
+      debugPrint('[Friends] Friend request sent successfully');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
+        _emailController.clear();
+        Navigator.pop(context); // Close dialog
+        setState(() => _isAddingFriend = false);
+      }
     } catch (e) {
+      debugPrint('[Friends] Error sending friend request: $e');
       if (mounted) {
         setState(() {
           _addFriendError = 'Failed to send request: ${e.toString()}';
