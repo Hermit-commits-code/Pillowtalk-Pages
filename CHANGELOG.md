@@ -207,6 +207,19 @@ Current version: `1.1.6+0`
 Current version: `1.1.7+0`
 ---
 
+## [1.1.8] - 2025-11-14
+
+### 🔧 Fixed
+
+- **Firestore rules deployed**: Deployed updated `collections` read rules to Firestore to prevent permission-denied errors while keeping Pro-only lists protected. Client-side queries were updated so non-Pro users only request public collections.
+
+### 📝 Notes
+
+- Bumped `pubspec.yaml` to `1.1.8+0` and created annotated tag `v1.1.8`.
+
+Current version: `1.1.8+0`
+---
+
 ## Upcoming
 
 See [ROADMAP.md](ROADMAP.md) for planned features and improvements.
