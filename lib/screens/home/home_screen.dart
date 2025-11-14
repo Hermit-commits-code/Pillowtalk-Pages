@@ -51,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
               context.go('/library');
               break;
             case 4:
+              context.go('/social/friends');
+              break;
+            case 5:
               context.go('/profile');
               break;
           }
@@ -77,6 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Library',
           ),
           NavigationDestination(
+            icon: Icon(Icons.people_outlined),
+            selectedIcon: Icon(Icons.people),
+            label: 'Social',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outlined),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
@@ -93,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (location.startsWith('/curated')) return 1;
     if (location.startsWith('/discover')) return 2;
     if (location.startsWith('/library')) return 3;
-    if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/social')) return 4;
+    if (location.startsWith('/profile')) return 5;
     return 0; // home
   }
 }
