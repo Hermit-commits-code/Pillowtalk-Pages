@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../../services/user_management_service.dart';
 import 'asin_management_screen.dart';
 import '../onboarding/onboarding_flow.dart';
+import '../../config/admin.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/auth_service.dart';
 
 /// Developer-only admin tools screen
 /// Accessible only to hotcupofjoe2013@gmail.com
@@ -348,6 +351,15 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
                   ),
                 ),
                 ElevatedButton.icon(
+                  onPressed: _showAffiliateClicks,
+                  icon: const Icon(Icons.analytics_outlined),
+                  label: const Text('View Affiliate Clicks'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                ElevatedButton.icon(
                   onPressed: _runDiagnostics,
                   icon: const Icon(Icons.bug_report),
                   label: const Text('Diagnostics'),
@@ -504,6 +516,46 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
               const SizedBox(height: 20),
               const Center(child: CircularProgressIndicator()),
             ],
+            const SizedBox(height: 24),
+            // Dev Utilities
+            Text(
+              'Dev Utilities',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _showMyUid,
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text('Show My UID'),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Expanded(child: Text('Owner-only analytics')),
+                        FutureBuilder<bool>(
+                          future: _loadRuntimeRestrictFlag(),
+                          builder: (context, snap) {
+                            final val = snap.data ?? false;
+                            return Switch(
+                              value: val,
+                              onChanged: (v) => _setRuntimeRestrictFlag(v),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -550,6 +602,134 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
           ],
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Show recent affiliate_clicks entries (read-only)
+  Future<void> _showAffiliateClicks() async {
+    setState(() => _isLoading = true);
+    try {
+      final q = FirebaseFirestore.instance
+          .collection('affiliate_clicks')
+          .orderBy('createdAt', descending: true)
+          .limit(50);
+      final snap = await q.get();
+      final docs = snap.docs;
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Recent Affiliate Clicks'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: docs.isEmpty
+                ? const Center(child: Text('No clicks recorded'))
+                : ListView.separated(
+                    itemCount: docs.length,
+                    separatorBuilder: (context, _) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final d = docs[index].data();
+                      final ts = d['createdAt'];
+                      final when = ts is Timestamp
+                          ? ts.toDate().toString()
+                          : (ts?.toString() ?? '');
+                      return ListTile(
+                        title: Text(d['bookTitle'] ?? d['bookId'] ?? 'Unknown'),
+                        subtitle: Text('${d['affiliateUrl'] ?? ''}\n$when'),
+                        trailing: Text(d['userId'] ?? ''),
+                        isThreeLine: true,
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to load affiliate clicks: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showMyUid() async {
+    final user = AuthService.instance.currentUser;
+    final uid = user?.uid ?? 'not-signed-in';
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('My UID'),
+        content: Text(uid),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(c).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> _loadRuntimeRestrictFlag() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('admin')
+          .get();
+      if (!doc.exists) return kRestrictAnalyticsToOwners;
+      final val = doc.data()?['restrictAnalyticsToOwners'];
+      if (val is bool) return val;
+    } catch (e) {
+      debugPrint('Failed to load runtime restrict flag: $e');
+    }
+    return kRestrictAnalyticsToOwners;
+  }
+
+  Future<void> _setRuntimeRestrictFlag(bool v) async {
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('admin')
+          .set({'restrictAnalyticsToOwners': v}, SetOptions(merge: true));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Owner-only analytics set to ${v ? 'ON' : 'OFF'}'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save setting: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import '../models/user_book.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../config/admin.dart';
 
 // Compile-time flag to disable analytics (set via --dart-define=DISABLE_ANALYTICS=true)
 const bool kDisableAnalytics = bool.fromEnvironment(
@@ -14,10 +15,10 @@ const bool kDisableAnalytics = bool.fromEnvironment(
 
 /// Service for handling Audible affiliate links and revenue tracking
 class AudibleAffiliateService {
-    static final AudibleAffiliateService _instance =
+  static final AudibleAffiliateService _instance =
       AudibleAffiliateService._internal();
   factory AudibleAffiliateService() => _instance;
-    AudibleAffiliateService._internal();
+  AudibleAffiliateService._internal();
 
   // Replace with your actual Audible affiliate tag
   static const String _affiliateTag = 'spicyreads-20';
@@ -25,6 +26,8 @@ class AudibleAffiliateService {
 
   // Cache per-user runtime analytics preference to avoid hitting Firestore
   final Map<String, bool> _userAnalyticsCache = {};
+  // Cached runtime flag from Firestore (optional override)
+  bool? _runtimeRestrictAnalyticsCache;
 
   /// Generate Audible affiliate link for a book
   String generateAffiliateLink(UserBook book) {
@@ -136,10 +139,44 @@ class AudibleAffiliateService {
   Future<bool> _isAnalyticsAllowedForUser(String? userId) async {
     if (kDisableAnalytics) return false;
     if (userId == null || userId.isEmpty) return true; // default to enabled
+
+    // Allow a runtime override from Firestore: app_config/admin.restrictAnalyticsToOwners
+    bool restrict = kRestrictAnalyticsToOwners;
+    try {
+      final runtime = await _getRuntimeRestrictAnalyticsFlag();
+      if (runtime != null) restrict = runtime;
+    } catch (_) {
+      // ignore and fall back to compile-time config
+    }
+
+    // If analytics are restricted to owners, allow only owner UIDs/emails
+    if (restrict) {
+      // Fast path: UID is in owner list
+      if (kOwnerAnalyticsUids.contains(userId)) return true;
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
+        final email = doc.data()?['email'] as String? ?? '';
+        if (email.isNotEmpty && kOwnerAnalyticsEmails.contains(email)) {
+          return true;
+        }
+      } catch (e) {
+        debugPrint(
+          'Failed to read user document while checking owner list: $e',
+        );
+      }
+      return false;
+    }
+
     final cached = _userAnalyticsCache[userId];
     if (cached != null) return cached;
     try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
       final val = doc.data()?['analyticsEnabled'];
       if (val is bool) {
         _userAnalyticsCache[userId] = val;
@@ -151,6 +188,30 @@ class AudibleAffiliateService {
     // Default to enabled if not explicitly set or on error
     _userAnalyticsCache[userId] = true;
     return true;
+  }
+
+  Future<bool?> _getRuntimeRestrictAnalyticsFlag() async {
+    // Return null if no runtime override exists; otherwise return the bool
+    if (_runtimeRestrictAnalyticsCache != null) {
+      return _runtimeRestrictAnalyticsCache;
+    }
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('admin')
+          .get();
+      if (!doc.exists) return null;
+      final val = doc.data()?['restrictAnalyticsToOwners'];
+      if (val is bool) {
+        _runtimeRestrictAnalyticsCache = val;
+        return val;
+      }
+    } catch (e) {
+      debugPrint(
+        'Failed to read app_config/admin while checking runtime restrict flag: $e',
+      );
+    }
+    return null;
   }
 
   /// Check if a book should show Audible affiliate link
