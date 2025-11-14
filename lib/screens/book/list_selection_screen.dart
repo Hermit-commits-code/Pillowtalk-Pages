@@ -73,6 +73,7 @@ class _ListSelectionScreenState extends State<ListSelectionScreen> {
         name: nameController.text.trim(),
         description: descController.text.trim(),
       );
+      if (!mounted) return;
       setState(() {
         _selectedIds.add(list.id);
       });
