@@ -348,7 +348,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
               'Search by mood, trope, or try one of the quick mood tags above.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
               ),
             ),
           ],
@@ -392,7 +392,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
               Text(
                 'Books that the community is buzzing about',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
                 ),
               ),
             ],
@@ -432,13 +432,13 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                     ? 'Personalized recommendations based on your reading history'
                     : 'Handpicked selection from our community library',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
                 ),
               ),
               if (!_isPro) ...[
                 const SizedBox(height: 12),
                 Card(
-                  color: theme.colorScheme.secondaryContainer.withOpacity(0.3),
+                  color: theme.colorScheme.secondaryContainer.withAlpha((0.3 * 255).round()),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
@@ -485,7 +485,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
             'Advanced search through the books you\'ve already added to your personal collection.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
             ),
           ),
           const SizedBox(height: 24),

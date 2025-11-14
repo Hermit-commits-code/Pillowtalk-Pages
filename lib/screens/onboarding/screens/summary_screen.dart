@@ -168,7 +168,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.05),
+                    color: Colors.purple.withAlpha((0.05 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -216,9 +216,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           children: kinkFilters.map((kink) {
                             return Chip(
                               label: Text(kink),
-                              backgroundColor: Colors.purple.withOpacity(0.15),
+                              backgroundColor: Colors.purple.withAlpha((0.15 * 255).round()),
                               side: BorderSide(
-                                color: Colors.purple.withOpacity(0.3),
+                                color: Colors.purple.withAlpha((0.3 * 255).round()),
                               ),
                             );
                           }).toList(),

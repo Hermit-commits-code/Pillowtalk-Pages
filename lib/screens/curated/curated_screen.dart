@@ -121,7 +121,7 @@ class _CuratedScreenState extends State<CuratedScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+          color: Theme.of(context).colorScheme.primary.withAlpha((0.08 * 255).round()),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -479,7 +479,7 @@ class _CollectionCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+                  colors: [Colors.transparent, Colors.black.withAlpha((0.7 * 255).round())],
                 ),
               ),
             ),
@@ -513,7 +513,7 @@ class _CollectionCard extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.black.withAlpha((0.5 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(

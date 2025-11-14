@@ -232,7 +232,7 @@ class _DiscoverBooksSection extends StatelessWidget {
           Text(
             'Find your next favorite from our community library',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
             ),
           ),
           const SizedBox(height: 16),
@@ -355,7 +355,7 @@ class _DiscoveryCard extends StatelessWidget {
                 child: Text(
                   subtitle,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
                     fontSize: 10,
                   ),
                   maxLines: 2,
