@@ -30,10 +30,10 @@ Future<HardStopChoice?> showHardStopWarningDialog(
                 spacing: 8,
                 runSpacing: 8,
                 children: matchedWarnings
-                    .map(
+                        .map(
                       (w) => Chip(
                         label: Text(w),
-                        backgroundColor: Colors.orange.withOpacity(0.12),
+                        backgroundColor: Colors.orange.withAlpha((0.12 * 255).round()),
                       ),
                     )
                     .toList(),

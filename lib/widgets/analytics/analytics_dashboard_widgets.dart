@@ -213,13 +213,13 @@ class AnalyticsDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            theme.colorScheme.secondary.withOpacity(0.1),
-            theme.colorScheme.secondary.withOpacity(0.05),
+            theme.colorScheme.secondary.withAlpha((0.1 * 255).round()),
+            theme.colorScheme.secondary.withAlpha((0.05 * 255).round()),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.secondary.withOpacity(0.3),
+          color: theme.colorScheme.secondary.withAlpha((0.3 * 255).round()),
           width: 1,
         ),
       ),
@@ -241,7 +241,9 @@ class AnalyticsDashboard extends StatelessWidget {
               ),
               Icon(
                 Icons.lock,
-                color: theme.colorScheme.secondary.withOpacity(0.7),
+                color: theme.colorScheme.secondary.withAlpha(
+                  (0.7 * 255).round(),
+                ),
                 size: 20,
               ),
             ],
@@ -250,7 +252,7 @@ class AnalyticsDashboard extends StatelessWidget {
           Text(
             description,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.8),
+              color: theme.colorScheme.onSurface.withAlpha((0.8 * 255).round()),
             ),
           ),
           const SizedBox(height: 16),
@@ -329,9 +331,9 @@ class StatsCard extends StatelessWidget {
     return Container(
       width: 140,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha((0.1 * 255).round()),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withAlpha((0.2 * 255).round())),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(

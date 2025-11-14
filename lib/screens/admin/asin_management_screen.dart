@@ -72,6 +72,7 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(
         context,
@@ -125,11 +126,12 @@ class _AsinManagementScreenState extends State<AsinManagementScreen> {
       });
 
       _filterBooks();
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Updated ASIN for "${book.title}"')),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error updating ASIN: $e')));

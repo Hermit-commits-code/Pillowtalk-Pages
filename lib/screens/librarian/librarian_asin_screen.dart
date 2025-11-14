@@ -40,12 +40,7 @@ class _LibrarianAsinScreenState extends State<LibrarianAsinScreen> {
           .get();
       final docs = snapshot.docs;
       _books = docs
-          .map(
-            (d) => UserBook.fromMap({
-              ...d.data() as Map<String, dynamic>,
-              'id': d.id,
-            }),
-          )
+          .map((d) => UserBook.fromMap({...d.data(), 'id': d.id}))
           .toList();
       setState(() => _isLoading = false);
     } on FirebaseException catch (fe) {

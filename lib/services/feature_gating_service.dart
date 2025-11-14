@@ -153,10 +153,10 @@ class FeatureGatingService {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.secondary.withOpacity(0.1),
+                  color: theme.colorScheme.secondary.withAlpha((0.1 * 255).round()),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: theme.colorScheme.secondary.withOpacity(0.3),
+                    color: theme.colorScheme.secondary.withAlpha((0.3 * 255).round()),
                     width: 1,
                   ),
                 ),

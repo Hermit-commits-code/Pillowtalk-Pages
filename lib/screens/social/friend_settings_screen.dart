@@ -5,10 +5,7 @@ import '../../services/friends_service.dart';
 class FriendSettingsScreen extends StatefulWidget {
   final String friendId;
 
-  const FriendSettingsScreen({
-    super.key,
-    required this.friendId,
-  });
+  const FriendSettingsScreen({super.key, required this.friendId});
 
   @override
   State<FriendSettingsScreen> createState() => _FriendSettingsScreenState();
@@ -47,9 +44,9 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading friend: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading friend: $e')));
         setState(() => _isLoading = false);
       }
     }
@@ -75,9 +72,9 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
       setState(() => _isSaving = false);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
         setState(() => _isSaving = false);
       }
     }
@@ -88,7 +85,9 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Friend?'),
-        content: const Text('This friend will no longer have access to your shared data.'),
+        content: const Text(
+          'This friend will no longer have access to your shared data.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -96,9 +95,7 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Remove'),
           ),
         ],
@@ -110,15 +107,15 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
         await _friendsService.removeFriend(widget.friendId);
         if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Friend removed')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Friend removed')));
         Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -135,9 +132,7 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sharing Preferences'),
-      ),
+      appBar: AppBar(title: const Text('Sharing Preferences')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -153,7 +148,9 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
                     Row(
                       children: [
                         CircleAvatar(
-                          child: Text(_friend.friendId.substring(0, 2).toUpperCase()),
+                          child: Text(
+                            _friend.friendId.substring(0, 2).toUpperCase(),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -231,7 +228,8 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
               onChanged: (value) {
                 setState(() => _shareHardStops = value);
               },
-              warning: 'Hard stops are sensitive. Only share with trusted friends.',
+              warning:
+                  'Hard stops are sensitive. Only share with trusted friends.',
             ),
 
             const SizedBox(height: 12),
@@ -269,9 +267,7 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: _removeFriend,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                 child: const Text('Remove Friend'),
               ),
             ),
@@ -321,10 +317,7 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
                     ],
                   ),
                 ),
-                Switch(
-                  value: value,
-                  onChanged: onChanged,
-                ),
+                Switch(value: value, onChanged: onChanged),
               ],
             ),
             if (warning != null) ...[
@@ -337,7 +330,11 @@ class _FriendSettingsScreenState extends State<FriendSettingsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, size: 16, color: Colors.orange[700]),
+                    Icon(
+                      Icons.warning_amber,
+                      size: 16,
+                      color: Colors.orange[700],
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(

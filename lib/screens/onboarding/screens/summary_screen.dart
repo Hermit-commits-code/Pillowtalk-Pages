@@ -94,7 +94,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.05),
+                    color: Colors.blue.withAlpha((0.05 * 255).round()),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -142,9 +142,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                           children: hardStops.map((stop) {
                             return Chip(
                               label: Text(stop),
-                              backgroundColor: Colors.blue.withOpacity(0.15),
+                              backgroundColor: Colors.blue.withAlpha((0.15 * 255).round()),
                               side: BorderSide(
-                                color: Colors.blue.withOpacity(0.3),
+                                color: Colors.blue.withAlpha((0.3 * 255).round()),
                               ),
                             );
                           }).toList(),

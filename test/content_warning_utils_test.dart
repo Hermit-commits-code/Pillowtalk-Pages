@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/services/content_warning_utils.dart';
+import 'package:spicyreads/services/content_warning_utils.dart';
 
 void main() {
   group('findWarningOverlap', () {

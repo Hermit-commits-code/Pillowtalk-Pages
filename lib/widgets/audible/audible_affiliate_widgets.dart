@@ -63,7 +63,7 @@ class _AudibleAffiliateButtonState extends State<AudibleAffiliateButton> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
+            color: Colors.orange.withAlpha((0.3 * 255).round()),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -198,7 +198,7 @@ class _AudibleAffiliateButtonState extends State<AudibleAffiliateButton> {
           fontSize: 12,
         ),
       ),
-      backgroundColor: const Color(0xFFFF6600).withOpacity(0.1),
+      backgroundColor: Color(0xFFFF6600).withAlpha((0.1 * 255).round()),
       side: const BorderSide(color: Color(0xFFFF6600), width: 1),
     );
   }
@@ -269,15 +269,15 @@ class AudiobookPromotionBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFFF6600).withOpacity(0.1),
-            const Color(0xFFFF8C00).withOpacity(0.05),
+            Color(0xFFFF6600).withAlpha((0.1 * 255).round()),
+            Color(0xFFFF8C00).withAlpha((0.05 * 255).round()),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: const Color(0xFFFF6600).withOpacity(0.3),
+          color: Color(0xFFFF6600).withAlpha((0.3 * 255).round()),
           width: 1,
         ),
       ),
@@ -333,9 +333,12 @@ class AudiobookNarratorInfo extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.purple.withOpacity(0.1),
+        color: Colors.purple.withAlpha((0.1 * 255).round()),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.purple.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: Colors.purple.withAlpha((0.3 * 255).round()),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -416,9 +419,9 @@ class AudiobookProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withAlpha((0.1 * 255).round()),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+        border: Border.all(color: Colors.blue.withAlpha((0.3 * 255).round()), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,7 +448,7 @@ class AudiobookProgressWidget extends StatelessWidget {
           const SizedBox(height: 8),
           LinearProgressIndicator(
             value: progressPercentage,
-            backgroundColor: Colors.blue.withOpacity(0.2),
+            backgroundColor: Colors.blue.withAlpha((0.2 * 255).round()),
             valueColor: AlwaysStoppedAnimation(Colors.blue),
           ),
           const SizedBox(height: 6),
