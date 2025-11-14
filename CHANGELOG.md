@@ -2,8 +2,32 @@
 
 All notable changes to Spicy Reads will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+
+the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.5] - 2025-11-14
+
+### 🔧 Fixed
+
+- **Restored corrupted discovery screen**: Recovered `lib/screens/discovery/community_discovery_screen.dart` from the last committed state (git HEAD) to resolve a large set of analyzer and syntax errors introduced by accidental file corruption.
+- **Render overflow / layout fixes**: Prevented bottom RenderFlex overflow on the Discover → For You grid by wrapping the `TabBarView` in a `SafeArea` (bottom-only), adding dynamic bottom padding to discovery grids (accounts for `MediaQuery.of(context).padding.bottom + 12`), and reducing book-card vertical density (adjusted `childAspectRatio`, reduced inner padding and button sizes).
+- **Search tab layout improvements**: Reworked the Search tab header into a single bordered container that contains the search input, a larger `Quick Moods` chips area, and an `Expanded` results area so the chips are no longer visually clipped.
+- **Smaller placeholder footprint**: Reduced search placeholder icon and spacer sizes to free vertical space in the header.
+- **Client-side auth guards for cloud callables**: Added auth checks before invoking friend-request callables to avoid `[firebase_functions/unauthenticated] UNAUTHENTICATED` errors when the client is not signed in.
+- **Dialog overflow prevention**: Constrained Developer Tools dialog content to avoid overflow on small screens.
+
+### ✨ Changed
+
+- **Debugging aids**: Added temporary visual borders to the Search header and results container to aid layout debugging; these are present in this release to assist QA and may be removed in a follow-up polish release.
+- **Version bump & release tag**: Bumped `pubspec.yaml` to `1.1.5+0`, committed with `chore(release): bump version to 1.1.5+0`, and created/pushed annotated tag `v1.1.5`.
+
+### 📝 Notes
+
+- The repository analyzer was run after the restore and edits (`dart analyze --fatal-warnings`) and returned clean with no issues.
+- Visual QA: while these changes prevent common overflows and clipping, please verify on target devices/emulators (different screen sizes and safe-area insets). If you want, I can remove the debug borders and prepare a follow-up polish commit.
+
+---
 
 ## [1.1.3] - 2025-11-13
 
@@ -149,7 +173,7 @@ This project uses [Semantic Versioning](https://semver.org/):
 - **PATCH**: Bug fixes, backwards compatible
 - **Build number**: Increased for each release build
 
-Current version: `1.1.0+0`
+Current version: `1.1.5+0`
 
 ---
 
