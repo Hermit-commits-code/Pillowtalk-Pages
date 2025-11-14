@@ -7,8 +7,7 @@ This document explains how analytics are handled in the app, how CI disables ana
 Key points
 
 - Analytics calls are centralized in `lib/services/analytics_service.dart`.
-- CI and other ephemeral runners should disable analytics by passing a compile-time flag: `DISABLE_ANALYTICS=true`.
-- The GitHub Actions workflow sets this flag when running tests so events are not emitted from CI.
+- Automated builds and test runners should disable analytics by passing a compile-time flag: `DISABLE_ANALYTICS=true`.
 
 How to disable analytics (recommended for CI/tests)
 
@@ -20,11 +19,10 @@ flutter test --dart-define=DISABLE_ANALYTICS=true
 
 This uses a compile-time flag inside `AnalyticsService` (via `bool.fromEnvironment`) to short-circuit logging.
 
-CI configuration notes
+Automated runner notes
 
-- The default CI workflow (`.github/workflows/ci.yml`) already disables analytics during the `flutter test` step by adding `--dart-define=DISABLE_ANALYTICS=true`.
-- The CI workflow also uploads `coverage/lcov.info` as an artifact.
-- An optional Firestore Emulator job is present in the workflow but disabled by default. To enable it, set the workflow-level environment var `RUN_FIREBASE_EMULATOR=true` (for example in a manual `workflow_dispatch` run or in repository-level environment settings). The emulator job will export `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080` so tests can target the emulator.
+- When running tests in automated environments, pass `--dart-define=DISABLE_ANALYTICS=true` to avoid sending telemetry from ephemeral runners.
+- If you need to run tests against the Firestore emulator, set `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080` and start the emulator before running tests.
 
 Running tests locally with the emulator
 
