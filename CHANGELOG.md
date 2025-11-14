@@ -5,6 +5,19 @@ All notable changes to Spicy Reads will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-13
+
+### 🔧 Fixed
+
+- **Firestore security rules**: Added rules for `affiliate_clicks` collection (user can write their own, read by user or admins; read-only for audit), `users/{userId}/friends` (per-user read/write), and `app_config` (authenticated read, admin write).
+- **Social framework**: Friends and share links screens now have proper Firestore permissions.
+
+### 📝 Notes
+
+- Firestore rules must be deployed via Firebase Console or CLI for changes to take effect.
+
+---
+
 ## [1.1.0] - 2025-11-13
 
 ### ✨ Added
