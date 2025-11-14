@@ -1,5 +1,6 @@
 // lib/screens/admin/developer_tools_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/admin.dart';
@@ -46,6 +47,66 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
       setState(() => _hasAdminAccess = false);
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Inspect the current Firebase ID token claims (forces a refresh).
+  Future<void> _inspectTokenClaims() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('No user'),
+          content: const Text('You are not signed in.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+          ],
+        ),
+      );
+      return;
+    }
+
+    try {
+      final idr = await user.getIdTokenResult(true);
+      final claims = idr.claims ?? {};
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('ID Token Claims'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('UID: ${user.uid}'),
+                const SizedBox(height: 8),
+                Text('Expiration: ${idr.expirationTime?.toLocal() ?? 'unknown'}'),
+                const SizedBox(height: 8),
+                Text('Claims:'),
+                const SizedBox(height: 8),
+                Text(claims.isEmpty ? '<no claims>' : claims.toString()),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      await showDialog(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Failed to inspect token: $e'),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+          ],
+        ),
+      );
     }
   }
 
@@ -311,7 +372,10 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.warning, color: theme.colorScheme.onErrorContainer),
+                  Icon(
+                    Icons.warning,
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Row(
@@ -329,17 +393,28 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
                         if (_hasAdminAccess != null) ...[
                           const SizedBox(width: 8),
                           Chip(
-                            label: Text(_hasAdminAccess! ? 'Admin: OK' : 'Admin: No'),
+                            label: Text(
+                              _hasAdminAccess! ? 'Admin: OK' : 'Admin: No',
+                            ),
                             backgroundColor: _hasAdminAccess!
                                 ? Colors.green.shade600
                                 : Colors.red.shade600,
-                            labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                            labelStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
                           ),
                           IconButton(
                             onPressed: _checkAdminStatus,
                             icon: const Icon(Icons.refresh),
                             color: theme.colorScheme.onErrorContainer,
                             tooltip: 'Re-check admin access',
+                          ),
+                          IconButton(
+                            onPressed: _inspectTokenClaims,
+                            icon: const Icon(Icons.verified_user),
+                            color: theme.colorScheme.onErrorContainer,
+                            tooltip: 'Inspect ID token claims',
                           ),
                         ],
                       ],
@@ -670,7 +745,10 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
   Future<bool> _ensureAdminAccess() async {
     final user = AuthService.instance.currentUser;
     if (user == null) {
-      setState(() => _statusMessage = 'Please sign in as the developer to use these tools.');
+      setState(
+        () => _statusMessage =
+            'Please sign in as the developer to use these tools.',
+      );
       return false;
     }
 
@@ -693,16 +771,27 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
                 const SizedBox(height: 12),
                 const Text('Possible resolutions:'),
                 const SizedBox(height: 8),
-                const Text('• Sign in as the developer account (hotcupofjoe2013@gmail.com).'),
-                const Text('• Ensure Cloud Functions are deployed and reachable.'),
-                const Text('• Add your UID to the admin allow-list at `config/admins` in Firestore or set ADMIN_UIDS in the functions environment.'),
+                const Text(
+                  '• Sign in as the developer account (hotcupofjoe2013@gmail.com).',
+                ),
+                const Text(
+                  '• Ensure Cloud Functions are deployed and reachable.',
+                ),
+                const Text(
+                  '• Add your UID to the admin allow-list at `config/admins` in Firestore or set ADMIN_UIDS in the functions environment.',
+                ),
                 const SizedBox(height: 8),
-                const Text('If you need, run diagnostics from this screen to capture the exact error.'),
+                const Text(
+                  'If you need, run diagnostics from this screen to capture the exact error.',
+                ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
           ],
         ),
       );
