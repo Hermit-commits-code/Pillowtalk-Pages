@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/community_book.dart';
 import '../../models/user_book.dart';
-import '../../services/community_book_service.dart';
-import '../../services/user_library_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/community_book_service.dart';
 import '../../services/feature_gating_service.dart';
 import '../../services/pro_status_service.dart';
+import '../../services/user_library_service.dart';
 import '../../widgets/loading_spinner.dart';
 
 /// Community Discovery Screen - Find new books from the community database
@@ -212,14 +212,17 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildSearchTab(theme),
-          _buildTrendingTab(theme),
-          _buildRecommendedTab(theme),
-          _buildMyBooksTab(theme),
-        ],
+      body: SafeArea(
+        top: false,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildSearchTab(theme),
+            _buildTrendingTab(theme),
+            _buildRecommendedTab(theme),
+            _buildMyBooksTab(theme),
+          ],
+        ),
       ),
     );
   }
@@ -394,6 +397,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Trending This Week',
@@ -463,8 +467,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
-                          Icon(Icons.star,
-                              color: theme.colorScheme.secondary),
+                          Icon(Icons.star, color: theme.colorScheme.secondary),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -522,11 +525,14 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
   }
 
   Widget _buildBookGrid(List<CommunityBook> books) {
+    // Add bottom padding that accounts for system inset to avoid small overflow
+    final bottomInset = MediaQuery.of(context).padding.bottom;
     return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, bottomInset + 12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.65,
+        // Slightly taller cards to give more vertical room and avoid small overflows
+        childAspectRatio: 0.62,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
@@ -570,9 +576,11 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              // Slightly reduced inner padding to make content fit better
+              padding: const EdgeInsets.all(6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     book.title,
@@ -589,8 +597,6 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-
-                  const Spacer(),
 
                   // Social proof
                   if (book.socialProofText.isNotEmpty) ...[
@@ -609,12 +615,12 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                   // Add to library button
                   SizedBox(
                     width: double.infinity,
-                    height: 32,
+                    height: 30,
                     child: ElevatedButton(
                       onPressed: () => _addToLibrary(book),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        textStyle: const TextStyle(fontSize: 12),
+                        textStyle: const TextStyle(fontSize: 11),
                       ),
                       child: const Text('Add to Library'),
                     ),
