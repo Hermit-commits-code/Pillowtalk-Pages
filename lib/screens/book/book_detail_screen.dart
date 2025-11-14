@@ -153,6 +153,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         return;
       }
 
+      if (!mounted) return;
       final choice = await showHardStopWarningDialog(context, matches);
       if (!mounted) return;
       if (choice == null) return;
@@ -216,6 +217,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           return;
         }
 
+        if (!mounted) return;
         final result = await Navigator.of(context).push<bool>(
           MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
         );
@@ -265,6 +267,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         return;
       }
 
+      if (!mounted) return;
       final result = await Navigator.of(context).push<bool>(
         MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
       );
