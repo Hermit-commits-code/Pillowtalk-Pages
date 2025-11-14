@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'librarian_asin_screen.dart';
+import 'librarian_search_screen.dart';
 
 /// Simple librarian tools entry screen. Visible to users with `librarian` flag.
 class LibrarianToolsScreen extends StatelessWidget {
@@ -33,14 +34,10 @@ class LibrarianToolsScreen extends StatelessWidget {
             const SizedBox(height: 12),
             ElevatedButton.icon(
               icon: const Icon(Icons.search),
-              label: const Text('Search books (placeholder)'),
-              onPressed: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Search is a placeholder for now'),
-                  ),
-                );
-              },
+              label: const Text('Search books'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LibrarianSearchScreen()),
+              ),
             ),
           ],
         ),
