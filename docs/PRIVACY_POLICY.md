@@ -37,6 +37,16 @@ We use Firebase security rules and authenticated access to protect user data. No
 - You can delete your account to remove your personal data from our servers.
 - You can manage in-app preferences (e.g., filters, theme) via the Profile screen.
 
+### Analytics and Affiliate Tracking
+
+- We use Firebase Analytics to collect anonymous, aggregate usage information to improve the App. This includes events such as feature usage and affiliate link clicks.
+- Affiliate link clicks (for example Audible/Amazon links) are recorded as lightweight, non-sensitive records in a Firestore collection named `affiliate_clicks`. Records include the referenced book ID, a timestamp, and the affiliate URL. These records are used only for internal reporting and revenue tracking; they are not sold or shared.
+- You can opt out of analytics and affiliate tracking at any time via the Profile → Settings → "Allow analytics & affiliate tracking" toggle. When disabled, analytics events and affiliate click records will not be sent for your user account. Developers may also disable analytics at build time via the `--dart-define=DISABLE_ANALYTICS=true` flag.
+
+### Service Account Files
+
+- Development tools may require a Google service account JSON file. Never commit real service account JSON files to source control. Use the provided `service-account.json.example` as a template and set your credentials via the `GOOGLE_APPLICATION_CREDENTIALS` environment variable during tooling runs.
+
 7. Children
 
 The App is intended for users 18 years or older. We do not knowingly collect information from children under 18.

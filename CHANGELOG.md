@@ -1,5 +1,21 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+## [1.1.0] - 2025-11-13
+### Added
+- Runtime analytics toggle persisted per-user in Profile settings.
+- Audible affiliate service respects runtime opt-out and caches user preference.
+- `service-account.json.example` template added; real credentials removed from repo.
+- `CHANGELOG.md`, `CONTRIBUTING.md`, and `docs/screenshots/README.md` added.
+
+### Changed
+- Bumped package version to `1.1.0`.
+
+### Notes
+- Analytics can also be disabled at build time via `--dart-define=DISABLE_ANALYTICS=true`.
+# Changelog
+
 All notable changes to Spicy Reads will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

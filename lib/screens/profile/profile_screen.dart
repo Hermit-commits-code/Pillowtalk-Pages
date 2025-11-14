@@ -16,6 +16,7 @@ import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
+import '../../services/audible_affiliate_service.dart';
 import '../admin/developer_tools_screen.dart';
 import '../librarian/librarian_tools_screen.dart';
 
@@ -49,6 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _kinkFilterEnabled = true;
   final TextEditingController _customKinkController = TextEditingController();
   bool _isLibrarian = false;
+  bool _analyticsEnabled = true;
 
   @override
   void initState() {
@@ -75,7 +77,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       setState(() {
         _isLibrarian = (doc.data()?['librarian'] ?? false) as bool;
+        _analyticsEnabled = (doc.data()?['analyticsEnabled'] as bool?) ?? true;
       });
+      // Update audible service cache
+      AudibleAffiliateService().setUserAnalyticsEnabled(user.uid, _analyticsEnabled);
     } catch (_) {
       // ignore; default to false
     }
@@ -317,6 +322,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               val ? ThemeMode.dark : ThemeMode.light,
             ),
             secondary: const Icon(Icons.brightness_6),
+          ),
+          SwitchListTile(
+            title: const Text('Allow analytics & affiliate tracking'),
+            subtitle: const Text(
+              'Enable anonymous analytics and allow affiliate link clicks to be recorded for internal reporting. You can opt out at any time.',
+            ),
+            value: _analyticsEnabled,
+            onChanged: (val) async {
+              final messenger = ScaffoldMessenger.of(context);
+              setState(() => _analyticsEnabled = val);
+              try {
+                final user = AuthService.instance.currentUser;
+                if (user != null) {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .set({'analyticsEnabled': val, 'updatedAt': FieldValue.serverTimestamp()}, SetOptions(merge: true));
+                  AudibleAffiliateService().setUserAnalyticsEnabled(user.uid, val);
+                }
+              } catch (e) {
+                debugPrint('Failed to persist analytics preference: $e');
+                if (!mounted) return;
+                messenger.showSnackBar(const SnackBar(content: Text('Failed to save analytics preference')));
+              }
+            },
+            secondary: const Icon(Icons.bar_chart),
           ),
           const Divider(height: 32),
           Text('Legal', style: theme.textTheme.titleMedium),

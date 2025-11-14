@@ -115,6 +115,18 @@ Our competitive advantage lies in proprietary, community-driven data intelligenc
    flutter run
    ```
 
+### Disable Analytics (development / CI)
+
+To disable analytics globally (for CI or when you don't want telemetry), pass the following flag at build/run time:
+
+```bash
+flutter run --dart-define=DISABLE_ANALYTICS=true
+```
+
+### Service Account (local tooling)
+
+Development tools may require a Google service account JSON file. Do not commit real credentials to Git. Copy `service-account.json.example` to `service-account.json` locally, or set `GOOGLE_APPLICATION_CREDENTIALS` to point to your credentials file when running tools.
+
 ## 📁 Project Structure
 
 ```text

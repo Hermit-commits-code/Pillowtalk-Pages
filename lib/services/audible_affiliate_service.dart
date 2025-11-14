@@ -1,20 +1,30 @@
 // lib/services/audible_affiliate_service.dart
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// cloud_firestore already imported above; avoid duplicate import
 import 'package:firebase_analytics/firebase_analytics.dart';
 import '../models/user_book.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// Compile-time flag to disable analytics (set via --dart-define=DISABLE_ANALYTICS=true)
+const bool kDisableAnalytics = bool.fromEnvironment(
+  'DISABLE_ANALYTICS',
+  defaultValue: false,
+);
 
 /// Service for handling Audible affiliate links and revenue tracking
 class AudibleAffiliateService {
-  static const AudibleAffiliateService _instance =
+    static final AudibleAffiliateService _instance =
       AudibleAffiliateService._internal();
   factory AudibleAffiliateService() => _instance;
-  const AudibleAffiliateService._internal();
+    AudibleAffiliateService._internal();
 
   // Replace with your actual Audible affiliate tag
   static const String _affiliateTag = 'spicyreads-20';
   static const String _audibleBaseUrl = 'https://www.audible.com';
+
+  // Cache per-user runtime analytics preference to avoid hitting Firestore
+  final Map<String, bool> _userAnalyticsCache = {};
 
   /// Generate Audible affiliate link for a book
   String generateAffiliateLink(UserBook book) {
@@ -57,6 +67,21 @@ class AudibleAffiliateService {
   /// Track affiliate link clicks for revenue analytics
   Future<void> _trackAffiliateClick(UserBook book, String url) async {
     try {
+      if (kDisableAnalytics) {
+        debugPrint(
+          'Analytics disabled via compile-time flag; skipping affiliate tracking for ${book.bookId}',
+        );
+        return;
+      }
+
+      // Check runtime user preference (cached when possible)
+      final allowed = await _isAnalyticsAllowedForUser(book.userId);
+      if (!allowed) {
+        debugPrint(
+          'Analytics disabled by user; skipping affiliate tracking for ${book.bookId}',
+        );
+        return;
+      }
       // Log an analytics event to Firebase Analytics
       final analytics = FirebaseAnalytics.instance;
       await analytics.logEvent(
@@ -95,6 +120,37 @@ class AudibleAffiliateService {
       // Silently handle tracking errors - don't block user experience
       debugPrint('Failed to track affiliate click: $e');
     }
+  }
+
+  /// Public helper to update the local cache when the user toggles analytics
+  void setUserAnalyticsEnabled(String userId, bool enabled) {
+    if (userId.isEmpty) return;
+    _userAnalyticsCache[userId] = enabled;
+  }
+
+  /// Public helper for tests and callers to check the runtime preference.
+  Future<bool> isAnalyticsAllowedForUser(String? userId) async {
+    return await _isAnalyticsAllowedForUser(userId);
+  }
+
+  Future<bool> _isAnalyticsAllowedForUser(String? userId) async {
+    if (kDisableAnalytics) return false;
+    if (userId == null || userId.isEmpty) return true; // default to enabled
+    final cached = _userAnalyticsCache[userId];
+    if (cached != null) return cached;
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final val = doc.data()?['analyticsEnabled'];
+      if (val is bool) {
+        _userAnalyticsCache[userId] = val;
+        return val;
+      }
+    } catch (e) {
+      debugPrint('Failed to read analytics preference for $userId: $e');
+    }
+    // Default to enabled if not explicitly set or on error
+    _userAnalyticsCache[userId] = true;
+    return true;
   }
 
   /// Check if a book should show Audible affiliate link
