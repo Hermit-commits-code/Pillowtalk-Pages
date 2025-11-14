@@ -154,14 +154,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       }
 
       final choice = await showHardStopWarningDialog(context, matches);
+      if (!mounted) return;
       if (choice == null) return;
 
       switch (choice) {
         case HardStopChoice.cancel:
           // User cancelled; do nothing (they remain on the page)
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Warning acknowledged')));
+          if (!mounted) return;
+          _safeShowSnackBar('Warning acknowledged');
           break;
         case HardStopChoice.showAnyway:
           // User chose to proceed; no action required
@@ -169,9 +169,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         case HardStopChoice.addToIgnore:
           await svc.addIgnoredWarnings(matches);
           if (!mounted) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Added to ignore list')));
+          _safeShowSnackBar('Added to ignore list');
           break;
       }
     } catch (e) {
@@ -203,6 +201,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         ),
       );
 
+      if (!mounted) return;
       if (shouldSave != true) return;
 
       // Attempt to save to library; on success, load the new userBook and open editor.
@@ -213,15 +212,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         final ub = await UserLibraryService().getUserBook(widget.bookId!);
         if (ub == null) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Unable to load book for editing')),
-          );
+          _safeShowSnackBar('Unable to load book for editing');
           return;
         }
 
         final result = await Navigator.of(context).push<bool>(
           MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
         );
+
+        if (!mounted) return;
 
         if (result == true) {
           final updated = await UserLibraryService().getUserBook(
@@ -251,9 +250,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       } catch (e) {
         debugPrint('Error opening edit modal after save: $e');
         if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
+        _safeShowSnackBar('Failed to open editor: $e');
       }
 
       return;
@@ -264,15 +261,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final ub = await UserLibraryService().getUserBook(widget.userBookId!);
       if (ub == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to load book for editing')),
-        );
+        _safeShowSnackBar('Unable to load book for editing');
         return;
       }
 
       final result = await Navigator.of(context).push<bool>(
         MaterialPageRoute(builder: (_) => EditBookModal(userBook: ub)),
       );
+
+      if (!mounted) return;
 
       if (result == true) {
         // Refresh display state from the updated userBook so the detail
@@ -302,9 +299,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     } catch (e) {
       debugPrint('Error opening edit modal: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to open editor: $e')));
+      _safeShowSnackBar('Failed to open editor: $e');
     }
   }
 
@@ -371,6 +366,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     super.dispose();
   }
 
+  void _safeShowSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _launchAmazon() async {
     final Uri uri;
 
@@ -389,9 +391,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Could not open Amazon.')));
+      _safeShowSnackBar('Could not open Amazon.');
     }
   }
 
@@ -400,9 +400,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         if (!mounted) return false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please sign in to save books.')),
-        );
+        _safeShowSnackBar('Please sign in to save books.');
         return false;
       }
 
@@ -414,9 +412,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
       if (!bookDoc.exists) {
         if (!mounted) return false;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Book not found.')));
+        _safeShowSnackBar('Book not found.');
         return false;
       }
 
@@ -441,16 +437,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       }, SetOptions(merge: true));
 
       if (!mounted) return false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Book saved to your library!')),
-      );
+      _safeShowSnackBar('Book saved to your library!');
       return true;
     } catch (e) {
       debugPrint('Error saving book to library: $e');
       if (!mounted) return false;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to save book: $e')));
+      _safeShowSnackBar('Failed to save book: $e');
       return false;
     }
   }

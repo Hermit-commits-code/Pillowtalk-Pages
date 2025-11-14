@@ -272,6 +272,7 @@ class FeatureGatingService {
   Future<bool> checkBookLimitAndPrompt(BuildContext context) async {
     final canAdd = await canAddMoreBooks();
     if (!canAdd) {
+      if (!context.mounted) return false;
       showBookLimitUpgradePrompt(context);
       return false;
     }
@@ -285,6 +286,7 @@ class FeatureGatingService {
   ) async {
     final canAdd = await canSelectMoreTropes(currentCount);
     if (!canAdd) {
+      if (!context.mounted) return false;
       showTropeLimitUpgradePrompt(context);
       return false;
     }

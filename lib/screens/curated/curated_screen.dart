@@ -159,10 +159,12 @@ class _CuratedScreenState extends State<CuratedScreen> {
                   // Force refresh of ID token to pick up custom claims set by admin.
                   await user.getIdTokenResult(true);
                   await _loadProStatus();
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Privileges refreshed.')),
                   );
                 } catch (e) {
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Failed to refresh token: $e')),
                   );
@@ -294,10 +296,12 @@ class _CuratedScreenState extends State<CuratedScreen> {
                   // Try a quick anonymous sign-in to recover if the app is running locally.
                   try {
                     final cred = await AuthService.instance.signInAnonymously();
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Signed in as ${cred.user?.uid}')),
                     );
                   } catch (e) {
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Sign-in failed: $e')),
                     );
