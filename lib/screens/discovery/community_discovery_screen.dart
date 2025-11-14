@@ -197,10 +197,12 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
           labelStyle: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
           unselectedLabelStyle: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
+            color: Colors.white70,
           ),
           tabs: const [
             Tab(text: 'Search'),

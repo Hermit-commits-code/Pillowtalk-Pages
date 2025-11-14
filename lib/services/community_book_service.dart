@@ -35,13 +35,12 @@ class CommunityBookService {
       Query query = _booksRef.where('isPreSeeded', isEqualTo: true);
 
       // Apply basic filters at Firestore level when possible
+      // Note: Avoid combining multiple where + orderBy to prevent composite index requirements
       if (genreFilter != null && genreFilter.isNotEmpty) {
-        // Use the first genre for server-side filtering, then client-side filter for others
         query = query.where('genres', arrayContains: genreFilter.first);
       }
 
       if (tropeFilter != null && tropeFilter.isNotEmpty) {
-        // Use the first trope for server-side filtering
         query = query.where('cachedTropes', arrayContains: tropeFilter.first);
       }
 
@@ -56,16 +55,15 @@ class CommunityBookService {
         query = query.where('isTrending', isEqualTo: true);
       }
 
-      // Order by popularity/relevance
-      query = query.orderBy('popularityScore', descending: true);
-      query = query.limit(limit);
+      // Fetch without orderBy to avoid composite indexes; sort in Dart instead
+      query = query.limit(limit * 2);
 
       final snapshot = await query.get();
       List<CommunityBook> books = snapshot.docs
           .map((doc) => CommunityBook.fromFirestore(doc))
           .toList();
 
-      // Client-side filtering for complex conditions
+      // Client-side filtering and sorting
       books = books.where((book) {
         // Search query matching
         if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -111,7 +109,15 @@ class CommunityBookService {
         return true;
       }).toList();
 
-      return books;
+      // Sort by popularity score (descending) in Dart
+      books.sort((a, b) {
+        final aScore = a.popularityScore ?? 0.0;
+        final bScore = b.popularityScore ?? 0.0;
+        return bScore.compareTo(aScore);
+      });
+
+      // Return limited results
+      return books.take(limit).toList();
     } catch (e) {
       debugPrint('CommunityBookService.discoverBooks failed: $e');
       return [];

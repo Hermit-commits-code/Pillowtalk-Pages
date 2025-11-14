@@ -97,10 +97,12 @@ class _FriendsScreenState extends State<FriendsScreen>
           labelStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
           unselectedLabelStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
+            color: Colors.white70,
           ),
           tabs: const [
             Tab(text: 'Friends'),
