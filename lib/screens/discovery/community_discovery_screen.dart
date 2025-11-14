@@ -193,6 +193,15 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          labelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
           tabs: const [
             Tab(text: 'Search'),
             Tab(text: 'Trending'),

@@ -183,11 +183,19 @@ class FriendsService {
         .doc(_currentUserId)
         .collection('friends')
         .where('status', isEqualTo: 'accepted')
-        .orderBy('acceptedAt', descending: true)
         .snapshots()
         .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList(),
+          (snapshot) {
+            final friends =
+                snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
+            // Sort in Dart to avoid composite index requirement
+            friends.sort((a, b) {
+              final aTime = a.acceptedAt ?? DateTime.now();
+              final bTime = b.acceptedAt ?? DateTime.now();
+              return bTime.compareTo(aTime);
+            });
+            return friends;
+          },
         );
   }
 
@@ -202,11 +210,15 @@ class FriendsService {
         .doc(_currentUserId)
         .collection('friends')
         .where('status', isEqualTo: 'pending')
-        .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList(),
+          (snapshot) {
+            final requests =
+                snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
+            // Sort in Dart to avoid composite index requirement
+            requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            return requests;
+          },
         );
   }
 

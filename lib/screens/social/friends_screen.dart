@@ -93,6 +93,15 @@ class _FriendsScreenState extends State<FriendsScreen>
         title: const Text('Friends'),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: false,
+          labelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
           tabs: const [
             Tab(text: 'Friends'),
             Tab(text: 'Requests'),
