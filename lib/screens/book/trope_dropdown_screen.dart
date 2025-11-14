@@ -24,7 +24,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
     super.initState();
     _selectedTropes = Set.from(widget.initialTropes);
     for (var t in _selectedTropes) {
-      if (!romanceTropesCategorized.contains(t)) _customTropes.add(t);
+      if (!romanceTropesCategorized.contains(t)) {
+        _customTropes.add(t);
+      }
     }
     _checkProStatus();
     _activeCategory = tropeCategories.keys.isNotEmpty
@@ -88,7 +90,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
 
     if (value != null) {
       setState(() {
-        if (!_customTropes.contains(value)) _customTropes.add(value);
+        if (!_customTropes.contains(value)) {
+          _customTropes.add(value);
+        }
         if (!_isPro &&
             _selectedTropes.length >= FeatureGatingService.freeTropeLimit) {
           FeatureGatingService().showTropeLimitUpgradePrompt(context);
@@ -151,8 +155,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                         children: [
                           ...categories.map((cat) {
                             final items = _filteredForCategory(cat);
-                            if (items.isEmpty && _search.trim().isNotEmpty)
+                            if (items.isEmpty && _search.trim().isNotEmpty) {
                               return const SizedBox.shrink();
+                            }
                             return ExpansionTile(
                               title: Text(cat),
                               initiallyExpanded: cat == _activeCategory,
@@ -170,8 +175,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                       if (sel == true) {
                                         _selectedTropes.addAll(items);
                                       } else {
-                                        for (final i in items)
+                                        for (final i in items) {
                                           _selectedTropes.remove(i);
+                                        }
                                       }
                                     });
                                   },
@@ -266,8 +272,9 @@ class _TropeDropdownScreenState extends State<TropeDropdownScreen> {
                                               if (sel == true) {
                                                 _selectedTropes.addAll(items);
                                               } else {
-                                                for (final i in items)
+                                                for (final i in items) {
                                                   _selectedTropes.remove(i);
+                                                }
                                               }
                                             });
                                           },

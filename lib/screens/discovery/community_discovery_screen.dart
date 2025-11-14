@@ -348,7 +348,9 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
               'Search by mood, trope, or try one of the quick mood tags above.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.7 * 255).round(),
+                ),
               ),
             ),
           ],
@@ -392,7 +394,9 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
               Text(
                 'Books that the community is buzzing about',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                  color: theme.colorScheme.onSurface.withAlpha(
+                    (0.7 * 255).round(),
+                  ),
                 ),
               ),
             ],
@@ -432,13 +436,17 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                     ? 'Personalized recommendations based on your reading history'
                     : 'Handpicked selection from our community library',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+                  color: theme.colorScheme.onSurface.withAlpha(
+                    (0.7 * 255).round(),
+                  ),
                 ),
               ),
               if (!_isPro) ...[
                 const SizedBox(height: 12),
                 Card(
-                  color: theme.colorScheme.secondaryContainer.withAlpha((0.3 * 255).round()),
+                  color: theme.colorScheme.secondaryContainer.withAlpha(
+                    (0.3 * 255).round(),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Row(
@@ -534,12 +542,12 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
                     book.imageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: theme.colorScheme.surfaceVariant,
+                      color: theme.colorScheme.surfaceContainerHighest,
                       child: const Icon(Icons.book, size: 48),
                     ),
                   )
                 : Container(
-                    color: theme.colorScheme.surfaceVariant,
+                    color: theme.colorScheme.surfaceContainerHighest,
                     child: const Icon(Icons.book, size: 48),
                   ),
           ),

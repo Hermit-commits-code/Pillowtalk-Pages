@@ -10,7 +10,7 @@ import 'screens/curated_library_screen.dart';
 class OnboardingScreen extends StatefulWidget {
   final String userId;
 
-  const OnboardingScreen({Key? key, required this.userId}) : super(key: key);
+  const OnboardingScreen({super.key, required this.userId});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -64,6 +64,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Temporarily keep WillPopScope to preserve behavior; suppress deprecation
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async => false, // Prevent back navigation during onboarding
       child: Scaffold(
