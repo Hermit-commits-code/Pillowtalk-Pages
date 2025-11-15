@@ -2,9 +2,69 @@
 
 All notable changes to Spicy Reads will be documented in this file.
 
-
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.2.2] - 2025-11-15
+
+### ✨ Added
+
+- **Currently Reading Big Card (Homepage)**: Redesigned homepage to feature the first currently reading book as a large prominent card (120x180px cover) with title, author, spice level, and "Continue Reading" button. Additional currently reading books display in horizontal scroll below.
+- **My Preferences Summary (Profile)**: New card on profile screen showing personalized reading preferences:
+  - Primary format preference (calculated from library)
+  - Average spice level with flame emoji
+  - Top 3 favorite tropes as chips
+  - Active hard stops count (only when enabled)
+  - Active kink filters count (only when enabled)
+- **Kink filters display**: Added kink filters row to preferences summary alongside hard stops.
+
+### 🔧 Fixed
+
+- **Hard stops visibility logic**: Hard stops row in preferences now respects the enabled toggle - disappears when disabled even if filters are configured.
+- **Kink filters visibility logic**: Kink filters row only appears when both enabled AND filters exist.
+- **Book detail navigation**: Fixed "Continue Reading" button to use correct route `/book/:id` instead of non-existent `/book-detail`.
+
+### 📊 Improved
+
+- **UI_MAGPIE compliance**: Increased from ~60% to ~75% by implementing Week 1-2 high-priority features:
+  - ✅ Hard stops alert modal (already existed)
+  - ✅ Currently Reading big card (new)
+  - ✅ My Preferences summary (new)
+
+### 📝 Notes
+
+- Version bumped to `1.2.2+0`
+- All Week 1-2 UI_MAGPIE goals completed
+- Next focus: Week 3-4 features (Librarian summary, trending tropes, reading streak)
+
+Current version: `1.2.2+0`
+
+---
+
+## [1.2.1] - 2025-11-15
+
+### 🔧 Fixed
+
+- **Friends list username display**: Friends list now displays friend's @username (or displayName) instead of generic "Friend" label. Matches the behavior of pending requests for consistency.
+
+### 📊 Added
+
+- **UI_MAGPIE gap analysis**: Created comprehensive comparison document (`UI_MAGPIE_GAP_ANALYSIS.md`) showing current implementation vs UI_MAGPIE target state. Identified missing high-priority features:
+  - Hard stops alert modal (HIGH PRIORITY)
+  - Currently Reading big card redesign (HIGH PRIORITY)
+  - "My Preferences" summary on profile (HIGH PRIORITY)
+  - Librarian summary section on book detail
+  - Community spice insights (Pro feature)
+
+### 📝 Notes
+
+- Version bumped to `1.2.1+0`
+- Gap analysis shows ~60% UI_MAGPIE compliance
+- Next focus: Implement Phase 1 high-priority features (hard stops alert, homepage big card, profile preferences)
+
+Current version: `1.2.1+0`
+
+---
 
 ## [1.1.5] - 2025-11-14
 
@@ -191,8 +251,7 @@ Current version: `1.1.5+0`
 
 - Updated `pubspec.yaml` to `1.1.6+0` and created annotated tag `v1.1.6`.
 
-Current version: `1.1.6+0`
----
+## Current version: `1.1.6+0`
 
 ## [1.1.7] - 2025-11-14
 
@@ -204,8 +263,7 @@ Current version: `1.1.6+0`
 
 - Bumped `pubspec.yaml` to `1.1.7+0` and created annotated tag `v1.1.7`.
 
-Current version: `1.1.7+0`
----
+## Current version: `1.1.7+0`
 
 ## [1.1.8] - 2025-11-14
 
@@ -217,8 +275,7 @@ Current version: `1.1.7+0`
 
 - Bumped `pubspec.yaml` to `1.1.8+0` and created annotated tag `v1.1.8`.
 
-Current version: `1.1.8+0`
----
+## Current version: `1.1.8+0`
 
 ## Upcoming
 

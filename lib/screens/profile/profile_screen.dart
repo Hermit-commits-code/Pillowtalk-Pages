@@ -15,6 +15,8 @@ import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
+import '../../services/user_library_service.dart';
+import '../../models/user_book.dart';
 import '../admin/developer_tools_screen.dart';
 import '../librarian/librarian_tools_screen.dart';
 import '../onboarding/onboarding_flow.dart';
@@ -260,6 +262,225 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Build the "My Preferences" summary card showing user's reading preferences
+  Widget _buildPreferencesSummary(BuildContext context, String userId) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.settings, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'My Reading Preferences',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Will be populated with actual user data
+            StreamBuilder<List<UserBook>>(
+              stream: UserLibraryService().getUserLibraryStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                final books = snapshot.data ?? [];
+                if (books.isEmpty) {
+                  return Text(
+                    'Start adding books to see your preferences!',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.hintColor,
+                    ),
+                  );
+                }
+
+                // Calculate stats
+                final avgSpice =
+                    books
+                        .where((b) => b.spiceOverall != null)
+                        .map((b) => b.spiceOverall!)
+                        .fold<double>(0.0, (sum, val) => sum + val) /
+                    books
+                        .where((b) => b.spiceOverall != null)
+                        .length
+                        .clamp(1, double.infinity);
+
+                // Count formats
+                final formatCounts = <BookFormat, int>{};
+                for (final book in books) {
+                  formatCounts[book.format] =
+                      (formatCounts[book.format] ?? 0) + 1;
+                }
+                final topFormats = formatCounts.entries.toList()
+                  ..sort((a, b) => b.value.compareTo(a.value));
+                final primaryFormat = topFormats.isNotEmpty
+                    ? topFormats.first.key
+                    : null;
+
+                // Get favorite tropes (most common)
+                final tropesCounts = <String, int>{};
+                for (final book in books) {
+                  for (final trope in book.userSelectedTropes) {
+                    tropesCounts[trope] = (tropesCounts[trope] ?? 0) + 1;
+                  }
+                }
+                final topTropes = tropesCounts.entries.toList()
+                  ..sort((a, b) => b.value.compareTo(a.value));
+                final favoriteTropes = topTropes
+                    .take(3)
+                    .map((e) => e.key)
+                    .toList();
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Format preference
+                    if (primaryFormat != null)
+                      _buildPreferenceRow(
+                        context,
+                        icon: Icons.menu_book,
+                        label: 'I primarily read',
+                        value: _formatToString(primaryFormat),
+                      ),
+                    const SizedBox(height: 12),
+                    // Average spice
+                    if (!avgSpice.isNaN)
+                      _buildPreferenceRow(
+                        context,
+                        icon: Icons.local_fire_department,
+                        iconColor: Colors.red[400],
+                        label: 'Avg spice level',
+                        value: '${avgSpice.toStringAsFixed(1)} 🔥',
+                      ),
+                    const SizedBox(height: 12),
+                    // Favorite tropes
+                    if (favoriteTropes.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.favorite,
+                                size: 16,
+                                color: theme.hintColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Favorite tropes:',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: favoriteTropes.map((trope) {
+                              return Chip(
+                                label: Text(
+                                  trope,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                backgroundColor:
+                                    theme.colorScheme.primaryContainer,
+                                padding: const EdgeInsets.all(4),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 12),
+                    // Hard stops count (only show if enabled AND has stops)
+                    if (_hardStopsEnabled && _hardStops.isNotEmpty)
+                      _buildPreferenceRow(
+                        context,
+                        icon: Icons.warning_amber_rounded,
+                        iconColor: Colors.orange,
+                        label: 'Hard stops active',
+                        value: '${_hardStops.length} filters',
+                      ),
+                    // Add spacing only if hard stops are shown
+                    if (_hardStopsEnabled && _hardStops.isNotEmpty)
+                      const SizedBox(height: 12),
+                    // Kink filters count (only show if enabled AND has filters)
+                    if (_kinkFilterEnabled && _kinkFilters.isNotEmpty)
+                      _buildPreferenceRow(
+                        context,
+                        icon: Icons.block,
+                        iconColor: Colors.purple[400],
+                        label: 'Kink filters active',
+                        value: '${_kinkFilters.length} filters',
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPreferenceRow(
+    BuildContext context, {
+    required IconData icon,
+    Color? iconColor,
+    required String label,
+    required String value,
+  }) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: iconColor ?? theme.hintColor),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          value,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatToString(BookFormat format) {
+    switch (format) {
+      case BookFormat.paperback:
+        return 'Paperback';
+      case BookFormat.hardcover:
+        return 'Hardcover';
+      case BookFormat.ebook:
+        return 'Ebook';
+      case BookFormat.audiobook:
+        return 'Audiobook';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = widget.currentUserGetter != null
@@ -316,6 +537,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 32),
+
+          // My Preferences Summary Section
+          _buildPreferencesSummary(context, userId),
+
           const SizedBox(height: 32),
           Text('Settings', style: theme.textTheme.titleMedium),
           SwitchListTile(

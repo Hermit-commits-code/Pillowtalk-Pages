@@ -69,20 +69,31 @@ class _HomeDashboardState extends State<HomeDashboard> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      height: 220,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        itemCount: currentlyReading.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 12),
-                        itemBuilder: (context, idx) {
-                          final book = currentlyReading[idx];
-                          return _BookCard(userBook: book);
-                        },
+                    // BIG FEATURED CARD for first currently reading book
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: _FeaturedBookCard(
+                        userBook: currentlyReading.first,
                       ),
                     ),
+                    // Additional currently reading books (if more than 1)
+                    if (currentlyReading.length > 1) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 220,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          itemCount: currentlyReading.length - 1,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 12),
+                          itemBuilder: (context, idx) {
+                            final book = currentlyReading[idx + 1];
+                            return _BookCard(userBook: book);
+                          },
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                   ],
 
@@ -362,6 +373,145 @@ class _DiscoveryCard extends StatelessWidget {
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// BIG FEATURED CARD for the primary currently reading book
+class _FeaturedBookCard extends StatelessWidget {
+  final UserBook userBook;
+  const _FeaturedBookCard({required this.userBook});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      elevation: 4,
+      child: InkWell(
+        onTap: () {
+          // Navigate to book detail using /book/:id route
+          context.push(
+            '/book/${userBook.bookId}',
+            extra: {'userBook': userBook},
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book cover (larger)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: userBook.imageUrl != null
+                    ? Image.network(
+                        userBook.imageUrl!,
+                        width: 120,
+                        height: 180,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 120,
+                          height: 180,
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.book,
+                            size: 48,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: 120,
+                        height: 180,
+                        color: Colors.grey[300],
+                        child: Icon(
+                          Icons.book,
+                          size: 48,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 16),
+              // Book info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userBook.title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    if (userBook.authors.isNotEmpty)
+                      Text(
+                        userBook.authors.first,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withAlpha(
+                            (0.7 * 255).round(),
+                          ),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    const SizedBox(height: 12),
+                    // Spice level
+                    if (userBook.spiceOverall != null)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.local_fire_department,
+                            size: 20,
+                            color: Colors.red[400],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${userBook.spiceOverall!.toStringAsFixed(1)} Spice',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.red[400],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 8),
+                    // Reading progress (placeholder - could be enhanced)
+                    Text(
+                      'Currently Reading',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Continue reading button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        context.push(
+                          '/book/${userBook.bookId}',
+                          extra: {'userBook': userBook},
+                        );
+                      },
+                      icon: const Icon(Icons.menu_book, size: 18),
+                      label: const Text('Continue Reading'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
