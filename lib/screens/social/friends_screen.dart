@@ -401,13 +401,13 @@ class _FriendsScreenState extends State<FriendsScreen>
             TextField(
               controller: _emailController,
               decoration: InputDecoration(
-                labelText: 'Friend\'s email',
-                hintText: 'user@example.com',
+                labelText: 'Friend\'s username',
+                hintText: '@username',
                 errorText: _addFriendError,
-                prefixIcon: const Icon(Icons.email),
+                prefixIcon: const Icon(Icons.alternate_email),
                 border: const OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.text,
               onSubmitted: (_) => _sendFriendRequest(),
             ),
           ],

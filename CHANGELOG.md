@@ -5,6 +5,17 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-11-15
+
+### 🔧 Fixed
+
+- **Friend add dialog UX**: Changed "Add Friend" dialog from email-based input to username-based input for better user experience. Dialog now shows:
+  - Label: "Friend's username" (previously "Friend's email")
+  - Hint text: "@username" (previously "user@example.com")
+  - Icon: @ symbol (previously envelope icon)
+  - Keyboard type: text (previously email)
+- This aligns with how friends are displayed (@username) and improves discoverability since usernames are more shareable than email addresses.
+
 ## [1.2.2] - 2025-11-15
 
 ### ✨ Added
