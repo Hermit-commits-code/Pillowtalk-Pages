@@ -72,21 +72,8 @@ service cloud.firestore {
     // Social / Friends collection - per-user friendships
     // Defined at top level (not nested under users) to avoid parent restrictions.
     match /users/{userId}/friends/{friendId} {
-      // Allow user to read their own friend requests and accepted friends
-      allow read: if request.auth != null && request.auth.uid == userId;
-      
-      // Allow any authenticated user to CREATE a friend request
-      // (write to someone else's friends collection)
-      allow create: if request.auth != null;
-      
-      // Allow user to UPDATE their own friend requests (accept/decline)
-      allow update: if request.auth != null && request.auth.uid == userId &&
-                       resource.data.status == 'pending' &&
-                       request.resource.data.status in ['accepted', 'declined'];
-      
-      // Allow user to DELETE their own friend requests, or the sender to cancel
-      allow delete: if request.auth != null && 
-                       (request.auth.uid == userId || request.auth.uid == friendId);
+      // Allow any authenticated user to read/write (debug mode)
+      allow read, write: if request.auth != null;
     }
 
     // Affiliate clicks tracking - authenticated write, read for owner or admin
@@ -114,6 +101,15 @@ service cloud.firestore {
     // Documents: users_by_email/{normalizedEmail} -> { uid: "<userUid>" }
     // These docs contain only the UID and are safe to make readable by clients.
     match /users_by_email/{emailId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    // Mapping for username -> uid lookups from client
+    // Documents: users_by_username/{normalizedUsername} -> { uid: "<userUid>" }
+    // These docs contain only the UID and are safe to make readable by clients.
+    match /users_by_username/{usernameId} {
       allow get: if true;
       allow list: if false;
       allow create, update, delete: if false;
