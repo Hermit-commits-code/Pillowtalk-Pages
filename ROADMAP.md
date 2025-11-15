@@ -1,4 +1,4 @@
-# ��� Spicy Reads: Personal-Only Sanctuary Roadmap (v0.6.0+)
+## Spicy Reads: Roadmap (current project snapshot)
 
 **Strategic Direction**: Personal-only book tracker with mental health protections, premium subscription model, and affiliate revenue stream.
 
@@ -6,14 +6,31 @@
 
 ---
 
-## Progress Update (2025-11-13)
+## Progress Update (2025-11-15)
 
-**RELEASE COMPLETED v0.8.3+1**:
+**CURRENT REPO VERSION**: `pubspec.yaml` reports version `1.5.0+0` (v1.5). The project has had multiple recent edits (preference propagation, tests, migration tooling). Below is a concise status snapshot as of 2025-11-15.
 
-- Implemented onboarding flow (Hard Stops → Kink Filters → Favorite Tropes → Landing Choice)
-- Added landing preference (Home vs Curated) with GoRouter navigation per user choice
-- All onboarding data persists to Firestore and can be edited from Profile screen
-- Released v0.8.3 with conventional git tag and version bump
+**RECENT WORK & RELEASES**:
+
+- Added: preferred-format persistence and UI propagation (Home dashboard caching, Discover quick-add default, Add Book subscription to pref service).
+- Added: `UserPreferencesService` (cached preference stream) and `format_utils.dart` for format label/icon mapping.
+- Added: unit tests for preferences persistence (`test/preferences_persistence_test.dart`) using `fake_cloud_firestore`.
+- Added: one-off migration script `scripts/migrate_preferred_format.js` (now supports --key or ADC fallback) and fixed script path loading.
+- Minor UI and lint fixes; ran `flutter analyze` and resolved two compile errors related to `UserPreferencesService` usage.
+
+**ANALYZER STATUS (after fixes)**
+
+- Compile errors: NONE (previous constructor/method usages fixed).
+- Remaining analyzer issues: 9 informational/deprecation notices (surfaceVariant and withOpacity deprecations, interpolation suggestions, and a few style/info messages). These are non-blocking but should be addressed before a public release.
+
+Next immediate steps (short list):
+
+1. Address deprecation warnings (replace `surfaceVariant` with `surfaceContainerHighest` and update deprecated `withOpacity` use to `.withValues()` where appropriate).
+2. Finalize version bump to `1.5.0` (if you want to move to v1.5) and update `pubspec.yaml` + tag.
+3. Complete onboarding seeding (seed books) so the app shows content on first run.
+4. Run end-to-end QA (dark/light themes, onboarding, quick-add flows) and then prepare Beta release.
+
+If you want me to bump the package to `1.5.0`, address the deprecations automatically, and update this document to `v1.5`, say "Bump to v1.5 and fix deprecations" and I'll apply the edits and run `flutter analyze` again.
 
 **PRIOR (v0.8.x)**:
 

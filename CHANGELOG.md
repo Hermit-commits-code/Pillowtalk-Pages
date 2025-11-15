@@ -5,6 +5,47 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-11-15
+
+## [1.5.0] - 2025-11-15
+
+### ✨ Added
+
+- Preferred-format persistence and UI propagation:
+  - Cached `preferredFormat` at the Home dashboard level and surfaced the preferred-format chip with icon across Home, Discover quick-add, and Add Book flows.
+  - `UserPreferencesService` added to centralize preference streaming and avoid per-card reads.
+- One-off migration script `scripts/migrate_preferred_format.js` to populate `users/{uid}.preferences.preferredFormat` for existing users (supports service account key or ADC fallback).
+- Unit tests for preferences persistence using `fake_cloud_firestore`.
+
+### 🔧 Fixed
+
+- Resolved analyzer suggestions and minor lints (string interpolation, build-context async safety, fold accumulator naming) in preparation for release.
+
+### 🧪 Tests
+
+- Added `test/preferences_persistence_test.dart` verifying preference writes and stream updates.
+
+### 📝 Notes
+
+- Bumped package version to `1.5.0+0`.
+
+
+### 🔒 Fixed
+
+- **Firestore rules & Admin tools**: Resolved permission-denied errors when using Developer Tools to toggle user roles (Librarian / Pro).
+  - Users can now write their own `users/{uid}` documents with `set()` (merge) and `update()`.
+  - Developer/admin account (`hotcupofjoe2013@gmail.com`) is allowed to write other users' documents so admin tooling can operate without Cloud Functions.
+  - `isAdmin()` helper in `firestore.rules` now checks both the auth token email and falls back to the user's profile document email to be robust against tokens that omit email.
+  - Updated rules deployed to project `spicy-reads-1`.
+
+### 🔧 Chore
+
+- Bumped `pubspec.yaml` to `1.4.2+0`, created annotated tag `v1.4.2`, and pushed to origin.
+
+### 📝 Notes
+
+- This patch enables serverless developer tooling (no Cloud Functions required) and fixes a blocker that prevented changing librarian/pro status from the app.
+
 ## [1.4.1] - 2025-11-15
 
 ### 🔧 Improved
