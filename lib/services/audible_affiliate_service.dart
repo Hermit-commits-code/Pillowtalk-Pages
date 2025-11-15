@@ -1,11 +1,12 @@
 // lib/services/audible_affiliate_service.dart
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 // cloud_firestore already imported above; avoid duplicate import
 import 'package:firebase_analytics/firebase_analytics.dart';
-import '../models/user_book.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../config/admin.dart';
+import '../models/user_book.dart';
 
 // Compile-time flag to disable analytics (set via --dart-define=DISABLE_ANALYTICS=true)
 const bool kDisableAnalytics = bool.fromEnvironment(
@@ -28,6 +29,13 @@ class AudibleAffiliateService {
   final Map<String, bool> _userAnalyticsCache = {};
   // Cached runtime flag from Firestore (optional override)
   bool? _runtimeRestrictAnalyticsCache;
+
+  /// Test helper to override the runtime restrict flag (useful in tests).
+  /// Passing `null` clears the cached override so the service will read Firestore.
+  @visibleForTesting
+  void setRuntimeRestrictAnalyticsFlag(bool? v) {
+    _runtimeRestrictAnalyticsCache = v;
+  }
 
   /// Generate Audible affiliate link for a book
   String generateAffiliateLink(UserBook book) {

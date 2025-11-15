@@ -1,7 +1,7 @@
 // lib/services/user_management_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Service for developer-only user management operations
 /// Only accessible to the developer account (hotcupofjoe2013@gmail.com)
@@ -146,16 +146,20 @@ class UserManagementService {
     // Prefer callable function
     try {
       final res = await _callCallable('getProUsers');
-      final list = (res as List).cast<Map<String, dynamic>>();
-      return list
-          .map(
-            (d) => {
-              'uid': d['uid'],
-              'email': d['email'],
-              'displayName': d['displayName'],
-              'proStatusUpdatedAt': d['proStatusUpdatedAt'],
-            },
-          )
+      if (res == null) return [];
+      final rawList = res is List ? res : <dynamic>[];
+      return rawList
+          .map<Map<String, dynamic>>((d) {
+            if (d is! Map) return <String, dynamic>{};
+            final map = Map<String, dynamic>.from(d as Map);
+            return {
+              'uid': map['uid']?.toString(),
+              'email': map['email'],
+              'displayName': map['displayName'],
+              'proStatusUpdatedAt': map['proStatusUpdatedAt'],
+            };
+          })
+          .where((m) => m.isNotEmpty)
           .toList();
     } catch (e) {
       // Fallback to Firestore read
@@ -185,22 +189,43 @@ class UserManagementService {
     }
   }
 
+  /// Debug helper: call a callable function and return raw data (no casting).
+  /// Useful for debugging mismatches between the callable response and client-side parsing.
+  Future<dynamic> callRawCallable(
+    String name, [
+    Map<String, dynamic>? params,
+  ]) async {
+    if (!isDeveloper) throw Exception('Access denied');
+    try {
+      final res = await _functions.httpsCallable(name).call(params ?? {});
+      return res.data;
+    } on FirebaseFunctionsException catch (ffe) {
+      throw Exception('Cloud Function $name failed: ${ffe.message}');
+    } catch (e) {
+      throw Exception('Cloud Function $name error: $e');
+    }
+  }
+
   /// Get all Librarian users (for admin overview)
   Future<List<Map<String, dynamic>>> getLibrarians() async {
     if (!isDeveloper) throw Exception('Access denied');
     // Prefer callable function
     try {
       final res = await _callCallable('getLibrarians');
-      final list = (res as List).cast<Map<String, dynamic>>();
-      return list
-          .map(
-            (d) => {
-              'uid': d['uid'],
-              'email': d['email'],
-              'displayName': d['displayName'],
-              'librarianStatusUpdatedAt': d['librarianStatusUpdatedAt'],
-            },
-          )
+      if (res == null) return [];
+      final rawList = res is List ? res : <dynamic>[];
+      return rawList
+          .map<Map<String, dynamic>>((d) {
+            if (d is! Map) return <String, dynamic>{};
+            final map = Map<String, dynamic>.from(d as Map);
+            return {
+              'uid': map['uid']?.toString(),
+              'email': map['email'],
+              'displayName': map['displayName'],
+              'librarianStatusUpdatedAt': map['librarianStatusUpdatedAt'],
+            };
+          })
+          .where((m) => m.isNotEmpty)
           .toList();
     } catch (e) {
       // Fallback to direct Firestore read

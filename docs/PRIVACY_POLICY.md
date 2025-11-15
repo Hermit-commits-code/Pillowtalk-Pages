@@ -55,7 +55,6 @@ The App is intended for users 18 years or older. We do not knowingly collect inf
 
 For questions or requests regarding this policy, contact: support@yourdomain.com
 
-
 ---
 
-*This privacy policy is a template. Before publishing, review it for accuracy and add your real support contact and hosting details.*
+_This privacy policy is a template. Before publishing, review it for accuracy and add your real support contact and hosting details._

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/friend.dart';
 
 class FriendsService {
@@ -41,6 +42,33 @@ class FriendsService {
     }
   }
 
+  /// Send a friend request to the target user's inbox (creates pending entry
+  /// under the target user's `users/{targetUid}/friends/{senderUid}` so the
+  /// recipient will see the request in their pending stream).
+  Future<void> sendFriendRequestToUser(String targetUserId) async {
+    if (_currentUserId.isEmpty) throw Exception('User not authenticated');
+    if (targetUserId == _currentUserId) {
+      throw Exception('Cannot add yourself as a friend');
+    }
+
+    try {
+      final friend = Friend(
+        friendId: _currentUserId,
+        status: 'pending',
+        createdAt: DateTime.now(),
+      );
+
+      await _firestore
+          .collection('users')
+          .doc(targetUserId)
+          .collection('friends')
+          .doc(_currentUserId)
+          .set(friend.toFirestore());
+    } catch (e) {
+      throw Exception('Failed to send friend request: $e');
+    }
+  }
+
   /// Accept a pending friend request
   Future<void> acceptFriendRequest(String friendId) async {
     if (_currentUserId.isEmpty) throw Exception('User not authenticated');
@@ -62,10 +90,35 @@ class FriendsService {
         throw Exception('Can only accept pending friend requests');
       }
 
-      await friendRef.update({
+      // Update the current user's friend doc to accepted and also ensure the
+      // other user's friends collection contains a reciprocal accepted entry.
+      final batch = _firestore.batch();
+
+      batch.update(friendRef, {
         'status': 'accepted',
         'acceptedAt': Timestamp.now(),
       });
+
+      final otherUserFriendRef = _firestore
+          .collection('users')
+          .doc(friend.friendId)
+          .collection('friends')
+          .doc(_currentUserId);
+
+      final reciprocal = Friend(
+        friendId: _currentUserId,
+        status: 'accepted',
+        createdAt: friend.createdAt,
+        acceptedAt: DateTime.now(),
+      );
+
+      batch.set(
+        otherUserFriendRef,
+        reciprocal.toFirestore(),
+        SetOptions(merge: true),
+      );
+
+      await batch.commit();
     } catch (e) {
       throw Exception('Failed to accept friend request: $e');
     }
@@ -184,19 +237,18 @@ class FriendsService {
         .collection('friends')
         .where('status', isEqualTo: 'accepted')
         .snapshots()
-        .map(
-          (snapshot) {
-            final friends =
-                snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
-            // Sort in Dart to avoid composite index requirement
-            friends.sort((a, b) {
-              final aTime = a.acceptedAt ?? DateTime.now();
-              final bTime = b.acceptedAt ?? DateTime.now();
-              return bTime.compareTo(aTime);
-            });
-            return friends;
-          },
-        );
+        .map((snapshot) {
+          final friends = snapshot.docs
+              .map((doc) => Friend.fromFirestore(doc))
+              .toList();
+          // Sort in Dart to avoid composite index requirement
+          friends.sort((a, b) {
+            final aTime = a.acceptedAt ?? DateTime.now();
+            final bTime = b.acceptedAt ?? DateTime.now();
+            return bTime.compareTo(aTime);
+          });
+          return friends;
+        });
   }
 
   /// Get pending friend requests
@@ -211,15 +263,14 @@ class FriendsService {
         .collection('friends')
         .where('status', isEqualTo: 'pending')
         .snapshots()
-        .map(
-          (snapshot) {
-            final requests =
-                snapshot.docs.map((doc) => Friend.fromFirestore(doc)).toList();
-            // Sort in Dart to avoid composite index requirement
-            requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-            return requests;
-          },
-        );
+        .map((snapshot) {
+          final requests = snapshot.docs
+              .map((doc) => Friend.fromFirestore(doc))
+              .toList();
+          // Sort in Dart to avoid composite index requirement
+          requests.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return requests;
+        });
   }
 
   /// Get a specific friend

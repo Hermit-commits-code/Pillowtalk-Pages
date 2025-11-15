@@ -64,8 +64,10 @@ class _LibrarianSearchScreenState extends State<LibrarianSearchScreen> {
       }).toList();
     } on FirebaseException catch (fe) {
       if (fe.code == 'permission-denied') {
-        setState(() => _error =
-            'Permission denied when searching books. Librarian searches may require server-side privileges or Cloud Functions.');
+        setState(
+          () => _error =
+              'Permission denied when searching books. Librarian searches may require server-side privileges or Cloud Functions.',
+        );
       } else {
         setState(() => _error = 'Search failed: ${fe.message}');
       }
@@ -114,7 +116,12 @@ class _LibrarianSearchScreenState extends State<LibrarianSearchScreen> {
             if (_isLoading) const LinearProgressIndicator(),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error)),
+              Text(
+                _error!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
             ],
             const SizedBox(height: 8),
             Expanded(

@@ -233,9 +233,7 @@ class _CommunityDiscoveryScreenState extends State<CommunityDiscoveryScreen>
     return SizedBox.expand(
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-        ),
+        decoration: BoxDecoration(color: theme.colorScheme.surface),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

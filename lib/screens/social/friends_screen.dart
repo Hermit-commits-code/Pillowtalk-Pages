@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../models/friend.dart';
+import '../../services/auth_service.dart';
 import '../../services/friends_service.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 class FriendsScreen extends StatefulWidget {
   const FriendsScreen({super.key});
@@ -33,6 +35,14 @@ class _FriendsScreenState extends State<FriendsScreen>
   }
 
   Future<void> _sendFriendRequest() async {
+    // Require user to be signed in before attempting callable
+    final user = AuthService.instance.currentUser;
+    if (user == null) {
+      setState(
+        () => _addFriendError = 'Please sign in to send friend requests.',
+      );
+      return;
+    }
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       setState(() => _addFriendError = 'Please enter an email');
@@ -46,50 +56,54 @@ class _FriendsScreenState extends State<FriendsScreen>
 
     try {
       debugPrint('[Friends] Attempting to send friend request to: $email');
-      final callable = FirebaseFunctions.instance.httpsCallable(
-        'sendFriendRequestByEmail',
-      );
-      debugPrint('[Friends] Calling Cloud Function...');
-      final result = await callable.call(<String, dynamic>{'email': email});
-      debugPrint('[Friends] Cloud Function response: $result');
-      final data = result.data as Map<String, dynamic>?;
+
+      // Resolve email -> uid via Firestore (fallback to serverless flow).
+      final query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email.toLowerCase().trim())
+          .limit(1)
+          .get();
+
+      if (query.docs.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _addFriendError = 'No user found with that email.';
+            _isAddingFriend = false;
+          });
+        }
+        return;
+      }
+
+      final targetUid = query.docs.first.id;
+
+      if (targetUid == user.uid) {
+        if (mounted) {
+          setState(() {
+            _addFriendError = 'You cannot add yourself as a friend.';
+            _isAddingFriend = false;
+          });
+        }
+        return;
+      }
+
+      // Create a pending friend request under the target user's friends
+      // collection. The recipient will see this in their pending stream.
+      await _friendsService.sendFriendRequestToUser(targetUid);
 
       if (!mounted) return;
-
-      if (data == null) {
-        debugPrint('[Friends] Null response data');
-        setState(() {
-          _addFriendError = 'Unexpected response from server.';
-          _isAddingFriend = false;
-        });
-        return;
-      }
-
-      debugPrint('[Friends] Response data: $data');
-
-      if (data['found'] == false) {
-        debugPrint('[Friends] User not found');
-        setState(() {
-          _addFriendError = 'No user found with that email.';
-          _isAddingFriend = false;
-        });
-        return;
-      }
-
-      debugPrint('[Friends] Friend request sent successfully');
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
-        _emailController.clear();
-        Navigator.pop(context); // Close dialog
-        setState(() => _isAddingFriend = false);
-      }
-    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
+      _emailController.clear();
+      Navigator.pop(context);
+      setState(() => _isAddingFriend = false);
+    } catch (e, st) {
       debugPrint('[Friends] Error sending friend request: $e');
+      debugPrint(st.toString());
+
       if (mounted) {
         setState(() {
-          _addFriendError = 'Failed to send request: ${e.toString()}';
+          _addFriendError = 'Failed to send friend request: $e';
           _isAddingFriend = false;
         });
       }

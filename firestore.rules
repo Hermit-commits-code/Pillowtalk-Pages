@@ -22,10 +22,30 @@ service cloud.firestore {
     // Curated collections - visibility-based read rules.
     // Each collection document may include a `visibility` field with values
     // like 'public' or 'pro'. Public collections are readable by everyone.
-    // Pro collections require the calling user to have a custom `pro` claim.
+    // Pro collections require the calling user to have a custom `pro` claim,
+    // or elevated roles like `librarian` or `admin`.
     match /collections/{collectionId} {
-      allow read: if resource.data.visibility == 'public' ||
-                  (request.auth != null && request.auth.token.pro == true);
+      // Single document reads: allow if the document is public or the
+      // caller has a pro/librarian/admin custom claim.
+      allow get: if resource.data.visibility == 'public' ||
+                 (request.auth != null && (
+                    request.auth.token.pro == true ||
+                    request.auth.token.librarian == true ||
+                    request.auth.token.admin == true
+                 ));
+
+      // Queries (list): Firestore requires that the query itself constrains
+      // results to documents the user is allowed to read. Allow listing
+      // when the client filters for public collections, or when the caller
+      // has pro/librarian/admin claims which permits unfiltered lists.
+      allow list: if (request.query != null &&
+                      request.query.where('visibility', '==', 'public')) ||
+                     (request.auth != null && (
+                        request.auth.token.pro == true ||
+                        request.auth.token.librarian == true ||
+                        request.auth.token.admin == true
+                     ));
+
       allow create, update, delete: if false; // Admin-only (via backend)
     }
 
@@ -49,8 +69,33 @@ service cloud.firestore {
 
     // Social / Friends collection - per-user friendships
     match /users/{userId}/friends/{friendId} {
-      // Allow users to read/write their own friends list
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Reads allowed to the owner (userId) or the other party (friendId)
+      allow get, list: if request.auth != null &&
+        (request.auth.uid == userId || request.auth.uid == friendId);
+
+      // Create: allow a sender to create a pending incoming request under the
+      // recipient's friends collection. The document ID must equal the sender's
+      // uid (friendId) and the status must be 'pending'. Prevent creating
+      // requests for oneself.
+      allow create: if request.auth != null &&
+        request.auth.uid == friendId &&
+        request.resource.data.status == 'pending' &&
+        request.auth.uid != userId &&
+        (request.resource.data.createdAt is timestamp);
+
+      // Update: allow the recipient (userId) to accept a pending request by
+      // changing `status` from 'pending' to 'accepted' and supplying
+      // `acceptedAt` timestamp.
+      allow update: if request.auth != null &&
+        request.auth.uid == userId &&
+        resource.data.status == 'pending' &&
+        request.resource.data.status == 'accepted' &&
+        (request.resource.data.acceptedAt is timestamp);
+
+      // Delete: allow either the recipient (to decline) or the sender (to
+      // cancel) to delete the pending request.
+      allow delete: if request.auth != null &&
+        (request.auth.uid == userId || request.auth.uid == friendId);
     }
 
     // Affiliate clicks tracking - authenticated write, read for owner or admin

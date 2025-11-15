@@ -33,17 +33,16 @@ void main() {
     test('owner-only restrict flag is properly configured', () {
       // Document the current owner-only restriction state
       // If set to true, only owners can track analytics
-      expect(
-        kRestrictAnalyticsToOwners,
-        isA<bool>(),
-      );
+      expect(kRestrictAnalyticsToOwners, isA<bool>());
       // If restricted, verify we have at least one owner identifier
       if (kRestrictAnalyticsToOwners) {
-        final hasOwnerIds = kOwnerAnalyticsUids.isNotEmpty ||
-            kOwnerAnalyticsEmails.isNotEmpty;
-        expect(hasOwnerIds, true,
-            reason:
-                'Owner-only mode is enabled but no owner identifiers defined');
+        final hasOwnerIds =
+            kOwnerAnalyticsUids.isNotEmpty || kOwnerAnalyticsEmails.isNotEmpty;
+        expect(
+          hasOwnerIds,
+          true,
+          reason: 'Owner-only mode is enabled but no owner identifiers defined',
+        );
       }
     });
 
@@ -56,4 +55,3 @@ void main() {
     });
   });
 }
-

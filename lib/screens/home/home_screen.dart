@@ -1,6 +1,7 @@
 // lib/screens/home/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Debug flag to outline the body area when investigating layout issues.
+  static const bool _kDebugBodyOutline = false;
   @override
   Widget build(BuildContext context) {
     final user = AuthService.instance.currentUser;
@@ -91,7 +94,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: widget.child,
+      body: _kDebugBodyOutline
+          ? Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.orangeAccent, width: 3),
+              ),
+              child: widget.child,
+            )
+          : widget.child,
     );
   }
 

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../services/auth_service.dart';
 import '../../services/feature_gating_service.dart';
 
@@ -217,11 +218,22 @@ class _CuratedScreenState extends State<CuratedScreen> {
   }
 
   Widget _buildCollectionsGrid(BuildContext context) {
+    // Query collections differently for Pro vs non-Pro users. Non-Pro
+    // users must only request public collections to avoid Firestore
+    // permission-denied errors when Pro-only docs exist.
+    final Stream<QuerySnapshot> collectionsStream = _isPro
+        ? _firestore
+              .collection('collections')
+              .where('isFeatured', isEqualTo: false)
+              .snapshots()
+        : _firestore
+              .collection('collections')
+              .where('isFeatured', isEqualTo: false)
+              .where('visibility', isEqualTo: 'public')
+              .snapshots();
+
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('collections')
-          .where('isFeatured', isEqualTo: false)
-          .snapshots(),
+      stream: collectionsStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return _buildAuthErrorWidget(context, snapshot.error);

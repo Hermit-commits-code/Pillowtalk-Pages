@@ -1,24 +1,24 @@
 // lib/screens/profile/profile_screen.dart
 // Profile screen UI. Uses explicit mounted checks before using context
 // after async gaps to satisfy analyzer.
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
-import '../webview/docs_webview_screen.dart';
-import '../onboarding/onboarding_flow.dart';
 
+import '../../services/audible_affiliate_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
 import '../../services/theme_provider.dart';
-import '../../services/audible_affiliate_service.dart';
 import '../admin/developer_tools_screen.dart';
 import '../librarian/librarian_tools_screen.dart';
+import '../onboarding/onboarding_flow.dart';
+import '../webview/docs_webview_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   /// Optional provider for the current Firebase [User]. Tests can inject
@@ -677,19 +677,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
 
             Card(
-              color: theme.colorScheme.surfaceVariant,
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.build, color: theme.colorScheme.primary),
-                      title: Text('Admin Panel', style: theme.textTheme.titleMedium),
+                      leading: Icon(
+                        Icons.build,
+                        color: theme.colorScheme.primary,
+                      ),
+                      title: Text(
+                        'Admin Panel',
+                        style: theme.textTheme.titleMedium,
+                      ),
                       subtitle: Text(
                         'User management, ASIN tools, system controls',
                         style: theme.textTheme.bodySmall,
                       ),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: theme.iconTheme.color,
+                      ),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const DeveloperToolsScreen(),
@@ -722,18 +732,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             Card(
-              color: Colors.blue[50],
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.book, color: Colors.blue[700]),
-                      title: const Text('Librarian Panel'),
-                      subtitle: const Text(
-                        'Verify books and ASINs, moderate entries',
+                      leading: Icon(
+                        Icons.book,
+                        color: theme.colorScheme.primary,
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      title: Text(
+                        'Librarian Panel',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        'Verify books and ASINs, moderate entries',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: theme.iconTheme.color,
+                      ),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const LibrarianToolsScreen(),

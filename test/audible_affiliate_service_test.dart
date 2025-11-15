@@ -7,7 +7,11 @@ void main() {
     // Use a fake user id for testing cache behavior
     const userId = 'test-user-123';
 
-    // Ensure default (when not set) returns true (enabled)
+    // Seed the local cache so tests don't rely on Firestore or runtime owner config
+    svc.setUserAnalyticsEnabled(userId, true);
+    // Override runtime restrict flag to avoid owner-only restrictions during unit tests
+    svc.setRuntimeRestrictAnalyticsFlag(false);
+    // Ensure default (when explicitly seeded) returns true (enabled)
     final initial = await svc.isAnalyticsAllowedForUser(userId);
     expect(initial, isTrue);
 

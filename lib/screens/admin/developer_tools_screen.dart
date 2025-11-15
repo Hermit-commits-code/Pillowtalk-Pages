@@ -61,7 +61,10 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
           title: const Text('No user'),
           content: const Text('You are not signed in.'),
           actions: [
-            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
           ],
         ),
       );
@@ -82,7 +85,9 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
               children: [
                 Text('UID: ${user.uid}'),
                 const SizedBox(height: 8),
-                Text('Expiration: ${idr.expirationTime?.toLocal() ?? 'unknown'}'),
+                Text(
+                  'Expiration: ${idr.expirationTime?.toLocal() ?? 'unknown'}',
+                ),
                 const SizedBox(height: 8),
                 Text('Claims:'),
                 const SizedBox(height: 8),
@@ -91,7 +96,10 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
           ],
         ),
       );
@@ -103,7 +111,10 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
           title: const Text('Error'),
           content: Text('Failed to inspect token: $e'),
           actions: [
-            TextButton(onPressed: () => Navigator.of(c).pop(), child: const Text('Close')),
+            TextButton(
+              onPressed: () => Navigator.of(c).pop(),
+              child: const Text('Close'),
+            ),
           ],
         ),
       );
@@ -460,6 +471,7 @@ class _DeveloperToolsScreenState extends State<DeveloperToolsScreen> {
                   ),
                 ),
 
+                // (debug button removed)
                 ElevatedButton.icon(
                   onPressed: _showLibrarians,
                   icon: const Icon(Icons.library_books),

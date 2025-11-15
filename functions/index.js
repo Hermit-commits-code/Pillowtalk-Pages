@@ -61,6 +61,14 @@ app.post('/setProClaim', async (req, res) => {
   }
 });
 
+// Temporary test endpoint (admin-key guarded)
+// POST /temp/testSendFriend
+// body: { senderUid: string, email: string }
+// This route is temporary and intended for diagnostics only. It exercises the
+// same backend logic as the callable `sendFriendRequestByEmail` but uses the
+// Admin SDK so it can be invoked from this repo's machine for debugging.
+// temp test endpoint removed
+
 exports.api = functions.https.onRequest(app);
 
 // -----------------------------
@@ -138,6 +146,25 @@ async function writeAdminAudit(
   }
 }
 
+// Mask email for safe audit logging: keep first and last char of local part,
+// replace middle with '*', keep domain.
+function maskEmailForAudit(email) {
+  try {
+    if (!email || typeof email !== 'string') return null;
+    const parts = email.split('@');
+    if (parts.length !== 2) return null;
+    const local = parts[0];
+    const domain = parts[1];
+    if (local.length <= 2) {
+      return local[0] + '*' + '@' + domain;
+    }
+    const middle = local.slice(1, -1).replace(/./g, '*');
+    return local[0] + middle + local.slice(-1) + '@' + domain;
+  } catch (e) {
+    return null;
+  }
+}
+
 exports.getUserByEmail = functions.https.onCall(async (data, context) => {
   if (!(await isAdmin(context))) {
     throw new functions.https.HttpsError(
@@ -180,17 +207,36 @@ exports.getUserByEmail = functions.https.onCall(async (data, context) => {
 // It also writes a lightweight outgoing marker under the sender's friends collection.
 exports.sendFriendRequestByEmail = functions.https.onCall(
   async (data, context) => {
+    // Extract email early so we can record an attempt audit entry even if
+    // the call later fails (helps diagnose unauthenticated/permission issues).
     const auth = context.auth;
-    if (!auth || !auth.uid) {
-      throw new functions.https.HttpsError(
-        'unauthenticated',
-        'Authentication required',
-      );
+    const email = ((data && data.email) || '').toString().toLowerCase().trim();
+
+    // Write an attempt audit entry (masked email) so failed attempts are visible.
+    try {
+      const actorUid = (auth && auth.uid) || null;
+      const actorEmail = (auth && auth.token && auth.token.email) || null;
+      const masked = maskEmailForAudit(email) || null;
+      await admin
+        .firestore()
+        .collection('admin_audit')
+        .add({
+          action: 'sendFriendRequestAttempt',
+          actorUid: actorUid,
+          actorEmail: actorEmail,
+          targetEmailMasked: masked,
+          rawProvided: email ? false : true,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
+    } catch (auditErr) {
+      console.warn('Failed to write attempt audit for sendFriendRequestByEmail:', auditErr);
     }
 
-    const email = ((data && data.email) || '').toString().toLowerCase().trim();
-    if (!email)
-      throw new functions.https.HttpsError('invalid-argument', 'Missing email');
+    if (!auth || !auth.uid) {
+      throw new functions.https.HttpsError('unauthenticated', 'Authentication required');
+    }
+
+    if (!email) throw new functions.https.HttpsError('invalid-argument', 'Missing email');
 
     // Prevent sending requests to yourself
     const callerEmail = (auth.token && auth.token.email) || '';

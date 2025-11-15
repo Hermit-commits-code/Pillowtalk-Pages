@@ -36,7 +36,9 @@ class LibrarianToolsScreen extends StatelessWidget {
               icon: const Icon(Icons.search),
               label: const Text('Search books'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LibrarianSearchScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const LibrarianSearchScreen(),
+                ),
               ),
             ),
           ],
