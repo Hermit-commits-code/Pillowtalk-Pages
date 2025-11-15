@@ -520,3 +520,39 @@ exports.logClientDiagnostic = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', String(err));
   }
 });
+
+// Firestore listener to keep users_by_email mapping in sync.
+// Writes a lightweight mapping document: users_by_email/{normalizedEmail} -> { uid }
+// This function helps client-side lookups without exposing full user documents.
+exports.syncUsersByEmail = functions.firestore
+  .document('users/{uid}')
+  .onWrite(async (change, context) => {
+    const uid = context.params.uid;
+    try {
+      const before = change.before.exists ? change.before.data() : null;
+      const after = change.after.exists ? change.after.data() : null;
+
+      const normalize = (e) => (e || '').toString().toLowerCase().trim().replace(/\./g, ',');
+
+      // If document deleted, remove mapping for previous email
+      if (!after && before && before.email) {
+        const prev = normalize(before.email);
+        await admin.firestore().doc(`users_by_email/${prev}`).delete().catch(() => {});
+        return;
+      }
+
+      // If created or updated: if email present, write mapping
+      if (after && after.email) {
+        const norm = normalize(after.email);
+        await admin.firestore().doc(`users_by_email/${norm}`).set({ uid }, { merge: true });
+
+        // If email changed, remove old mapping
+        if (before && before.email && normalize(before.email) !== norm) {
+          const old = normalize(before.email);
+          await admin.firestore().doc(`users_by_email/${old}`).delete().catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('syncUsersByEmail failed for', uid, err);
+    }
+  });

@@ -118,5 +118,14 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
+
+    // Mapping for safe email -> uid lookups from client
+    // Documents: users_by_email/{normalizedEmail} -> { uid: "<userUid>" }
+    // These docs contain only the UID and are safe to make readable by clients.
+    match /users_by_email/{emailId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
   }
 }

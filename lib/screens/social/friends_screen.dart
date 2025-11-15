@@ -57,24 +57,66 @@ class _FriendsScreenState extends State<FriendsScreen>
     try {
       debugPrint('[Friends] Attempting to send friend request to: $email');
 
-      // Resolve email -> uid via Firestore (fallback to serverless flow).
-      final query = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: email.toLowerCase().trim())
-          .limit(1)
-          .get();
+      // Try a safe, indexed lookup document `users_by_email/{normalizedEmail}`
+      // to avoid client queries against the full `users` collection which
+      // may be blocked by security rules. If the helper doc isn't present
+      // fall back to a direct query (may be denied by rules).
+      String normalize(String e) => e.toLowerCase().trim().replaceAll('.', ',');
+      final normalized = normalize(email);
+      String? targetUid;
 
-      if (query.docs.isEmpty) {
-        if (mounted) {
-          setState(() {
-            _addFriendError = 'No user found with that email.';
-            _isAddingFriend = false;
-          });
+      try {
+        final mapDoc = await FirebaseFirestore.instance
+            .collection('users_by_email')
+            .doc(normalized)
+            .get();
+
+        if (mapDoc.exists) {
+          final data = mapDoc.data();
+          targetUid = data?['uid'] as String?;
         }
-        return;
+      } catch (e) {
+        // Reading the mapping doc should be permitted by rules; if it fails
+        // we'll fall back to a query below.
+        debugPrint('[Friends] users_by_email lookup failed: $e');
       }
 
-      final targetUid = query.docs.first.id;
+      if (targetUid == null) {
+        // Fallback: try querying the users collection directly. This may be
+        // blocked by Firestore rules, in which case we'll show a helpful
+        // message to the user.
+        try {
+          final query = await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: email.toLowerCase().trim())
+              .limit(1)
+              .get();
+
+          if (query.docs.isEmpty) {
+            if (mounted) {
+              setState(() {
+                _addFriendError = 'No user found with that email.';
+                _isAddingFriend = false;
+              });
+            }
+            return;
+          }
+
+          targetUid = query.docs.first.id;
+        } on FirebaseException catch (fe) {
+          if (fe.code == 'permission-denied') {
+            if (mounted) {
+              setState(() {
+                _addFriendError =
+                    'Unable to search by email from this device due to security settings.\n\nPlease ask the recipient to share their profile or ask an admin to populate the `users_by_email` mapping.';
+                _isAddingFriend = false;
+              });
+            }
+            return;
+          }
+          rethrow;
+        }
+      }
 
       if (targetUid == user.uid) {
         if (mounted) {
