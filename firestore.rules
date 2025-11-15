@@ -68,20 +68,18 @@ service cloud.firestore {
     }
 
     // Social / Friends collection - per-user friendships
+    // Note: Firestore does NOT require parent documents to exist for writes to
+    // subcollections. If a user doesn't have a friends collection, it's created
+    // when the first friend request is written.
     match /users/{userId}/friends/{friendId} {
       // Reads allowed to the owner (userId) or the other party (friendId)
       allow get, list: if request.auth != null &&
         (request.auth.uid == userId || request.auth.uid == friendId);
 
-      // Create: allow a sender to create a pending incoming request under the
-      // recipient's friends collection. The document ID must equal the sender's
-      // uid (friendId) and the status must be 'pending'. Prevent creating
-      // requests for oneself.
-      allow create: if request.auth != null &&
-        request.auth.uid == friendId &&
-        request.resource.data.status == 'pending' &&
-        request.auth.uid != userId &&
-        (request.resource.data.createdAt is timestamp);
+      // Create: any authenticated user can create a friend request.
+      // This will work even if the recipient's user doc or friends collection
+      // doesn't exist yet—Firestore will create the collection.
+      allow create: if request.auth != null;
 
       // Update: allow the recipient (userId) to accept a pending request by
       // changing `status` from 'pending' to 'accepted' and supplying

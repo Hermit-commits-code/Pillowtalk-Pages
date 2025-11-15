@@ -199,6 +199,10 @@ class UserManagementService {
   /// Lightweight check to validate developer access
   Future<Map<String, dynamic>> pingAdmin() async {
     if (!isDeveloper) throw Exception('Access denied');
-    return {'ok': true, 'isDeveloper': true, 'now': DateTime.now().millisecondsSinceEpoch};
+    return {
+      'ok': true,
+      'isDeveloper': true,
+      'now': DateTime.now().millisecondsSinceEpoch,
+    };
   }
 }

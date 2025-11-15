@@ -128,6 +128,32 @@ class _FriendsScreenState extends State<FriendsScreen>
         return;
       }
 
+      // Verify the target user exists before sending the request
+      try {
+        final targetUserDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(targetUid)
+            .get();
+
+        if (!targetUserDoc.exists) {
+          if (mounted) {
+            setState(() {
+              _addFriendError = 'User no longer exists or account is inactive.';
+              _isAddingFriend = false;
+            });
+          }
+          return;
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _addFriendError = 'Unable to verify user exists: $e';
+            _isAddingFriend = false;
+          });
+        }
+        return;
+      }
+
       // Create a pending friend request under the target user's friends
       // collection. The recipient will see this in their pending stream.
       await _friendsService.sendFriendRequestToUser(targetUid);
