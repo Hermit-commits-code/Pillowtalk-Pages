@@ -163,8 +163,12 @@ class _FriendsScreenState extends State<FriendsScreen>
         context,
       ).showSnackBar(const SnackBar(content: Text('Friend request sent!')));
       _emailController.clear();
-      Navigator.pop(context);
-      setState(() => _isAddingFriend = false);
+      if (mounted) {
+        context.pop();
+      }
+      if (mounted) {
+        setState(() => _isAddingFriend = false);
+      }
     } catch (e, st) {
       debugPrint('[Friends] Error sending friend request: $e');
       debugPrint(st.toString());

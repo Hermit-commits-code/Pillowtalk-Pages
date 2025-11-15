@@ -51,9 +51,11 @@ service cloud.firestore {
 
     // Per-user documents (profile) and nested collections
     match /users/{userId} {
-      // Allow only the user to create/read/update/delete their own top-level user doc
+      // Allow any authenticated user to READ any user doc (public profile metadata)
+      allow read: if request.auth != null;
+      // Allow only the user to create/update/delete their own top-level user doc
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
 
       // User's personal library (nested collection) - only the user can read/write
       // Allows updating fields like 'ownership', 'genres', 'tropes', 'warnings', etc.
@@ -68,32 +70,23 @@ service cloud.firestore {
     }
 
     // Social / Friends collection - per-user friendships
-    // Note: Firestore does NOT require parent documents to exist for writes to
-    // subcollections. If a user doesn't have a friends collection, it's created
-    // when the first friend request is written.
+    // Defined at top level (not nested under users) to avoid parent restrictions.
     match /users/{userId}/friends/{friendId} {
-      // Reads allowed to the owner (userId) or the other party (friendId)
-      allow get, list: if request.auth != null &&
-        (request.auth.uid == userId || request.auth.uid == friendId);
-
-      // Create: any authenticated user can create a friend request.
-      // This will work even if the recipient's user doc or friends collection
-      // doesn't exist yet—Firestore will create the collection.
+      // Allow user to read their own friend requests and accepted friends
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow any authenticated user to CREATE a friend request
+      // (write to someone else's friends collection)
       allow create: if request.auth != null;
-
-      // Update: allow the recipient (userId) to accept a pending request by
-      // changing `status` from 'pending' to 'accepted' and supplying
-      // `acceptedAt` timestamp.
-      allow update: if request.auth != null &&
-        request.auth.uid == userId &&
-        resource.data.status == 'pending' &&
-        request.resource.data.status == 'accepted' &&
-        (request.resource.data.acceptedAt is timestamp);
-
-      // Delete: allow either the recipient (to decline) or the sender (to
-      // cancel) to delete the pending request.
-      allow delete: if request.auth != null &&
-        (request.auth.uid == userId || request.auth.uid == friendId);
+      
+      // Allow user to UPDATE their own friend requests (accept/decline)
+      allow update: if request.auth != null && request.auth.uid == userId &&
+                       resource.data.status == 'pending' &&
+                       request.resource.data.status in ['accepted', 'declined'];
+      
+      // Allow user to DELETE their own friend requests, or the sender to cancel
+      allow delete: if request.auth != null && 
+                       (request.auth.uid == userId || request.auth.uid == friendId);
     }
 
     // Affiliate clicks tracking - authenticated write, read for owner or admin
