@@ -458,32 +458,49 @@ class _PendingRequestTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        child: Text(friend.friendId.substring(0, 2).toUpperCase()),
-      ),
-      title: const Text('Friend Request'),
-      subtitle: Text('Received ${_formatDate(friend.createdAt)}'),
-      trailing: SizedBox(
-        width: 120,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.close, size: 20),
-              onPressed: onDecline,
-              tooltip: 'Decline',
-              splashRadius: 20,
+    // Fetch the sender's display name from Firestore
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(friend.friendId)
+          .get(),
+      builder: (context, snapshot) {
+        String displayName = 'Friend';
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData &&
+            snapshot.data != null) {
+          final userData = snapshot.data!.data() as Map<String, dynamic>?;
+          displayName = userData?['displayName'] as String? ?? 'Friend';
+        }
+
+        return ListTile(
+          leading: CircleAvatar(
+            child: Text(displayName.substring(0, 1).toUpperCase()),
+          ),
+          title: Text(displayName),
+          subtitle: Text('Received ${_formatDate(friend.createdAt)}'),
+          trailing: SizedBox(
+            width: 120,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: onDecline,
+                  tooltip: 'Decline',
+                  splashRadius: 20,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.check, size: 20, color: Colors.green),
+                  onPressed: onAccept,
+                  tooltip: 'Accept',
+                  splashRadius: 20,
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.check, size: 20, color: Colors.green),
-              onPressed: onAccept,
-              tooltip: 'Accept',
-              splashRadius: 20,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
