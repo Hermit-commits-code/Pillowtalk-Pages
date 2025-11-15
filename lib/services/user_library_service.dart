@@ -119,10 +119,10 @@ class UserLibraryService {
       if (bookDoc.exists) {
         final bookData = bookDoc.data();
         final bookId = bookData?['bookId'] as String?;
-        
+
         // Delete from personal library
         await _libraryRef.doc(userBookId).delete();
-        
+
         // Decrement community catalog count
         if (bookId != null) {
           await CommunityBookService.instance.decrementLibraryCount(bookId);

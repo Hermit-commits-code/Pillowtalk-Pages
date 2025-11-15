@@ -2,12 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if user is admin
+    // Helper function to check if user is admin (developer email)
     function isAdmin() {
-      return request.auth != null && (
-        request.auth.token.admin == true ||
-        request.auth.token.get('admin', false) == true
-      );
+      return request.auth != null && 
+             request.auth.token.email == 'hotcupofjoe2013@gmail.com';
+    }
+    
+    // Helper function to check if user is a librarian (from user doc)
+    function isLibrarian() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.librarian == true;
+    }
+    
+    // Helper function to check if user is pro (from user doc)
+    function isPro() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.proStatus == true;
     }
 
     // Community books collection - publicly readable catalog.
@@ -26,10 +36,7 @@ service cloud.firestore {
                        request.resource.data.authors is list;
       
       // Allow librarians and admins to UPDATE books (for curation)
-      allow update: if request.auth != null && (
-                       request.auth.token.librarian == true ||
-                       request.auth.token.admin == true
-                    );
+      allow update: if request.auth != null && (isLibrarian() || isAdmin());
       
       // Only admins can delete
       allow delete: if isAdmin();
@@ -38,29 +45,20 @@ service cloud.firestore {
     // Curated collections - visibility-based read rules.
     // Each collection document may include a `visibility` field with values
     // like 'public' or 'pro'. Public collections are readable by everyone.
-    // Pro collections require the calling user to have a custom `pro` claim,
-    // or elevated roles like `librarian` or `admin`.
+    // Pro collections require pro status, librarian, or admin role.
     match /collections/{collectionId} {
       // Single document reads: allow if the document is public or the
-      // caller has a pro/librarian/admin custom claim.
+      // caller is pro/librarian/admin
       allow get: if resource.data.visibility == 'public' ||
-                 (request.auth != null && (
-                    request.auth.token.pro == true ||
-                    request.auth.token.librarian == true ||
-                    request.auth.token.admin == true
-                 ));
+                 (request.auth != null && (isPro() || isLibrarian() || isAdmin()));
 
       // Queries (list): Firestore requires that the query itself constrains
       // results to documents the user is allowed to read. Allow listing
       // when the client filters for public collections, or when the caller
-      // has pro/librarian/admin claims which permits unfiltered lists.
+      // has pro/librarian/admin status
       allow list: if (request.query != null &&
                       request.query.where('visibility', '==', 'public')) ||
-                     (request.auth != null && (
-                        request.auth.token.pro == true ||
-                        request.auth.token.librarian == true ||
-                        request.auth.token.admin == true
-                     ));
+                     (request.auth != null && (isPro() || isLibrarian() || isAdmin()));
 
       allow create, update, delete: if false; // Admin-only (via backend)
     }

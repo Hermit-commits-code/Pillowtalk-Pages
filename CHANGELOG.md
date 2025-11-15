@@ -24,13 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents duplicate entries - checks for existing books before creating new ones
   - Tracks `addedToLibrariesCount` metric showing how many users have added each book
   - Users maintain full control of their personal library - can delete books anytime without affecting the community catalog
-  
 - **CommunityBookService Enhancements**:
   - New `ensureBookExists()` method creates books in community catalog with metadata from Google Books API
   - Automatically increments `addedToLibrariesCount` when users add existing books
   - New `decrementLibraryCount()` method tracks when users remove books from personal libraries
   - Non-blocking design - community catalog updates don't prevent personal library operations
-  
 - **Enhanced Firestore Rules**:
   - Updated `/books` collection rules to allow authenticated users to CREATE new book entries
   - Librarians and admins can UPDATE books for curation (adding ASIN, librarian summaries, etc.)
@@ -43,7 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Step 1: Check/create book in community catalog
   - Step 2: Add to personal library
   - Graceful error handling - personal library operations succeed even if community update fails
-  
 - **Remove Book Flow**: Updated to decrement community library count when users remove books from their personal library
 
 ### 🎯 Benefits
