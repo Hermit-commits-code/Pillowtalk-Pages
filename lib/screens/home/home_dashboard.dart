@@ -6,6 +6,7 @@ import '../../models/user_book.dart';
 import '../../services/user_library_service.dart';
 import '../../services/reading_analytics_service.dart';
 import '../../services/pro_status_service.dart';
+import '../../services/reading_streak_service.dart';
 import '../../widgets/analytics/analytics_dashboard_widgets.dart';
 
 class HomeDashboard extends StatefulWidget {
@@ -19,6 +20,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   final UserLibraryService _userLibraryService = UserLibraryService();
   final ReadingAnalyticsService _analyticsService = ReadingAnalyticsService();
   final ProStatusService _proStatusService = ProStatusService();
+  final ReadingStreakService _streakService = ReadingStreakService();
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,16 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     const SizedBox(height: 20),
                   ],
 
+                  // Your Trending Tropes Section
+                  _buildTrendingTropes(books, theme),
+
+                  const SizedBox(height: 20),
+
+                  // Reading Streak Tracker
+                  _buildStreakTracker(books, theme),
+
+                  const SizedBox(height: 20),
+
                   // Analytics Dashboard
                   AnalyticsDashboard(
                     stats: stats,
@@ -119,6 +131,199 @@ class _HomeDashboardState extends State<HomeDashboard> {
           },
         );
       },
+    );
+  }
+
+  /// Builds the "Your Trending Tropes" section showing tropes from recently read books
+  Widget _buildTrendingTropes(List<UserBook> books, ThemeData theme) {
+    // Calculate trending tropes from books read/updated in last 60 days
+    final now = DateTime.now();
+    final sixtyDaysAgo = now.subtract(const Duration(days: 60));
+
+    // Get books finished or updated recently
+    final recentBooks = books.where((book) {
+      if (book.dateFinished != null &&
+          book.dateFinished!.isAfter(sixtyDaysAgo)) {
+        return true;
+      }
+      if (book.dateStarted != null && book.dateStarted!.isAfter(sixtyDaysAgo)) {
+        return true;
+      }
+      return false;
+    }).toList();
+
+    // Count trope frequency
+    final Map<String, int> tropeCount = {};
+    for (final book in recentBooks) {
+      for (final trope in book.userSelectedTropes) {
+        tropeCount[trope] = (tropeCount[trope] ?? 0) + 1;
+      }
+    }
+
+    // Sort by frequency and take top 7
+    final trendingTropes = tropeCount.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final topTropes = trendingTropes.take(7).toList();
+
+    if (topTropes.isEmpty) {
+      return const SizedBox.shrink(); // Don't show if no trending tropes
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Icon(Icons.trending_up, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Your Trending Tropes',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            'Based on your last 60 days of reading',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: topTropes.map((entry) {
+              return ActionChip(
+                label: Text('${entry.key} (${entry.value})'),
+                avatar: CircleAvatar(
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Text(
+                    '${entry.value}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  // Future enhancement: filter/search by trope
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Showing books with "${entry.key}"'),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                },
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the Reading Streak Tracker widget
+  Widget _buildStreakTracker(List<UserBook> books, ThemeData theme) {
+    final currentStreak = _streakService.calculateCurrentStreak(books);
+    final bestStreak = _streakService.calculateBestStreak(books);
+
+    if (currentStreak == 0 && bestStreak == 0) {
+      return const SizedBox.shrink(); // Don't show if no streak
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Card(
+        elevation: 2,
+        color: Colors.orange.shade50,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              // Fire emoji for streak
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.local_fire_department,
+                  color: Colors.deepOrange,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Reading Streak',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$currentStreak day${currentStreak != 1 ? 's' : ''} in a row!',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: Colors.deepOrange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (bestStreak > currentStreak) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Best: $bestStreak days',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (currentStreak > 0)
+                Column(
+                  children: [
+                    Icon(
+                      Icons.emoji_events,
+                      color: currentStreak >= 7
+                          ? Colors.amber
+                          : currentStreak >= 3
+                          ? Colors.grey.shade400
+                          : Colors.brown.shade300,
+                      size: 40,
+                    ),
+                    Text(
+                      currentStreak >= 7
+                          ? 'On Fire!'
+                          : currentStreak >= 3
+                          ? 'Keep Going!'
+                          : 'Getting Started',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

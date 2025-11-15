@@ -14,6 +14,7 @@ import '../../services/audible_affiliate_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/hard_stops_service.dart';
 import '../../services/kink_filter_service.dart';
+import '../../services/reading_streak_service.dart';
 import '../../services/theme_provider.dart';
 import '../../services/user_library_service.dart';
 import '../../models/user_book.dart';
@@ -439,6 +440,164 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Build the Reading Streak Tracker widget
+  Widget _buildStreakTracker(BuildContext context, String userId) {
+    final theme = Theme.of(context);
+    final streakService = ReadingStreakService();
+
+    return StreamBuilder<List<UserBook>>(
+      stream: UserLibraryService().getUserLibraryStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final books = snapshot.data!;
+        final currentStreak = streakService.calculateCurrentStreak(books);
+        final bestStreak = streakService.calculateBestStreak(books);
+
+        if (currentStreak == 0 && bestStreak == 0) {
+          return const SizedBox.shrink();
+        }
+
+        return Card(
+          elevation: 2,
+          color: Colors.orange.shade50,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.local_fire_department,
+                        color: Colors.deepOrange,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Reading Streak',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          '$currentStreak',
+                          style: theme.textTheme.displaySmall?.copyWith(
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Current Streak',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          'day${currentStreak != 1 ? 's' : ''}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      width: 1,
+                      height: 60,
+                      color: Colors.grey.shade300,
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          '$bestStreak',
+                          style: theme.textTheme.displaySmall?.copyWith(
+                            color: Colors.amber.shade700,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Best Streak',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          'day${bestStreak != 1 ? 's' : ''}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                if (currentStreak > 0) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.emoji_events,
+                          color: currentStreak >= 7
+                              ? Colors.amber
+                              : currentStreak >= 3
+                                  ? Colors.grey.shade400
+                                  : Colors.brown.shade300,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            currentStreak >= 7
+                                ? 'You\'re on fire! Keep up the amazing streak! 🔥'
+                                : currentStreak >= 3
+                                    ? 'Great progress! Keep going!'
+                                    : 'Nice start! Keep reading to build your streak.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildPreferenceRow(
     BuildContext context, {
     required IconData icon,
@@ -541,6 +700,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           // My Preferences Summary Section
           _buildPreferencesSummary(context, userId),
+
+          const SizedBox(height: 16),
+
+          // Reading Streak Tracker
+          _buildStreakTracker(context, userId),
 
           const SizedBox(height: 32),
           Text('Settings', style: theme.textTheme.titleMedium),

@@ -698,6 +698,86 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             ),
             const SizedBox(height: 24),
 
+            // --- LIBRARIAN SUMMARY (What Should I Know?) ---
+            Text('What Should I Know?', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Card(
+              color: Colors.purple.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.purple.shade700,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Librarian Summary',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Placeholder content - will be replaced with actual librarian-curated data
+                    Text(
+                      'Curated content coming soon! Librarians will provide:',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '• Spice level details and scene descriptions\n'
+                      '• Key themes and tropes\n'
+                      '• Important content warnings\n'
+                      '• Emotional intensity information\n'
+                      '• POV and narrative style notes',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.purple.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline,
+                            size: 16,
+                            color: Colors.purple.shade700,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'This helps you know what to expect before diving in!',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.purple.shade900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // --- GENRE TAGS (read-only display) ---
             Text('Your Genre Tags', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),

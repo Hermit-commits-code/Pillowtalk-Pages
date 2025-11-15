@@ -1,6 +1,7 @@
 // lib/screens/librarian/librarian_asin_screen.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/user_book.dart';
 
@@ -116,12 +117,10 @@ class _LibrarianAsinScreenState extends State<LibrarianAsinScreen> {
                       onTap: hasASIN
                           ? null
                           : () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Open book details to add ASIN (not implemented)',
-                                  ),
-                                ),
+                              // Navigate to book detail screen to allow adding ASIN
+                              context.push(
+                                '/book/${book.bookId}',
+                                extra: {'userBook': book},
                               );
                             },
                     ),

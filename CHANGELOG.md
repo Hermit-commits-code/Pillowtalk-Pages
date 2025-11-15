@@ -5,6 +5,41 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-11-15
+
+### ✨ Added - Week 3-4 UI_MAGPIE Features
+
+- **Librarian Summary Section (Book Detail)**: Added "What Should I Know?" card to book detail page with purple accent styling. Displays placeholder for future librarian-curated content including:
+  - Spice level details and scene descriptions
+  - Key themes and tropes
+  - Important content warnings
+  - Emotional intensity information
+  - POV and narrative style notes
+  
+- **Your Trending Tropes (Homepage)**: New section showing user's trending tropes from the last 60 days of reading:
+  - Displays top 7 most-read tropes as interactive chips
+  - Shows count badge for each trope indicating frequency
+  - Positioned between "Continue Reading" and Analytics Dashboard
+  - Only appears if user has recent reading activity with tropes
+  
+- **Reading Streak Tracker**: Implemented comprehensive streak tracking system across both homepage and profile:
+  - New `ReadingStreakService` calculates current and best streaks based on book activity (dateAdded, dateStarted, dateFinished)
+  - Homepage displays compact streak card with fire emoji, current streak, and achievement badge (Getting Started / Keep Going / On Fire!)
+  - Profile shows detailed streak card with side-by-side current vs. best streak comparison
+  - Motivational messages based on streak length
+  - Only shows when user has active streak data
+
+### 🔧 Fixed
+
+- **ASIN Verification Navigation**: Fixed "Open book details to add ASIN (not implemented)" error in librarian ASIN verification screen. Clicking books without ASIN now navigates to book detail page where ASIN can be added via edit modal.
+
+### 📊 Improved
+
+- **UI_MAGPIE compliance**: Increased from ~75% to ~90% by completing Week 3-4 high-priority features:
+  - ✅ Librarian Summary Section (new)
+  - ✅ Your Trending Tropes (new)
+  - ✅ Reading Streak Tracker (new)
+
 ## [1.2.3] - 2025-11-15
 
 ### 🔧 Fixed
