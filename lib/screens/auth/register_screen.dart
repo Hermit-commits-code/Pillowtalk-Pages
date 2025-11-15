@@ -14,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _displayNameController = TextEditingController();
@@ -24,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _displayNameController.dispose();
@@ -39,6 +41,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = true;
     });
     try {
+      // Normalize username (lowercase, trimmed)
+      final rawUsername = _usernameController.text.trim();
+      final normalizedUsername = rawUsername.isEmpty ? null : rawUsername.toLowerCase();
+
+      // If a username was provided, check for uniqueness client-side.
+      if (normalizedUsername != null) {
+        final existing = await FirebaseFirestore.instance
+            .collection('users')
+            .where('username', isEqualTo: normalizedUsername)
+            .limit(1)
+            .get();
+        if (existing.docs.isNotEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Username already taken. Please choose another.')),
+            );
+            setState(() => _isLoading = false);
+          }
+          return;
+        }
+      }
+
       final credential = await AuthService.instance
           .createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
@@ -53,6 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .set({
             'email': _emailController.text.trim(),
             'displayName': _displayNameController.text.trim(),
+            'username': normalizedUsername,
             'isPro': false,
             'createdAt': FieldValue.serverTimestamp(),
             'totalBooksTracked': 0,
@@ -132,6 +157,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
+                  TextFormField(
+                    controller: _usernameController,
+                    style: theme.textTheme.bodyLarge,
+                    decoration: InputDecoration(
+                      labelText: 'Username (optional)',
+                      labelStyle: theme.textTheme.bodyMedium,
+                      prefixIcon: Icon(
+                        Icons.alternate_email,
+                        color: theme.colorScheme.primary,
+                      ),
+                      helperText: 'Choose a short unique username (no @ required)',
+                    ),
+                      validator: (value) {
+                        if (value == null) return null;
+                        final v = value.trim();
+                        if (v.isEmpty) return null; // optional
+                        if (v.length < 3 || v.length > 24) return 'Username must be 3-24 chars';
+                        if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(v)) return 'Username must contain only letters, numbers, - or _';
+                        return null;
+                      },
+                  ),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _displayNameController,
                     style: theme.textTheme.bodyLarge,
