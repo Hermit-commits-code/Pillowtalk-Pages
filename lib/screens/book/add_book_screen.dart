@@ -287,8 +287,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       // STEP 1: Ensure book exists in community catalog (/books collection)
       // This allows all users to contribute to the shared book database
+      bool wasNewBook = false;
       try {
-        await CommunityBookService.instance.ensureBookExists(
+        final result = await CommunityBookService.instance.ensureBookExists(
           bookId: book.id,
           title: book.title,
           authors: book.authors,
@@ -300,6 +301,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           tropes: _selectedTropes,
           incrementLibraryCount: true,
         );
+        wasNewBook = result['wasNewlyCreated'] as bool? ?? false;
       } catch (e) {
         // Log but don't block - community catalog update is non-critical
         debugPrint('Failed to update community catalog: $e');
@@ -339,7 +341,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
               Text('Added "${book.title}" to your library'),
               const SizedBox(height: 4),
               Text(
-                '✨ You helped build our community database!',
+                wasNewBook
+                    ? "📚 That's a new book to us! Please add details to help our library grow!"
+                    : '✨ You helped build our community database!',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.white.withOpacity(0.9),
@@ -347,7 +351,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               ),
             ],
           ),
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 4),
         ),
       );
       context.pop();

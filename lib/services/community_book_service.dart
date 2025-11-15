@@ -24,8 +24,8 @@ class CommunityBookService {
   /// If the book doesn't exist, creates it with metadata from the source.
   /// If it exists, optionally increments the addedToLibrariesCount.
   /// 
-  /// Returns the bookId that was created or found.
-  Future<String> ensureBookExists({
+  /// Returns a map with 'bookId' and 'wasNewlyCreated' boolean.
+  Future<Map<String, dynamic>> ensureBookExists({
     required String bookId,
     required String title,
     required List<String> authors,
@@ -74,6 +74,7 @@ class CommunityBookService {
 
         await bookRef.set(bookData);
         debugPrint('Successfully created community book: $bookId');
+        return {'bookId': bookId, 'wasNewlyCreated': true};
       } else if (incrementLibraryCount) {
         // Book exists - increment library count
         debugPrint('Incrementing library count for existing book: $title');
@@ -82,12 +83,12 @@ class CommunityBookService {
         });
       }
 
-      return bookId;
+      return {'bookId': bookId, 'wasNewlyCreated': false};
     } catch (e) {
       debugPrint('CommunityBookService.ensureBookExists failed: $e');
       // Still return the bookId even if community catalog update fails
       // This prevents blocking the user's add-to-library flow
-      return bookId;
+      return {'bookId': bookId, 'wasNewlyCreated': false};
     }
   }
 
