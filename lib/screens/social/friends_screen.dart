@@ -61,7 +61,8 @@ class _FriendsScreenState extends State<FriendsScreen>
       // first, then try `users_by_username/{normalizedUsername}`. These
       // mapping docs avoid client-side queries against large `users`
       // collections which might be restricted by rules.
-      String normalizeEmail(String e) => e.toLowerCase().trim().replaceAll('.', ',');
+      String normalizeEmail(String e) =>
+          e.toLowerCase().trim().replaceAll('.', ',');
       String normalizeUsername(String u) => u.toLowerCase().trim();
 
       String? targetUid;
@@ -445,16 +446,36 @@ class _FriendTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        child: Text(friend.friendId.substring(0, 2).toUpperCase()),
-      ),
-      title: Text('Friend'),
-      subtitle: Text(
-        'Added ${friend.acceptedAt != null ? _formatDate(friend.acceptedAt!) : 'recently'}',
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
+    // Fetch the friend's username and displayName from Firestore
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('users')
+          .doc(friend.friendId)
+          .get(),
+      builder: (context, snapshot) {
+        String displayName = 'Friend';
+        String? username;
+
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData &&
+            snapshot.data != null) {
+          final userData = snapshot.data!.data() as Map<String, dynamic>?;
+          displayName = userData?['displayName'] as String? ?? 'Friend';
+          username = userData?['username'] as String?;
+        }
+
+        return ListTile(
+          leading: CircleAvatar(
+            child: Text(displayName.substring(0, 1).toUpperCase()),
+          ),
+          title: Text(username != null ? '@$username' : displayName),
+          subtitle: Text(
+            'Added ${friend.acceptedAt != null ? _formatDate(friend.acceptedAt!) : 'recently'}',
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: onTap,
+        );
+      },
     );
   }
 
