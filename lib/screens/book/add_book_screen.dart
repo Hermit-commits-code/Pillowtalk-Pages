@@ -331,7 +331,24 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Added "${book.title}" to your library')),
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Added "${book.title}" to your library'),
+              const SizedBox(height: 4),
+              Text(
+                '✨ You helped build our community database!',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 3),
+        ),
       );
       context.pop();
     } on ProUpgradeRequiredException catch (e) {

@@ -5,6 +5,16 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-11-15
+
+### 🔧 Improved
+
+- **Add Book Success Message**: Enhanced success notification when adding books to celebrate community contribution:
+  - Primary message: "Added [Book Title] to your library"
+  - Secondary message: "✨ You helped build our community database!"
+  - Encourages user engagement by highlighting their positive contribution
+  - Extended duration (3 seconds) for better readability
+
 ## [1.4.0] - 2025-11-15
 
 ### ✨ Added - Community Book Catalog System
