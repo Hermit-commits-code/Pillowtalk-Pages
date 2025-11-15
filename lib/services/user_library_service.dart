@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show debugPrint;
 import '../models/user_book.dart';
 import 'pro_status_service.dart';
 import 'pro_exceptions.dart';
+import 'community_book_service.dart';
 
 class UserLibraryService {
   /// Optional override for the current user id. Useful for single-user
@@ -112,7 +113,29 @@ class UserLibraryService {
   }
 
   Future<void> removeBook(String userBookId) async {
-    await _libraryRef.doc(userBookId).delete();
+    // Get the book details before deletion to extract bookId
+    try {
+      final bookDoc = await _libraryRef.doc(userBookId).get();
+      if (bookDoc.exists) {
+        final bookData = bookDoc.data();
+        final bookId = bookData?['bookId'] as String?;
+        
+        // Delete from personal library
+        await _libraryRef.doc(userBookId).delete();
+        
+        // Decrement community catalog count
+        if (bookId != null) {
+          await CommunityBookService.instance.decrementLibraryCount(bookId);
+        }
+      } else {
+        // Book doesn't exist, just try to delete anyway
+        await _libraryRef.doc(userBookId).delete();
+      }
+    } catch (e) {
+      debugPrint('Error removing book: $e');
+      // Still attempt deletion even if community update fails
+      await _libraryRef.doc(userBookId).delete();
+    }
   }
 
   /// Get the total number of books in the user's library

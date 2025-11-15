@@ -5,6 +5,45 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-11-15
+
+### ✨ Added - Community Book Catalog System
+
+- **Community Book Catalog**: Implemented organic community-driven book database where ALL users contribute:
+  - When any user (Free, Pro, or Librarian) adds a book, it's automatically added to the `/books` community catalog if it doesn't already exist
+  - Prevents duplicate entries - checks for existing books before creating new ones
+  - Tracks `addedToLibrariesCount` metric showing how many users have added each book
+  - Users maintain full control of their personal library - can delete books anytime without affecting the community catalog
+  
+- **CommunityBookService Enhancements**:
+  - New `ensureBookExists()` method creates books in community catalog with metadata from Google Books API
+  - Automatically increments `addedToLibrariesCount` when users add existing books
+  - New `decrementLibraryCount()` method tracks when users remove books from personal libraries
+  - Non-blocking design - community catalog updates don't prevent personal library operations
+  
+- **Enhanced Firestore Rules**:
+  - Updated `/books` collection rules to allow authenticated users to CREATE new book entries
+  - Librarians and admins can UPDATE books for curation (adding ASIN, librarian summaries, etc.)
+  - Only admins can DELETE books
+  - Field validation ensures required fields (title, authors, id) are present on creation
+
+### 🔧 Improved
+
+- **Add Book Flow**: Seamlessly integrates community catalog creation into existing add book workflow:
+  - Step 1: Check/create book in community catalog
+  - Step 2: Add to personal library
+  - Graceful error handling - personal library operations succeed even if community update fails
+  
+- **Remove Book Flow**: Updated to decrement community library count when users remove books from their personal library
+
+### 🎯 Benefits
+
+- **Organic Database Growth**: Every book added by any user builds the shared catalog naturally
+- **Community Discovery**: Users can see how many other readers have added each book (`addedToLibrariesCount`)
+- **Foundation for Social Features**: Sets groundwork for trope voting, community ratings, and trending books
+- **No Data Loss**: Personal ratings, notes, and preferences stay private in user's library
+- **All Users Contribute**: Free users, Pro users, and Librarians all contribute equally to building the catalog
+
 ## [1.3.0] - 2025-11-15
 
 ### ✨ Added - Week 3-4 UI_MAGPIE Features
@@ -15,13 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Important content warnings
   - Emotional intensity information
   - POV and narrative style notes
-  
 - **Your Trending Tropes (Homepage)**: New section showing user's trending tropes from the last 60 days of reading:
   - Displays top 7 most-read tropes as interactive chips
   - Shows count badge for each trope indicating frequency
   - Positioned between "Continue Reading" and Analytics Dashboard
   - Only appears if user has recent reading activity with tropes
-  
 - **Reading Streak Tracker**: Implemented comprehensive streak tracking system across both homepage and profile:
   - New `ReadingStreakService` calculates current and best streaks based on book activity (dateAdded, dateStarted, dateFinished)
   - Homepage displays compact streak card with fire emoji, current streak, and achievement badge (Getting Started / Keep Going / On Fire!)

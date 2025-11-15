@@ -539,10 +539,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          'Best Streak',
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                        Text('Best Streak', style: theme.textTheme.bodyMedium),
                         Text(
                           'day${bestStreak != 1 ? 's' : ''}',
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -569,8 +566,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: currentStreak >= 7
                               ? Colors.amber
                               : currentStreak >= 3
-                                  ? Colors.grey.shade400
-                                  : Colors.brown.shade300,
+                              ? Colors.grey.shade400
+                              : Colors.brown.shade300,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -579,8 +576,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             currentStreak >= 7
                                 ? 'You\'re on fire! Keep up the amazing streak! 🔥'
                                 : currentStreak >= 3
-                                    ? 'Great progress! Keep going!'
-                                    : 'Nice start! Keep reading to build your streak.',
+                                ? 'Great progress! Keep going!'
+                                : 'Nice start! Keep reading to build your streak.',
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.w500,
                             ),

@@ -10,13 +10,29 @@ service cloud.firestore {
       );
     }
 
-    // Pre-seeded books collection - make metadata publicly readable.
+    // Community books collection - publicly readable catalog.
     // Books are considered catalog metadata and can be read by any client.
+    // Authenticated users can create new books (from add book flow).
+    // Librarians can update/curate. Admins can delete.
     match /books/{bookId} {
-      // Public read for book metadata. If you want to restrict access to
-      // book documents, change this condition accordingly.
+      // Public read for book metadata
       allow read: if true;
-      allow create, update, delete: if false; // Prevent client-side modifications
+      
+      // Allow authenticated users to CREATE new books when adding to their library
+      // Validate that required fields are present
+      allow create: if request.auth != null && 
+                       request.resource.data.keys().hasAll(['title', 'authors', 'id']) &&
+                       request.resource.data.title is string &&
+                       request.resource.data.authors is list;
+      
+      // Allow librarians and admins to UPDATE books (for curation)
+      allow update: if request.auth != null && (
+                       request.auth.token.librarian == true ||
+                       request.auth.token.admin == true
+                    );
+      
+      // Only admins can delete
+      allow delete: if isAdmin();
     }
 
     // Curated collections - visibility-based read rules.

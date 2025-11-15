@@ -10,6 +10,7 @@ import '../../models/book_model.dart';
 import '../../models/user_book.dart';
 import '../../services/google_books_service.dart';
 import '../../services/user_library_service.dart';
+import '../../services/community_book_service.dart';
 import '../../services/pro_exceptions.dart';
 import '../../services/lists_service.dart';
 import '../../services/analytics_service.dart';
@@ -284,6 +285,27 @@ class _AddBookScreenState extends State<AddBookScreen> {
             : null,
       );
 
+      // STEP 1: Ensure book exists in community catalog (/books collection)
+      // This allows all users to contribute to the shared book database
+      try {
+        await CommunityBookService.instance.ensureBookExists(
+          bookId: book.id,
+          title: book.title,
+          authors: book.authors,
+          imageUrl: book.imageUrl,
+          description: book.description,
+          publishedDate: book.publishedDate,
+          pageCount: book.pageCount,
+          genres: _selectedGenres,
+          tropes: _selectedTropes,
+          incrementLibraryCount: true,
+        );
+      } catch (e) {
+        // Log but don't block - community catalog update is non-critical
+        debugPrint('Failed to update community catalog: $e');
+      }
+
+      // STEP 2: Add to personal library
       final userLib = widget.userLibraryService ?? UserLibraryService();
       await userLib.addBook(userBook);
 

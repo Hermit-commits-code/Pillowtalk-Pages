@@ -20,6 +20,91 @@ class CommunityBookService {
   CollectionReference<Map<String, dynamic>> get _booksRef =>
       _firestore.collection('books');
 
+  /// Ensures a book exists in the community catalog (/books collection).
+  /// If the book doesn't exist, creates it with metadata from the source.
+  /// If it exists, optionally increments the addedToLibrariesCount.
+  /// 
+  /// Returns the bookId that was created or found.
+  Future<String> ensureBookExists({
+    required String bookId,
+    required String title,
+    required List<String> authors,
+    String? imageUrl,
+    String? description,
+    String? publishedDate,
+    int? pageCount,
+    List<String> genres = const [],
+    List<String> tropes = const [],
+    List<String> warnings = const [],
+    bool incrementLibraryCount = true,
+  }) async {
+    try {
+      final bookRef = _booksRef.doc(bookId);
+      final bookSnapshot = await bookRef.get();
+
+      if (!bookSnapshot.exists) {
+        // Book doesn't exist - create it
+        debugPrint('Creating new community book: $title');
+        
+        final bookData = {
+          'id': bookId,
+          'isbn': '', // Will be populated later if available
+          'title': title,
+          'authors': authors,
+          'imageUrl': imageUrl,
+          'description': description,
+          'publishedDate': publishedDate,
+          'pageCount': pageCount,
+          'genres': genres,
+          'cachedTopWarnings': warnings,
+          'cachedTropes': tropes,
+          'averageSpice': null,
+          'ratingCount': 0,
+          'isPreSeeded': false, // User-added books are not pre-seeded
+          'createdAt': FieldValue.serverTimestamp(),
+          // Community features
+          'communityRating': null,
+          'communityRatingCount': 0,
+          'trendingTags': <String>[],
+          'popularityScore': 0.0,
+          'addedToLibrariesCount': incrementLibraryCount ? 1 : 0,
+          'isTrending': false,
+          'tropeVotes': <String, int>{},
+        };
+
+        await bookRef.set(bookData);
+        debugPrint('Successfully created community book: $bookId');
+      } else if (incrementLibraryCount) {
+        // Book exists - increment library count
+        debugPrint('Incrementing library count for existing book: $title');
+        await bookRef.update({
+          'addedToLibrariesCount': FieldValue.increment(1),
+        });
+      }
+
+      return bookId;
+    } catch (e) {
+      debugPrint('CommunityBookService.ensureBookExists failed: $e');
+      // Still return the bookId even if community catalog update fails
+      // This prevents blocking the user's add-to-library flow
+      return bookId;
+    }
+  }
+
+  /// Decrements the library count when a user removes a book from their library
+  Future<void> decrementLibraryCount(String bookId) async {
+    try {
+      final bookRef = _booksRef.doc(bookId);
+      await bookRef.update({
+        'addedToLibrariesCount': FieldValue.increment(-1),
+      });
+      debugPrint('Decremented library count for book: $bookId');
+    } catch (e) {
+      debugPrint('CommunityBookService.decrementLibraryCount failed: $e');
+      // Non-critical error - don't block removal from personal library
+    }
+  }
+
   /// Discover books by mood/search query with advanced filtering
   /// Perfect for "I'm in the mood for werewolf books" workflows
   Future<List<CommunityBook>> discoverBooks({
