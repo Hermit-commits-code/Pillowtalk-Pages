@@ -10,6 +10,7 @@ import 'config/router.dart';
 import 'firebase_options.dart';
 import 'services/theme_provider.dart';
 import 'services/auth_service.dart';
+import 'widgets/update_check_wrapper.dart';
 
 import 'dart:io' show Platform;
 
@@ -70,50 +71,54 @@ class AppRoot extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
-      child: FutureBuilder<User?>(
-        future: AuthService.instance.authStateChanges().first,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MaterialApp(
-              home: Scaffold(body: Center(child: CircularProgressIndicator())),
-            );
-          }
+      child: UpdateCheckWrapper(
+        child: FutureBuilder<User?>(
+          future: AuthService.instance.authStateChanges().first,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const MaterialApp(
+                home: Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            }
 
-          final user = snapshot.data;
-          if (user == null) {
-            return const SpicyReadsApp();
-          }
-
-          // If the user hasn't completed onboarding, show the onboarding flow first.
-          return FutureBuilder<DocumentSnapshot?>(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(user.uid)
-                .get()
-                .then((d) => d),
-            builder: (context, snap2) {
-              if (snap2.connectionState == ConnectionState.waiting) {
-                return const MaterialApp(
-                  home: Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  ),
-                );
-              }
-
-              final doc = snap2.data;
-              final onboarding =
-                  (doc?.data() as Map<String, dynamic>?)?['onboarding']
-                      as Map<String, dynamic>?;
-              if (onboarding == null || onboarding['completedAt'] == null) {
-                return MaterialApp(
-                  home: Builder(builder: (c) => const OnboardingWrapper()),
-                );
-              }
-
+            final user = snapshot.data;
+            if (user == null) {
               return const SpicyReadsApp();
-            },
-          );
-        },
+            }
+
+            // If the user hasn't completed onboarding, show the onboarding flow first.
+            return FutureBuilder<DocumentSnapshot?>(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .get()
+                  .then((d) => d),
+              builder: (context, snap2) {
+                if (snap2.connectionState == ConnectionState.waiting) {
+                  return const MaterialApp(
+                    home: Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+
+                final doc = snap2.data;
+                final onboarding =
+                    (doc?.data() as Map<String, dynamic>?)?['onboarding']
+                        as Map<String, dynamic>?;
+                if (onboarding == null || onboarding['completedAt'] == null) {
+                  return MaterialApp(
+                    home: Builder(builder: (c) => const OnboardingWrapper()),
+                  );
+                }
+
+                return const SpicyReadsApp();
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -5,6 +5,24 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2025-11-15
+
+### ✨ Added
+
+- **In-App Update Notifications:**
+  - `UpdateService` checks for new versions from Firestore (`config/appUpdates`) and compares with current app version via `package_info_plus`.
+  - `UpdateNotificationBanner`: Dismissible top banner for optional updates (shows version, release notes, download link).
+  - `UpdateRequiredDialog`: Non-dismissible blocking dialog for required updates.
+  - `UpdateCheckWrapper`: Wraps root app to display appropriate notification on initialization.
+  - Manual update flow supports direct download links (GitHub Releases, APKs, alternative app stores).
+  - Comprehensive documentation at `docs/IN_APP_UPDATES.md`.
+
+### 🔧 Technical
+
+- Version comparison logic handles semantic versioning (X.Y.Z format).
+- Graceful error handling for missing Firestore data or URL launch failures.
+- Lint-free implementation with proper error logging and ignore directives.
+
 ## [1.5.1] - 2025-11-15
 
 ### ✨ Added
