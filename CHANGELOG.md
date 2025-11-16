@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.2] - 2025-11-15
 
+## [1.5.3] - 2025-11-16
+
+### 🔧 Fixed
+
+- **Friends: reciprocal accept & remove fixes**
+  - Ensured accepting a friend request performs the client-side two-doc batch correctly and updated Firestore rules to permit the reciprocal accepted document creation when required.
+  - `FriendsService.removeFriend` now deletes both sides of the friendship atomically with a Firestore batch so removing a friend no longer leaves a stale reciprocal entry.
+  - Added diagnostic logging around send/accept/remove flows to aid troubleshooting.
+
+### 📝 Notes
+
+- Deployed updated `firestore.rules` to allow the above client-side accept flow and verified the accept/remove flows on device.
+- No server-side Cloud Functions were introduced; this change keeps the flow client-driven with narrowly scoped rules.
+
+
 ### ✨ Added
 
 - **In-App Update Notifications:**
