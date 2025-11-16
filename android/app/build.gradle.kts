@@ -46,7 +46,11 @@ android {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = if (keystoreProperties.containsKey("storeFile")) file(keystoreProperties["storeFile"] as String) else null
+            storeFile = if (keystoreProperties.containsKey("storeFile")) {
+                rootProject.file(keystoreProperties["storeFile"] as String)
+            } else {
+                null
+            }
             storePassword = keystoreProperties["storePassword"] as String?
         }
     }
