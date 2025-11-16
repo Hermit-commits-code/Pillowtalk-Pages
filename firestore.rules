@@ -105,7 +105,17 @@ service cloud.firestore {
 
       // Allow the friend (sender) to create a friend document under the
       // recipient's friends collection (doc id == sender uid).
-      allow create: if request.auth != null && request.auth.uid == friendId;
+      // Also allow the recipient (owner) to create the reciprocal document
+      // when they are performing the accept action (setting status -> 'accepted').
+      // This permits the common client-side two-doc batch used when accepting
+      // a friend request without requiring server-side functions.
+      allow create: if request.auth != null && (
+        request.auth.uid == friendId ||
+        (
+          request.auth.uid == userId &&
+          request.resource.data.status == 'accepted'
+        )
+      );
 
       // Allow updates in two narrow cases:
       //  1) The owner (userId) may accept/decline a pending incoming request.
