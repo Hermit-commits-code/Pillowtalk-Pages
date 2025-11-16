@@ -38,6 +38,11 @@ class FriendsService {
           .doc(targetUserId)
           .set(friend.toFirestore());
     } catch (e) {
+      // Log detailed FirebaseException data when available for diagnostics
+      if (e is FirebaseException) {
+        // ignore: avoid_print
+        print('[Friends] FirebaseException code=${e.code} message=${e.message}');
+      }
       throw Exception('Failed to send friend request: $e');
     }
   }
@@ -52,6 +57,11 @@ class FriendsService {
     }
 
     try {
+      // Debug: ensure we know who is making the request
+      // ignore: avoid_print
+      print('[Friends] sendFriendRequestToUser: currentUser=$_currentUserId, target=$targetUserId');
+      // ignore: avoid_print
+      print('[Friends] auth current user (email): ${_auth.currentUser?.email}');
       final friend = Friend(
         friendId: _currentUserId,
         status: 'pending',
@@ -80,7 +90,16 @@ class FriendsService {
           .collection('friends')
           .doc(friendId);
 
+      // Debug: print the path we're going to read
+      // ignore: avoid_print
+      print('Accepting friend request at: ${friendRef.path}');
+
       final docSnapshot = await friendRef.get();
+      // Debug: dump snapshot existence and raw data for diagnostics
+      // ignore: avoid_print
+      print('Friend doc exists: ${docSnapshot.exists}');
+      // ignore: avoid_print
+      print('Friend doc data: ${docSnapshot.data()}');
       if (!docSnapshot.exists) {
         throw Exception('Friend request not found');
       }
@@ -119,8 +138,13 @@ class FriendsService {
       );
 
       await batch.commit();
-    } catch (e) {
-      throw Exception('Failed to accept friend request: $e');
+    } catch (e, st) {
+      // Log full stacktrace for diagnostics
+      // ignore: avoid_print
+      print('Failed to accept friend request: $e');
+      // ignore: avoid_print
+      print(st.toString());
+      throw Exception('Failed to accept friend request: ${e.toString()}');
     }
   }
 
