@@ -2,10 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if user is admin (developer email)
+    // Helper function to check if user is admin (developer email).
+    // Some auth tokens may not include the email field, so we also
+    // fallback to checking the user's document email field.
     function isAdmin() {
-      return request.auth != null && 
-             request.auth.token.email == 'hotcupofjoe2013@gmail.com';
+      return request.auth != null && (
+             // Preferred: email present in auth token
+             request.auth.token.email == 'hotcupofjoe2013@gmail.com' ||
+             // Fallback: check the user's profile document email
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.email == 'hotcupofjoe2013@gmail.com'
+      );
     }
     
     // Helper function to check if user is a librarian (from user doc)
@@ -67,9 +73,13 @@ service cloud.firestore {
     match /users/{userId} {
       // Allow any authenticated user to READ any user doc (public profile metadata)
       allow read: if request.auth != null;
-      // Allow only the user to create/update/delete their own top-level user doc
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update, delete: if request.auth != null && request.auth.uid == userId;
+      // Allow the user to create/update/delete their own top-level user doc.
+      // Also allow the admin (developer email) to write user docs so developer
+      // tools can toggle librarian/pro status without Cloud Functions.
+      // Using write (covers create, update, and set with merge) for flexibility
+      allow write: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
 
       // User's personal library (nested collection) - only the user can read/write
       // Allows updating fields like 'ownership', 'genres', 'tropes', 'warnings', etc.
@@ -84,23 +94,34 @@ service cloud.firestore {
     }
 
     // Social / Friends collection - per-user friendships
-    // Defined at top level (not nested under users) to avoid parent restrictions.
+    // This section permits the typical client-side friend request + accept
+    // flow without requiring server-side functions. It is intentionally
+    // narrowly scoped: only authenticated users may create friend documents
+    // and updates are allowed only for the owner or for the friend when
+    // transitioning a pending request to accepted/declined.
     match /users/{userId}/friends/{friendId} {
-      // Allow user to read their own friend requests and accepted friends
-      allow read: if request.auth != null && request.auth.uid == userId;
+      // Allow either party to read the friendship doc (owner or the friend)
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.uid == friendId);
 
-      // Allow any authenticated user to CREATE a friend request
-      // (write to someone else's friends collection)
-      allow create: if request.auth != null;
+      // Allow the friend (sender) to create a friend document under the
+      // recipient's friends collection (doc id == sender uid).
+      allow create: if request.auth != null && request.auth.uid == friendId;
 
-      // Allow user to UPDATE their own friend requests (accept/decline)
-      allow update: if request.auth != null && request.auth.uid == userId &&
-                       resource.data.status == 'pending' &&
-                       request.resource.data.status in ['accepted', 'declined'];
+      // Allow updates in two narrow cases:
+      //  1) The owner (userId) may accept/decline a pending incoming request.
+      //  2) The friend (friendId) may mark the recipient's copy as accepted
+      //     when performing a reciprocal update as part of a client-side
+      //     batch (this supports the atomic two-doc client batch used by
+      //     the app when accepting requests).
+      allow update: if request.auth != null && (
+        // Owner accepting/declining their incoming request
+        (request.auth.uid == userId && resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'declined'])
+        // Friend performing the reciprocal accept (pending -> accepted)
+        || (request.auth.uid == friendId && resource.data.status == 'pending' && request.resource.data.status == 'accepted')
+      );
 
-      // Allow user to DELETE their own friend requests, or the sender to cancel
-      allow delete: if request.auth != null && 
-                       (request.auth.uid == userId || request.auth.uid == friendId);
+      // Allow deletion by either side (owner or friend cancelling)
+      allow delete: if request.auth != null && (request.auth.uid == userId || request.auth.uid == friendId);
     }
 
     // Affiliate clicks tracking - authenticated write, read for owner or admin
