@@ -41,7 +41,9 @@ class FriendsService {
       // Log detailed FirebaseException data when available for diagnostics
       if (e is FirebaseException) {
         // ignore: avoid_print
-        print('[Friends] FirebaseException code=${e.code} message=${e.message}');
+        print(
+          '[Friends] FirebaseException code=${e.code} message=${e.message}',
+        );
       }
       throw Exception('Failed to send friend request: $e');
     }
@@ -59,7 +61,9 @@ class FriendsService {
     try {
       // Debug: ensure we know who is making the request
       // ignore: avoid_print
-      print('[Friends] sendFriendRequestToUser: currentUser=$_currentUserId, target=$targetUserId');
+      print(
+        '[Friends] sendFriendRequestToUser: currentUser=$_currentUserId, target=$targetUserId',
+      );
       // ignore: avoid_print
       print('[Friends] auth current user (email): ${_auth.currentUser?.email}');
       final friend = Friend(
@@ -68,12 +72,23 @@ class FriendsService {
         createdAt: DateTime.now(),
       );
 
-      await _firestore
+      final targetRef = _firestore
           .collection('users')
           .doc(targetUserId)
           .collection('friends')
-          .doc(_currentUserId)
-          .set(friend.toFirestore());
+          .doc(_currentUserId);
+
+      // Check if a friendship doc already exists to avoid performing an
+      // update that may be disallowed by rules (we only allow creating
+      // pending requests). If it exists, provide a clear error instead of
+      // attempting a write that will be rejected.
+      final existing = await targetRef.get();
+      if (existing.exists) {
+        final existingFriend = Friend.fromFirestore(existing);
+        throw Exception('Friend relationship already exists with status: ${existingFriend.status}');
+      }
+
+      await targetRef.set(friend.toFirestore());
     } catch (e) {
       throw Exception('Failed to send friend request: $e');
     }
