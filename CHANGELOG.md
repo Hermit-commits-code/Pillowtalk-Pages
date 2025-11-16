@@ -5,7 +5,23 @@ All notable changes to Spicy Reads will be documented in this file.
 the format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.2] - 2025-11-15
+## [1.5.1] - 2025-11-15
+
+### ✨ Added
+
+- **Community Book Detail View:**
+  - `BookDetailScreen` now supports dual mode via `isPersonalCopy` flag.
+  - Community view (Discover) prominently displays librarian summary, community content warnings, and community tropes; hides personal metadata.
+  - Personal view (Library) shows all personal metadata as before.
+- **Librarian Summary & Audit:**
+  - Librarians can now publish verified summaries via an editor modal on community books.
+  - When published, writes `librarianVerified`, `librarianSummary`, and audit record to `books/{bookId}/librarianAudits`.
+  - Non-librarian users do not see the editor; modal disappears after librarian validation.
+- **Migration Script:** `scripts/migrate_librarian_verified.js` for populating missing `librarianVerified` fields (supports `--sa=` flag, `--dry-run`, and ADC fallback).
+
+### 🔧 Fixed
+
+- Improved UX clarity: community books no longer show confusing "Your" fields when not yet saved to library.
 
 ## [1.5.0] - 2025-11-15
 
@@ -28,7 +44,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📝 Notes
 
 - Bumped package version to `1.5.0+0`.
-
 
 ### 🔒 Fixed
 
